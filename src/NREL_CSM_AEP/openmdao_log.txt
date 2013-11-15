@@ -1,0 +1,47 @@
+
+
+*********** BEGIN NEW LOG ************** (2013-11-15 11:02:04.166000) PID=1140
+
+Nov 15 11:02:05 E root: destination of passthrough must be a dotted path
+
+
+*********** BEGIN NEW LOG ************** (2013-11-15 11:03:10.507000) PID=4700
+
+Nov 15 11:03:11 E root: Can't find 'aep.gross_aep'
+Nov 15 11:03:11 E root: Can't connect 'aep.gross_aep' to 'gross_aep': : Can't find 'aep.gross_aep'
+
+
+*********** BEGIN NEW LOG ************** (2013-11-15 11:03:33.569000) PID=5784
+
+Nov 15 11:03:35 W driver: 'driver': workflow is empty!
+
+
+*********** BEGIN NEW LOG ************** (2013-11-15 11:03:53.352000) PID=8264
+
+Nov 15 11:03:54 W driver: 'driver': workflow is empty!
+
+
+*********** BEGIN NEW LOG ************** (2013-11-15 11:04:20.296000) PID=8028
+
+Nov 15 11:04:21 E aep: 'powerCurve' is already connected to source 'parent.powerCurve' and cannot be directly set
+
+
+*********** BEGIN NEW LOG ************** (2013-11-15 11:05:08.495000) PID=8420
+
+Nov 15 11:05:09 W driver: 'driver': workflow is empty!
+
+
+*********** BEGIN NEW LOG ************** (2013-11-15 11:06:35.244000) PID=5736
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-15 11:07:25.308000) PID=2688
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-15 11:07:46.289000) PID=9592
+
+
+
+*********** BEGIN NEW LOG ************** (2013-11-15 11:12:40.822000) PID=6584
+

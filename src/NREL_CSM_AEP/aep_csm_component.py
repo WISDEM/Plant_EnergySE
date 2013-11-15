@@ -34,10 +34,10 @@ class aep_csm_component(Component):
     turbineNumber = Int(100, iotype='in', desc = 'total number of wind turbines at the plant')
 
     # ------------- Outputs -------------- 
-
-    aep = Float(0.0, units= 'kW * h', iotype='out', desc='Annual energy production in kWh')  # use PhysicalUnits to set units='kWh'
-    capacityFactor = Float(0.0, iotype='out', desc= 'Annual capacity factor for a wind plant')
-    aepPerTurbine = Float(0.0, units = 'kW * h', iotype='out', desc = 'Annual energy production in kWh per turbine')
+    gross_aep = Float(0.0, iotype='out', desc='Gross Annual Energy Production before availability and loss impacts', unit='kWh')
+    net_aep = Float(0.0, units= 'kW * h', iotype='out', desc='Annual energy production in kWh')  # use PhysicalUnits to set units='kWh'
+    capacity_factor = Float(0.0, iotype='out', desc= 'Annual capacity factor for a wind plant')
+    aep_per_turbine = Float(0.0, units = 'kW * h', iotype='out', desc = 'Annual energy production in kWh per turbine')
 
 
     def __init__(self):
@@ -95,9 +95,10 @@ class aep_csm_component(Component):
 
         self.aepSim.compute(self.powerCurve, self.ratedPower, self.hubHeight, self.shearExponent, self.windSpeed50m, self.weibullK, self.soilingLosses, self.arrayLosses, self.availability)
 
-        self.aepPerTurbine = self.aepSim.getAEP()
-        self.aep = self.aepPerTurbine * self.turbineNumber
-        self.capacityFactor = self.aepSim.getCapacityFactor()
+        self.aep_per_turbine = self.aepSim.getAEP() 
+        self.net_aep = self.aepSim.getAEP() * self.turbineNumber
+        self.gross_aep = self.net_aep / (1 - self.arrayLosses)
+        self.capacity_factor = self.aepSim.getCapacityFactor()
 
 def example():
 

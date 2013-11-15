@@ -16,8 +16,11 @@ import xml.etree.ElementTree as ET
 
 from openmdao.main.api import Component, Assembly, VariableTree
 from openmdao.lib.datatypes.api import Float, Array, Int, VarTree
-from twister.fused_plant import GenericAEPModel, GenericWindTurbinePowerCurveDesc, GenericWindFarmTurbineLayout
-from twister.models.AEP.openWindExtCode import OWwrapped
+
+from fusedwind.plant_flow.fused_plant_asym import GenericAEPModel
+from fusedwind.plant_flow.fused_plant_vt import GenericWindTurbinePowerCurveVT, GenericWindFarmTurbineLayout
+
+from openWindExtCode import OWwrapped
 
 import wrtTurbXML
 from lxml import etree
@@ -27,7 +30,7 @@ import numpy as np
 
 #------------------------------------------------------------------
 
-class openwind_assembly(Assembly): # todo: has to be assembly or manipulation and passthrough of aep in execute doesnt work
+class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipulation and passthrough of aep in execute doesnt work
     """ Runs OpenWind from OpenMDAO framework """
 
     # Inputs
@@ -45,23 +48,21 @@ class openwind_assembly(Assembly): # todo: has to be assembly or manipulation an
 
     # Outputs
     #ideal_aep = Float(0.0, iotype='out', desc='Ideal Annual Energy Production before topographic, availability and loss impacts', unit='kWh')
-    #array_aep = Float(0.0, iotype='out', desc='Gross Annual Energy Production net of array impacts', unit='kWh')
-    #array_losses = Float(0.0, iotype='out', desc='Array Losses')
-    # while framework not working
-    #gross_aep = Float(0.0, iotype='out', desc='Gross Annual Energy Production before availability and loss impacts', unit='kWh')
-    #net_aep = Float(0.0, iotype='out', desc='Net Annual Energy Production after availability and loss impacts', unit='kWh')
-    #capacity_factor = Float(0.0, iotype='out', desc='Capacity factor for wind plant') # ??? generic or specific? will be easy to calculate, # P-E: OK
-
+    array_aep = Float(0.0, iotype='out', desc='Gross Annual Energy Production net of array impacts', unit='kWh')
+    array_losses = Float(0.0, iotype='out', desc='Array Losses')
 
     # -------------------
     
-    def __init__(self):
+    def __init__(self, owexe, blbpath, tname):
         """ Creates a new LCOE Assembly object """
 
+        self.owexe = owexe
+        self.blbpath = blbpath
+        self.tname = tname
         super(openwind_assembly, self).__init__()
 
         # TODO: hack for now assigning turbine
-        self.turb = GenericWindTurbinePowerCurveDesc()
+        self.turb = GenericWindTurbinePowerCurveVT()
         self.turb.power_rating = self.ratedPower
         self.turb.hub_height = self.hubHeight
         self.turb.power_curve = np.copy(self.powerCurve)
@@ -73,7 +74,7 @@ class openwind_assembly(Assembly): # todo: has to be assembly or manipulation an
 
         super(openwind_assembly, self).configure()        
         
-        ow = OWwrapped()
+        ow = OWwrapped(self.owexe)
         self.add('ow', ow)
         
         self.driver.workflow.add(['ow'])
@@ -82,11 +83,11 @@ class openwind_assembly(Assembly): # todo: has to be assembly or manipulation an
         self.connect('soilingLosses', 'ow.soilingLosses')
         self.connect('availability', 'ow.availability')
         
-        self.create_passthrough('ow.array_losses')
-        self.create_passthrough('ow.gross_aep')
-        self.create_passthrough('ow.array_aep')
-        self.create_passthrough('ow.net_aep')
-        #self.create_passthrough('ow.capacity_factor')
+        self.connect('ow.array_losses', 'array_losses')
+        self.connect('ow.gross_aep', 'gross_aep')
+        self.connect('ow.array_aep', 'array_aep')
+        self.connect('ow.net_aep', 'net_aep')
+        #self.connect('ow.capacity_factor', 'capacity_factor')
         
     # -------------------
     
@@ -131,16 +132,18 @@ class openwind_assembly(Assembly): # todo: has to be assembly or manipulation an
                                  xml_declaration=True,
                                  doctype='<!DOCTYPE {:}>'.format(trbname), 
                                  pretty_print=True)
+
+        thisdir = os.path.dirname(os.path.realpath(__file__))   
     
-        ofh = open('C:/Python27/Openmdao-0.7.0/twister/models/AEP/Turbine_Model.owtg', 'w')
+        ofh = open(thisdir + '/' + 'Turbine_Model.owtg', 'w')
         ofh.write(turbXML)
         ofh.close()
     
         # write new script for execution  
-        rpath = 'C:/Python27/Openmdao-0.7.0/twister/models/AEP/scrtest1.txt'
-        blbpath = 'C:/Python27/Openmdao-0.7.0/twister/models/AEP/OpenWind_Model.blb'
-        tname = 'NREL 5 MW'
-        tpath = 'C:/Python27/Openmdao-0.7.0/twister/models/AEP/Turbine_Model.owtg'
+        rpath = thisdir + '/' + 'scrtest1.txt'
+        blbpath = self.blbpath
+        tname = self.tname
+        tpath = thisdir + '/' + 'Turbine_Model.owtg'
     
         scripttree, ops = wrtScriptXML.getScriptTree(rpath)    
         # add operations to 'ops' (the 'AllOperations' tree in scripttree)
@@ -155,14 +158,17 @@ class openwind_assembly(Assembly): # todo: has to be assembly or manipulation an
                                    doctype='<!DOCTYPE OpenWindScript>',
                                    pretty_print=True)
         
-        ofh = open('C:/Python27/Openmdao-0.7.0/twister/models/AEP/OpenWind_Script.xml', 'w')
+        ofh = open(thisdir + '/' + 'OpenWind_Script.xml', 'w')
         ofh.write(scriptXML)
         ofh.close()
     
-        self.ow.scriptfile = 'C:/Python27/Openmdao-0.7.0/twister/models/AEP/OpenWind_Script.xml'
+        self.ow.scriptfile = thisdir + '/' + 'OpenWind_Script.xml'
 
         # will actually run the workflow
         super(openwind_assembly, self).execute()
+
+        # calculate capacity factor
+        self.capacity_factor = ((self.net_aep) / (self.wt_layout.wt_list[0].power_rating * 8760.0 * len(self.wt_layout.wt_list)))
         
     
 #------------------------------------------------------------------
@@ -170,8 +176,10 @@ class openwind_assembly(Assembly): # todo: has to be assembly or manipulation an
 if __name__ == "__main__":
 
     # simple test of module
-    
-    ow = openwind_assembly()
+    owExeV1130 = 'C:/Openwind/OpenWind64.exe'
+    blbpath = 'C:/OpenWind/Workbooks/OpenWind_Model.blb' # TODO - this should be an input
+    tname = 'NREL 5 MW'
+    ow = openwind_assembly(owExeV1130, blbpath, tname)
     
     ow.powerCurve = np.array([[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, \
                            11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0], \

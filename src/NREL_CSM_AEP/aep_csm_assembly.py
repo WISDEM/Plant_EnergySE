@@ -11,26 +11,18 @@ import numpy as np
 from openmdao.main.api import Component, Assembly, set_as_top, VariableTree
 from openmdao.main.datatypes.api import Int, Bool, Float, Array, VarTree
 
-from twister.models.csm.csmDriveEfficiency import DrivetrainEfficiencyModel
+from fusedwind.plant_flow.fused_plant_asym import GenericAEPModel
 
-from twister.components.drivetrain_csm_component import drive_csm_component
-from twister.components.aero_csm_component import aero_csm_component
-from twister.components.aep_csm_component import aep_csm_component
+from NREL_CSM.csmDriveEfficiency import DrivetrainEfficiencyModel
+from drivetrain_csm_component import drive_csm_component
+from aero_csm_component import aero_csm_component
+from aep_csm_component import aep_csm_component
 
-class aep_csm_assembly(Assembly):
+class aep_csm_assembly(GenericAEPModel):
 
     # ---- Design Variables ----------
-    
-    # Turbine configuration
-    # rotor
     ratedPower = Float(5000.0, units = 'kW', iotype='in', desc= 'rated machine power in kW')
-    # tower / substructure
     hubHeight = Float(90.0, units = 'm', iotype='in', desc='hub height of wind turbine above ground / sea level')
-
-    # See passthrough for additional variable
-
-    # ------------- Outputs -------------- 
-    # See passthrough variables below
 
     def __init__(self):
         """ 
@@ -44,48 +36,17 @@ class aep_csm_assembly(Assembly):
     def configure(self):
         ''' configures assembly by adding components, creating the workflow, and connecting the component i/o within the workflow '''
 
-        # Create assembly instances (mode swapping ocurrs here)
-        self.SelectComponents()
+        super(aep_csm_assembly, self).configure()
 
-        # Set up the workflow
-        self.WorkflowAdd()
-
-        # Connect the components
-        self.WorkflowConnect()
-    
-    def execute(self):
-
-        print "In {0}.execute()...".format(self.__class__)
-
-        super(aep_csm_assembly, self).execute()  # will actually run the workflow
-
-        pass
-        
-    
-    #------- Supporting methods --------------
-    
-    def SelectComponents(self):
-
-        drivec = drive_csm_component()
-        self.add('drive', drivec)
-        
-        aeroc = aero_csm_component()
-        self.add('aero',aeroc)
-        
-        aepc = aep_csm_component()
-        self.add('aep1',aepc)
-        
-    def WorkflowAdd(self):
+        self.add('drive', drive_csm_component())
+        self.add('aero',aero_csm_component())
+        self.add('aep1',aep_csm_component())
 
         self.driver.workflow.add(['drive', 'aero', 'aep1'])
 
-    def WorkflowConnect(self):
 
         # connect inputs to component inputs
-        # turbine configuration
-        # rotor
         self.connect('ratedPower', ['aero.ratedPower', 'aep1.ratedPower'])
-        # tower
         self.connect('hubHeight', ['aero.hubHeight', 'aep1.hubHeight'])
 
         # connect i/o between components
@@ -117,9 +78,20 @@ class aep_csm_assembly(Assembly):
         self.create_passthrough('aero.ratedWindSpeed')
         self.create_passthrough('aero.maxEfficiency')
         self.create_passthrough('aero.powerCurve')
-        self.create_passthrough('aep1.aep')
-        self.create_passthrough('aep1.aepPerTurbine')
-        self.create_passthrough('aep1.capacityFactor')
+
+        # outputs
+        self.connect('aep1.gross_aep', 'gross_aep')
+        self.connect('aep1.net_aep', 'net_aep')
+        self.connect('aep1.capacity_factor', 'capacity_factor')
+        self.create_passthrough('aep1.aep_per_turbine')
+    
+    def execute(self):
+
+        print "In {0}.execute()...".format(self.__class__)
+
+        super(aep_csm_assembly, self).execute()  # will actually run the workflow
+
+        pass
 
 if __name__=="__main__":
 
@@ -131,8 +103,9 @@ if __name__=="__main__":
     print "rated rotor speed: {0}".format(aepA.ratedRotorSpeed)
     print "rated wind speed: {0}".format(aepA.ratedWindSpeed)
     print "maximum efficiency: {0}".format(aepA.maxEfficiency)
-    print "annual energy production: {0}".format(aepA.aep)
-    print "annual energy production per turbine: {0}".format(aepA.aepPerTurbine)
-    print "capacity factor: {0}".format(aepA.capacityFactor)
+    print "gross annual energy production: {0}".format(aepA.gross_aep)
+    print "annual energy production: {0}".format(aepA.net_aep)
+    print "annual energy production per turbine: {0}".format(aepA.aep_per_turbine)
+    print "capacity factor: {0}".format(aepA.capacity_factor)
     print "Power Curve:"
     print aepA.powerCurve
