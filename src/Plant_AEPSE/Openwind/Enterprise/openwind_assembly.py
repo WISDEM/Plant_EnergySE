@@ -176,8 +176,8 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
 if __name__ == "__main__":
 
     # simple test of module
-    owExeV1130 = 'C:/Openwind/OpenWind64.exe'
-    blbpath = 'C:/OpenWind/Workbooks/OpenWind_Model.blb' # TODO - this should be an input
+    owExeV1130 = 'C:/Models/Openwind/OpenWind64.exe'
+    blbpath = 'C:/Models/OpenWind/Workbooks/OpenWind_Model.blb'
     tname = 'NREL 5 MW'
     ow = openwind_assembly(owExeV1130, blbpath, tname)
     
