@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='ASCII'?>
 <!DOCTYPE OpenWindScript>
 <OpenWindScript>
-  <!-- Written by wrtScriptXML.py on 2013-11-15 10:44:56.476000 -->
-  <ReportPath value="C:\Python27\openmdao-0.7.0\plant_aepSE\Plant_AEPSE\src\Plant_AEPSE\Openwind/scrtest1.txt"/>
+  <!-- Written by wrtScriptXML.py on 2013-11-17 12:02:58.132000 -->
+  <ReportPath value="c:\python27\openmdao-0.7.0\plant_aepse\plant_aepse\src\Plant_AEPSE\Openwind\Enterprise/scrtest1.txt"/>
   <AppendOperations value="Sideways"/>
   <SiteNameField value="true"/>
   <TurbineTypeField value="false"/>
@@ -20,12 +20,12 @@
   <AllOperations>
     <Operation>
       <Type value="Change Workbook"/>
-      <Path value="C:/OpenWind/Workbooks/OpenWind_Model.blb"/>
+      <Path value="C:/Models/OpenWind/Workbooks/OpenWind_Model.blb"/>
     </Operation>
     <Operation>
       <Type value="Replace Turbine Type"/>
       <TurbineName value="NREL 5 MW"/>
-      <TurbinePath value="C:\Python27\openmdao-0.7.0\plant_aepSE\Plant_AEPSE\src\Plant_AEPSE\Openwind/Turbine_Model.owtg"/>
+      <TurbinePath value="c:\python27\openmdao-0.7.0\plant_aepse\plant_aepse\src\Plant_AEPSE\Openwind\Enterprise/Turbine_Model.owtg"/>
     </Operation>
     <Operation>
       <Type value="Energy Capture"/>

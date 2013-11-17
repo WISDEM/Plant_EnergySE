@@ -93,7 +93,7 @@ class aep_csm_assembly(GenericAEPModel):
 
         pass
 
-if __name__=="__main__":
+def example():
 
     aepA = aep_csm_assembly()
     
@@ -109,3 +109,7 @@ if __name__=="__main__":
     print "capacity factor: {0}".format(aepA.capacity_factor)
     print "Power Curve:"
     print aepA.powerCurve
+
+if __name__=="__main__":
+
+    example()

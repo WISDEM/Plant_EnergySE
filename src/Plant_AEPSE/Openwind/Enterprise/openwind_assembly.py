@@ -173,7 +173,7 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
     
 #------------------------------------------------------------------
 
-if __name__ == "__main__":
+def example():
 
     # simple test of module
     owExeV1130 = 'C:/Models/Openwind/OpenWind64.exe'
@@ -194,3 +194,7 @@ if __name__ == "__main__":
     print 'Array losses {:.4f}'.format(ow.array_losses)
     print 'Net   {:.4f} kWh'.format(ow.net_aep)
     print 'CF    {:.4f} %'.format(ow.capacity_factor)
+
+if __name__ == "__main__":
+
+    example()

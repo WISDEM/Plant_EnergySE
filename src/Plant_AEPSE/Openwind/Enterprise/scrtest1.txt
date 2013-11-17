@@ -1,7 +1,7 @@
 
 Changing Workbook
-C:/OpenWind/Workbooks/OpenWind_Model.blb
-Replaced NREL 5 MW with C:\Python27\openmdao-0.7.0\plant_aepSE\Plant_AEPSE\src\Plant_AEPSE\Openwind/Turbine_Model.owtg
+C:/Models/OpenWind/Workbooks/OpenWind_Model.blb
+Replaced NREL 5 MW with c:\python27\openmdao-0.7.0\plant_aepse\plant_aepse\src\Plant_AEPSE\Openwind\Enterprise/Turbine_Model.owtg
 		Total Direction Steps=72	 	 	 	 	 	 	Total Direction Steps=72	 	 	 	 	 	 	
 		First Direction Step=0	 	 	 	 	 	 	First Direction Step=0	 	 	 	 	 	 	
 		Last Direction Step=71	 	 	 	 	 	 	Last Direction Step=71	 	 	 	 	 	 	
