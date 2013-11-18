@@ -11,13 +11,13 @@ import numpy as np
 from openmdao.main.api import Component, Assembly, set_as_top, VariableTree
 from openmdao.main.datatypes.api import Int, Bool, Float, Array, VarTree, Slot
 
-from twister.models.csm.csmDriveEfficiency import DrivetrainEfficiencyModel, csmDriveEfficiency
+from NREL_CSM.csmDriveEfficiency import DrivetrainEfficiencyModel, csmDriveEfficiency
 
 class drive_csm_component(Component):
 
     # ---- Design Variables ----------
     # Turbine configuration
-    drivetrainDesign = Int(1, iotype='in', desc= 'drivetrain design type 1 = 3-stage geared, 2 = single-stage geared, 3 = multi-generator, 4 = direct drive')
+    drivetrain_design = Int(1, iotype='in', desc= 'drivetrain design type 1 = 3-stage geared, 2 = single-stage geared, 3 = multi-generator, 4 = direct drive')
 
     # ------------- Outputs --------------  
     # Drivetrain Efficiency Model
@@ -25,11 +25,11 @@ class drive_csm_component(Component):
 
     def execute(self):
         """
-        OpenMDAO component to wrap drivetrain model fo the NREL Cost and Scaling Model (csmDriveEffiency.py)
+        OpenMDAO component to wrap drivetrain model fo the NREL _cost and Scaling Model (csmDriveEffiency.py)
 
         Parameters
         ----------
-        drivetrainDesign : int
+        drivetrain_design : int
           drivetrain design type 1 = 3-stage geared, 2 = single-stage geared, 3 = multi-generator, 4 = direct drive
     
         Returns
@@ -42,7 +42,7 @@ class drive_csm_component(Component):
 
         print "In {0}.execute()...".format(self.__class__)
          
-        self.drivetrain = csmDriveEfficiency(self.drivetrainDesign)
+        self.drivetrain = csmDriveEfficiency(self.drivetrain_design)
 
 def example():
   
