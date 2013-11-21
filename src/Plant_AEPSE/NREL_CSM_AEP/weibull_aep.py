@@ -29,11 +29,12 @@ class aep_weibull_assembly(GenericAEPModel):
         self.driver.workflow.add(['aep'])
         
         #inputs
-        #self.create_passthrough('aep.power_curve') #TODO - array issue openmdao
+        self.create_passthrough('aep.power_curve') #TODO - array issue openmdao
         self.create_passthrough('aep.machine_rating')
         self.create_passthrough('aep.hub_height')
         self.create_passthrough('aep.shear_exponent')
         self.create_passthrough('aep.wind_speed_50m')
+        self.create_passthrough('aep.weibull_k')
         self.create_passthrough('aep.soiling_losses')
         self.create_passthrough('aep.array_losses')
         self.create_passthrough('aep.availability')
