@@ -5,7 +5,6 @@ Created by NWTC Systems Engineering Sub-Task on 2012-08-01.
 Copyright (c) NREL. All rights reserved.
 """
 
-import sys, os, fileinput
 import numpy as np
 
 from openmdao.main.api import Component, Assembly, set_as_top, VariableTree
@@ -43,7 +42,6 @@ class aep_csm_assembly(GenericAEPModel):
         self.add('aep',aep_csm_component())
 
         self.driver.workflow.add(['drive', 'aero', 'aep'])
-
 
         # connect inputs to component inputs
         self.connect('machine_rating', ['aero.machine_rating', 'aep.machine_rating'])

@@ -5,13 +5,12 @@ Created by NWTC Systems Engineering Sub-Task on 2012-08-01.
 Copyright (c) NREL. All rights reserved.
 """
 
-import sys
 import numpy as np
 
 from openmdao.main.api import Component, Assembly, set_as_top, VariableTree
 from openmdao.main.datatypes.api import Int, Bool, Float, Array, VarTree, Slot
 
-from NREL_CSM.csmDriveEfficiency import DrivetrainEfficiencyModel, csmDriveEfficiency
+from csmDriveEfficiency import DrivetrainEfficiencyModel, csmDriveEfficiency
 
 class drive_csm_component(Component):
 
