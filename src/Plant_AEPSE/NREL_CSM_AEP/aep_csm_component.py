@@ -42,13 +42,13 @@ class aep_csm_component(Component):
     power_curve = Array(np.array([[0.0,0.0],[25.0,0.0]]),iotype='in', desc= 'turbine power curve [kw] as a function of wind speed [m/s]')
     hub_height = Float(90.0, units = 'm', iotype='in', desc='hub height of wind turbine above ground / sea level')
     shear_exponent = Float(0.1, iotype='in', desc= 'shear exponent for wind plant') #TODO - could use wind model here
-    wind_speed_50m = Float(8.02, units = 'm/s', iotype='in', desc='mean annual wind speed at 50 m height')
-    weibull_k= Float(2.15, iotype='in', desc = 'weibull shape factor for annual wind speed distribution')
+    wind_speed_50m = Float(8.35, units = 'm/s', iotype='in', desc='mean annual wind speed at 50 m height')
+    weibull_k= Float(2.1, iotype='in', desc = 'weibull shape factor for annual wind speed distribution')
 
     # Parameters
     soiling_losses = Float(0.0, iotype='in', desc = 'energy losses due to blade soiling for the wind plant - average across turbines')
-    array_losses = Float(0.10, iotype='in', desc = 'energy losses due to turbine interactions - across entire plant')
-    availability = Float(0.941, iotype='in', desc = 'average annual availbility of wind turbines at plant')
+    array_losses = Float(0.06, iotype='in', desc = 'energy losses due to turbine interactions - across entire plant')
+    availability = Float(0.94287630736, iotype='in', desc = 'average annual availbility of wind turbines at plant')
     turbine_number = Int(100, iotype='in', desc = 'total number of wind turbines at the plant')
 
     # Output

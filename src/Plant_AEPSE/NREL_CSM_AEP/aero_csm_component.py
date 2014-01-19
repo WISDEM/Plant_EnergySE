@@ -31,7 +31,7 @@ class aero_csm_component(Component):
 
     # Outputs
     rated_wind_speed = Float(11.506, units = 'm / s', iotype='out', desc='wind speed for rated power')
-    rated_rotor_speed = Float(12.10, units = 'rpm', iotype='out', desc = 'rotor speed at rated power')
+    rated_rotor_speed = Float(12.126, units = 'rpm', iotype='out', desc = 'rotor speed at rated power')
     power_curve = Array(np.array([[0,0],[25.0, 0.0]]), iotype='out', desc = 'power curve for a particular rotor')
     max_efficiency = Float(0.902, iotype='out', desc = 'maximum efficiency of rotor and drivetrain - at rated power')  
 

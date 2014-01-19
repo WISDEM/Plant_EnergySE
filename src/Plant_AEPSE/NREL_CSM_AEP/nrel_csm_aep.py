@@ -44,7 +44,7 @@ class aep_csm_assembly(GenericAEPModel):
         self.driver.workflow.add(['drive', 'aero', 'aep'])
 
         # connect inputs to component inputs
-        self.connect('machine_rating', ['aero.machine_rating', 'aep.machine_rating'])
+        self.connect('machine_rating', ['aero.machine_rating'])
         self.connect('hub_height', ['aero.hub_height', 'aep.hub_height'])
 
         # connect i/o between components
@@ -79,8 +79,8 @@ class aep_csm_assembly(GenericAEPModel):
         # outputs
         self.connect('aep.gross_aep', 'gross_aep')
         self.connect('aep.net_aep', 'net_aep')
-        self.connect('aep.capacity_factor', 'capacity_factor')
-        self.create_passthrough('aep.aep_per_turbine')
+        #self.connect('aep.capacity_factor', 'capacity_factor')
+        #self.create_passthrough('aep.aep_per_turbine')
     
     def execute(self):
 
