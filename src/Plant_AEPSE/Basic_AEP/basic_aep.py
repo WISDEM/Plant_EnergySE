@@ -60,6 +60,13 @@ class WeibullCDF(CDFBase):
     A = Float(iotype='in', desc='scale factor')
     k = Float(iotype='in', desc='shape or form factor')
 
+    def __init__(self):
+        
+        super(WeibullCDF,self).__init__()
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
+
     def execute(self):
 
         self.F = 1.0 - np.exp(-(self.x/self.A)**self.k)
@@ -68,21 +75,31 @@ class WeibullCDF(CDFBase):
         self.d_F_d_A = - np.exp(-(self.x/self.A)**self.k) * (1./self.x) * (self.k * ((self.A/self.x)**(-self.k-1.0)))
         self.d_F_d_k = - np.exp(-(self.x/self.A)**self.k) * -(self.x/self.A)**self.k * np.log(self.x/self.A)
     
-    def linearize(self):
-        
-        self.J = hstack((self.d_F_d_x, self.d_F_d_A, self.d_F_d_k))
-    
-    def provideJ(self):
-        
+    def list_deriv_vars(self):
+
         inputs = ('x', 'A', 'k')
         outputs = ('F')
         
-        return inputs, outputs, self.J
+        return inputs, outputs
+
+    
+    def provideJ(self):
+        
+        self.J = hstack((self.d_F_d_x, self.d_F_d_A, self.d_F_d_k))        
+        
+        return self.J
 
 class RayleighCDF(CDFBase):
     """Rayleigh cumulative distribution function"""
 
     xbar = Float(iotype='in', desc='mean value of distribution')
+    
+    def __init__(self):
+      
+        super(RayleighCDF,self).__init__()
+        
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
 
     def execute(self):
 
@@ -91,16 +108,18 @@ class RayleighCDF(CDFBase):
         self.d_F_d_x = np.diag(- np.exp(-np.pi/4.0*(self.x/self.xbar)**2) * ((-np.pi/2.0)*(self.x/self.xbar)) * (1.0 / self.xbar))
         self.d_F_d_xbar = - np.exp(-np.pi/4.0*(self.x/self.xbar)**2) * ((np.pi/2.0)*(self.xbar/self.x)**(-3)) * (1.0 / self.x)
 
-    def linearize(self):
-        
-        self.J = hstack((self.d_F_d_x, self.d_F_d_xbar))
-    
-    def provideJ(self):
+    def list_deriv_vars(self):
         
         inputs = ('x', 'xbar')
         outputs = ('F')
+
+        return inputs, outputs
+    
+    def provideJ(self):
         
-        return inputs, outputs, self.J
+        self.J = hstack((self.d_F_d_x, self.d_F_d_xbar))
+        
+        return self.J
 
 class aep_component(Component):
     """annual energy production"""
@@ -118,13 +137,28 @@ class aep_component(Component):
     # ------------- Outputs -------------- 
     gross_aep = Float(iotype='out', desc='Gross Annual Energy Production before availability and loss impacts', unit='kWh')
     net_aep = Float(iotype='out', desc='Net Annual Energy Production after availability and loss impacts', unit='kWh') 
+
+    def __init__(self):
+        
+        super(aep_component,self).__init__()
+
+        #controls what happens if derivatives are missing
+        self.missing_deriv_policy = 'assume_zero'
  
     def execute(self):
  
         self.gross_aep = self.turbine_number * np.trapz(self.power_curve, self.CDF_V)*365.0*24.0 # in kWh
         self.net_aep = self.availability * (1-self.array_losses) * (1-self.other_losses) * self.gross_aep
  
-    def linearize(self):
+    def list_deriv_vars(self):
+
+        inputs = ('CDF_V', 'power_curve')
+        outputs = ('gross_aep', 'net_aep')
+        
+        return inputs, outputs
+    
+    def provideJ(self):
+
         P = self.power_curve
         CDF = self.CDF_V
         factor = self.availability * (1-self.other_losses)*(1-self.array_losses)*365.0*24.0 * self.turbine_number
@@ -150,14 +184,10 @@ class aep_component(Component):
         self.J[0, 0:n] = d_gross_d_cdf
         self.J[0, n:2*n] = d_gross_d_p
         self.J[1, 0:n] = d_net_d_cdf
-        self.J[1, n:2*n] = d_net_d_p      	
+        self.J[1, n:2*n] = d_net_d_p        
         #self.J[0, 2*n] = dAEP_dlossFactor
  
-    def provideJ(self):
-        inputs = ('CDF_V', 'power_curve')
-        outputs = ('gross_aep', 'net_aep')
- 
-        return inputs, outputs, self.J
+        return self.J
 
 def example():
 
