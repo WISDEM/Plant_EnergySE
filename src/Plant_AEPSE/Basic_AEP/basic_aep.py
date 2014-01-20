@@ -77,8 +77,8 @@ class WeibullCDF(CDFBase):
     
     def list_deriv_vars(self):
 
-        inputs = ('x', 'A', 'k')
-        outputs = ('F')
+        inputs = ['x', 'A', 'k']
+        outputs = ['F']
         
         return inputs, outputs
 
@@ -110,8 +110,8 @@ class RayleighCDF(CDFBase):
 
     def list_deriv_vars(self):
         
-        inputs = ('x', 'xbar')
-        outputs = ('F')
+        inputs = ['x', 'xbar']
+        outputs = ['F']
 
         return inputs, outputs
     
@@ -152,8 +152,8 @@ class aep_component(Component):
  
     def list_deriv_vars(self):
 
-        inputs = ('CDF_V', 'power_curve')
-        outputs = ('gross_aep', 'net_aep')
+        inputs = ['CDF_V', 'power_curve']
+        outputs = ['gross_aep', 'net_aep']
         
         return inputs, outputs
     
