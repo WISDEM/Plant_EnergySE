@@ -50,9 +50,7 @@ class Test_aep_component(unittest.TestCase):
                      0.887, 0.925, 0.952, 0.971, 0.983, 0.990, 0.995, 0.997, 0.999, 0.999, 1.000, 1.000, \
                      1.000, 1.000, 1.000]
 
-        # Gradient method on power curve results in issues in the region of transition from region 2 to region 3
-        check_gradient_unit_test(self, aep, tol=1.0, display=False)
+        check_gradient_unit_test(self, aep, step_size=1.0, display=False)
 
 if __name__ == "__main__":
     unittest.main()
-    
