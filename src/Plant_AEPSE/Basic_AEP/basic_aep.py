@@ -16,6 +16,18 @@ from fusedwind.plant_flow.fused_plant_asym import GenericAEPModel
 
 class aep_weibull_assembly(GenericAEPModel):
 
+    # variables
+    A = Float(iotype='in', desc='scale factor')
+    k = Float(iotype='in', desc='shape or form factor')
+    wind_curve = Array(iotype='in', units='m/s', desc='wind curve')
+    power_curve = Array(iotype='in', units='W', desc='power curve (power)')
+    
+    # parameters
+    array_losses = Float(0.059, iotype='in', desc = 'energy losses due to turbine interactions - across entire plant') 
+    other_losses = Float(0.0, iotype='in', desc = 'energy losses due to blade soiling, electrical, etc')
+    availability = Float(0.94, iotype='in', desc = 'average annual availbility of wind turbines at plant')
+    turbine_number = Int(100, iotype='in', desc = 'total number of wind turbines at the plant')
+
     def __init__(self):
         
         super(aep_weibull_assembly, self).__init__()
@@ -30,14 +42,14 @@ class aep_weibull_assembly(GenericAEPModel):
         self.driver.workflow.add(['aep', 'cdf'])
         
         #inputs
-        self.create_passthrough('aep.power_curve') #TODO - array issue openmdao
-        self.create_passthrough('aep.array_losses')
-        self.create_passthrough('aep.other_losses')
-        self.create_passthrough('aep.availability')
-        self.create_passthrough('aep.turbine_number')
-        self.create_passthrough('cdf.A')
-        self.create_passthrough('cdf.k')
-        self.create_passthrough('cdf.x')
+        self.connect('power_curve', 'aep.power_curve')
+        self.connect('array_losses', 'aep.array_losses')
+        self.connect('other_losses', 'aep.other_losses')
+        self.connect('availability', 'aep.availability')
+        self.connect('turbine_number', 'aep.turbine_number')
+        self.connect('A','cdf.A')
+        self.connect('k','cdf.k')
+        self.connect('wind_curve','cdf.x')
         
         # connections
         self.connect('cdf.F', 'aep.CDF_V')
@@ -134,7 +146,7 @@ class aep_component(Component):
     availability = Float(0.94, iotype='in', desc = 'average annual availbility of wind turbines at plant')
     turbine_number = Int(100, iotype='in', desc = 'total number of wind turbines at the plant')
 
-    # ------------- Outputs -------------- 
+    # outputs 
     gross_aep = Float(iotype='out', desc='Gross Annual Energy Production before availability and loss impacts', unit='kWh')
     net_aep = Float(iotype='out', desc='Net Annual Energy Production after availability and loss impacts', unit='kWh') 
 
@@ -195,11 +207,11 @@ def example():
     
     #print aeptest.aep.machine_rating
     
-    aeptest.x = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, \
-                           11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0]
-    aeptest.power_curve = [0.0, 0.0, 0.0, 0.0, 187.0, 350.0, 658.30, 1087.4, 1658.3, 2391.5, 3307.0, 4415.70, \
+    aeptest.wind_curve = np.array([0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, \
+                           11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0])
+    aeptest.power_curve = np.array([0.0, 0.0, 0.0, 0.0, 187.0, 350.0, 658.30, 1087.4, 1658.3, 2391.5, 3307.0, 4415.70, \
                           5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, \
-                          5000.0, 5000.0, 0.0]
+                          5000.0, 5000.0, 0.0])
     aeptest.A = 8.35
     aeptest.k = 2.15
 
@@ -207,8 +219,6 @@ def example():
 
     print "AEP gross output: {0}".format(aeptest.gross_aep)
     print "AEP output: {0}".format(aeptest.net_aep)
-
-    print aeptest.cdf.F
 
 if __name__=="__main__":
 
