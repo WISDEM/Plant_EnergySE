@@ -101,25 +101,38 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
         print "In {0}.execute()...".format(self.__class__)
 
         # Set up turbine to write to xml
-        thrust = [0.000, 0.000, 0.000, 0.878, 0.880, 0.881, 0.881, 0.882, 0.882, 0.843, 
-                  0.764, 0.544, 0.390, 0.297, 0.235, 0.190, 0.156, 0.131,
-                  0.111, 0.096, 0.083, 0.073, 0.064, 0.057, 0.051, 0.046 ]
-        power = []
+				power = []
         for i in xrange(0,4):
           power.append(0.0)
-        counter = 4.0
-        for i in xrange(0, self.powerCurve.shape[1]):
-            while counter < self.powerCurve[0][i]:
-              counter += 1.0
-            if abs(counter - (self.powerCurve[0][i])) < 0.10:
-              power.append(self.powerCurve[1][i])
-              counter += 1.0
-            if counter >= 26:
-              break
-        power.append(self.ratedPower)
-        power.append(self.ratedPower)
+        counter = 5.0
+        for i in xrange(5,26):
+          myi = min(range(self.powerCurve.shape[1]), key=lambda i: abs(self.powerCurve[0][i]-counter))
+          power.append(self.powerCurve[1][myi])
+          counter += 1.0 
+        power.append(self.powerCurve[1][-1])
+
+        thrust = []
+        for i in xrange(0,4):
+          thrust.append(1.0)
+        counter = 5.0
+        for j in xrange(5,26):
+          myi = min(range(self.ct.shape[1]), key=lambda i: abs(self.ct[0][i]-counter))
+          thrust.append(self.ct[1][myi])
+          counter += 1.0
+        thrust.append(self.ct[1][0])
+        
+        rpm = []
+        for i in xrange(0,4):
+          rpm.append(0.0)
+        counter = 5.0
+        for j in xrange(5,26):
+          myi = min(range(self.rpm.shape[1]), key=lambda i: abs(self.rpm[0][i]-counter))
+          rpm.append(self.rpm[1][myi])
+          counter += 1.0
+        rpm.append(self.rpm[1][-1])
+
         percosts = []
-        cutInWS = 3.0
+        cutInWS = 4.0
         cutOutWS = 25.0
         nblades = 3
         ttlCost = 2000000
