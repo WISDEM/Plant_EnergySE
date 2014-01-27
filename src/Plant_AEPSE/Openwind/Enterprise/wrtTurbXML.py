@@ -157,9 +157,9 @@ def getTurbTree(trbname, desc,
             pcst.append( percosts[ipc].makeXML(ipc) )
     
     # noise
-    
-    hz = [63,125,250,500,1000,2000,4000,8000]
-    nhz = [0,0,0,0,0,0,0,0]
+
+    hz = [31, 63,125,250,500,1000,2000,4000,8000, 16000]
+    nhz = [0,0,0,0,0,0,0,0,0,0]
     addNoiseRows(turbtree, 100, 100, hz, nhz)
 
     return turbtree
@@ -218,8 +218,7 @@ def makeTblRows(parent, x, xname, cr):
 
 def addNoiseRows(parent, ttl, tnl, hz, nhz):
     ''' adds noise rows to parent '''
-    
-    nr = etree.SubElement(parent, 'TotalNoise', value='{:.0f}'.format(ttl))
+
     nr = etree.SubElement(parent, 'TonalNoise', value='{:.0f}'.format(tnl))
     
     for i in range(len(hz)):
