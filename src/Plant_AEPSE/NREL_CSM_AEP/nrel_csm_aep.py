@@ -12,7 +12,7 @@ from openmdao.main.datatypes.api import Int, Bool, Float, Array, VarTree
 
 from fusedwind.plant_flow.fused_plant_asym import GenericAEPModel
 
-from NREL_CSM.csmDriveEfficiency import DrivetrainEfficiencyModel
+from csmDriveEfficiency import DrivetrainEfficiencyModel
 from drivetrain_csm_component import drive_csm_component
 from aero_csm_component import aero_csm_component
 from aep_csm_component import aep_csm_component

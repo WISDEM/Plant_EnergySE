@@ -14,6 +14,74 @@ from commonse.utilities import hstack, vstack
 
 from fusedwind.plant_flow.fused_plant_asym import GenericAEPModel
 
+class aep_assembly(GenericAEPModel):
+
+    # variables
+    AEP_one_turbine = Float(iotype='in', units='kW*h')
+
+    # parameters
+    array_losses = Float(0.059, iotype='in', desc='energy losses due to turbine interactions - across entire plant')
+    other_losses = Float(0.0, iotype='in', desc='energy losses due to blade soiling, electrical, etc')
+    availability = Float(0.94, iotype='in', desc='average annual availbility of wind turbines at plant')
+    turbine_number = Int(100, iotype='in', desc='total number of wind turbines at the plant')
+
+    def __init__(self):
+
+        super(aep_assembly, self).__init__()
+
+    def configure(self):
+
+        super(aep_assembly, self).configure()
+
+        self.add('aep', BasicAEP())
+
+        self.driver.workflow.add(['aep'])
+
+        #inputs
+        self.connect('AEP_one_turbine', 'aep.AEP_one_turbine')
+        self.connect('array_losses', 'aep.array_losses')
+        self.connect('other_losses', 'aep.other_losses')
+        self.connect('availability', 'aep.availability')
+        self.connect('turbine_number', 'aep.turbine_number')
+
+        # outputs
+        self.connect('aep.gross_aep', 'gross_aep')
+        self.connect('aep.net_aep', 'net_aep')
+
+class BasicAEP(Component):
+
+    # in
+    AEP_one_turbine = Float(iotype='in', units='kW*h')
+
+    # parameters
+    array_losses = Float(0.059, iotype='in', desc='energy losses due to turbine interactions - across entire plant')
+    other_losses = Float(0.0, iotype='in', desc='energy losses due to blade soiling, electrical, etc')
+    availability = Float(0.94, iotype='in', desc='average annual availbility of wind turbines at plant')
+    turbine_number = Int(100, iotype='in', desc='total number of wind turbines at the plant')
+
+    # outputs
+    gross_aep = Float(iotype='out', desc='Gross Annual Energy Production before availability and loss impacts', units='kW*h')
+    net_aep = Float(iotype='out', desc='Net Annual Energy Production after availability and loss impacts', units='kW*h')
+
+    missing_deriv_policy = 'assume_zero'
+
+    def execute(self):
+
+        self.gross_aep = self.turbine_number * self.AEP_one_turbine
+        self.net_aep = self.availability * (1-self.array_losses) * (1-self.other_losses) * self.gross_aep
+
+    def list_deriv_vars(self):
+
+        inputs = ('AEP_one_turbine',)
+        outputs = ('gross_aep', 'net_aep')
+
+        return inputs, outputs
+
+    def provideJ(self):
+
+        J = np.array([[self.turbine_number],  [self.availability * (1-self.array_losses) * (1-self.other_losses) * self.turbine_number]])
+
+        return J
 
 class aep_weibull_assembly(GenericAEPModel):
 
@@ -135,43 +203,6 @@ class RayleighCDF(CDFBase):
         self.J = hstack((self.d_F_d_x, self.d_F_d_xbar))
 
         return self.J
-
-
-
-class BasicAEP(Component):
-
-    # in
-    AEP_one_turbine = Float(iotype='in', units='kW*h')
-
-    # parameters
-    array_losses = Float(0.059, iotype='in', desc='energy losses due to turbine interactions - across entire plant')
-    other_losses = Float(0.0, iotype='in', desc='energy losses due to blade soiling, electrical, etc')
-    availability = Float(0.94, iotype='in', desc='average annual availbility of wind turbines at plant')
-    turbine_number = Int(100, iotype='in', desc='total number of wind turbines at the plant')
-
-    # outputs
-    gross_aep = Float(iotype='out', desc='Gross Annual Energy Production before availability and loss impacts', units='kW*h')
-    net_aep = Float(iotype='out', desc='Net Annual Energy Production after availability and loss impacts', units='kW*h')
-
-    missing_deriv_policy = 'assume_zero'
-
-    def execute(self):
-
-        self.gross_aep = self.turbine_number * self.AEP_one_turbine
-        self.net_aep = self.availability * (1-self.array_losses) * (1-self.other_losses) * self.gross_aep
-
-    def list_deriv_vars(self):
-
-        inputs = ('AEP_one_turbine',)
-        outputs = ('gross_aep', 'net_aep')
-
-        return inputs, outputs
-
-    def provideJ(self):
-
-        J = np.array([[self.turbine_number],  [self.availability * (1-self.array_losses) * (1-self.other_losses) * self.turbine_number]])
-
-        return J
 
 
 class aep_component(Component):
