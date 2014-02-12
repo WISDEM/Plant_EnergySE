@@ -281,7 +281,7 @@ if __name__ == "__main__":
 '''
 OLD:
     Uses following variables from csmTurbine::turb:
-      hubHeight
+      hub_height
       rotor.diam
       machineRating
       cutInWS

@@ -22,7 +22,7 @@ def rdReport(rptpath, debug=False):
         USAGE:
         import openWindUtils
         # get rptpath from script with wrtTurbXML.rdScript()
-        ttlGross, ttlArray, ttlNet = openWindUtils.rdReport(rptpath)
+        gross_aep, array_aep, net_aep = openWindUtils.rdReport(rptpath)
         
         Returns:
           Gross = no wakes, no losses applied
@@ -112,18 +112,18 @@ def rdReport(rptpath, debug=False):
             
     fh.close()
     
-    ttlGross = np.sum(np.array(aGross))/1000000.
-    ttlArray = np.sum(np.array(aArray))/1000000.
-    ttlNet   = np.sum(np.array(aNet))/1000000.  
+    gross_aep = np.sum(np.array(aGross))/1000000.
+    array_aep = np.sum(np.array(aArray))/1000000.
+    net_aep   = np.sum(np.array(aNet))/1000000.  
     
     if debug:
-        sys.stderr.write( 'Gross {:.4f} GWh\n'.format(ttlGross) )
-        sys.stderr.write( 'Array {:.4f} GWh\n'.format(ttlArray) )
-        sys.stderr.write( 'Net   {:.4f} GWh\n'.format(ttlNet  ) )
+        sys.stderr.write( 'Gross {:.4f} GWh\n'.format(gross_aep) )
+        sys.stderr.write( 'Array {:.4f} GWh\n'.format(array_aep) )
+        sys.stderr.write( 'Net   {:.4f} GWh\n'.format(net_aep  ) )
         
         sys.stderr.write('\nEnd OpenWind::rdReport({:})\n\n'.format(rptpath))
     
-    return ttlGross, ttlArray, ttlNet    
+    return gross_aep, array_aep, net_aep    
            
 # -------------------
 

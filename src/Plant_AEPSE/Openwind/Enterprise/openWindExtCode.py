@@ -24,9 +24,9 @@ from openmdao.util.filewrap import InputFileGenerator, FileParser
 class OWwrapped(ExternalCode):
     """A simple file wrapper for OpenWind"""
 
-    rotorDiameter = Float(126.0, iotype='in', units='m', desc='connecting rotor diameter to force run on change') # todo: hack for now
+    rotor_diameter = Float(126.0, iotype='in', units='m', desc='connecting rotor diameter to force run on change') # todo: hack for now
     availability = Float(0.95, iotype='in', desc='availability')
-    soilingLosses = Float(0.0, iotype='in', desc='soiling losses')
+    other_losses = Float(0.0, iotype='in', desc='soiling losses')
     
     array_efficiency    = Float(0.0, iotype='out', desc='Array Efficiency')
     gross_aep = Float(0.0, iotype='out', desc='Gross Output')
@@ -46,7 +46,7 @@ class OWwrapped(ExternalCode):
         self.output_file = 'myoutput.txt'
         self.stderr = 'myerror.log'
         
-        self.scriptfile = 'scriptfile.xml' # replace with actual file name
+        self.script_file = 'script_file.xml' # replace with actual file name
 
         self.external_files = [
             #FileMetadata(path=self.input_file, input=True),
@@ -56,8 +56,8 @@ class OWwrapped(ExternalCode):
         
         # Set the version of OpenWind that we want to use
         
-        #self.command = [owExeUnofficial, self.scriptfile]
-        self.command = [owExeV1130, self.scriptfile]
+        #self.command = [owExeUnofficial, self.script_file]
+        self.command = [owExeV1130, self.script_file]
 
     #------------------ 
     
@@ -67,31 +67,31 @@ class OWwrapped(ExternalCode):
         # Prepare input file here
         #   - write a new script file?
         #   - write a new turbine file to overwrite the one referenced
-        #       in the existing scriptfile?
+        #       in the existing script_file?
 
         # Execute the component
         
-        self.command[1] = self.scriptfile
+        self.command[1] = self.script_file
         super(OWwrapped, self).execute()
 
         # Parse output file 
         
         rptpath = wrtScriptXML.rdScript(self.command[1], debug=False) # get output file name from script
         
-        self.ttlGross, self.ttlArray, self.ttlNet = utils.rdReport(rptpath, debug=False) 
+        self.gross_aep, self.array_aep, self.net_aep = utils.rdReport(rptpath, debug=False) 
         
-        #print 'Gross {:.4f} GWh'.format(self.ttlGross)
-        #print 'Array {:.4f} GWh'.format(self.ttlArray)
-        #print 'Net   {:.4f} GWh'.format(self.ttlNet  )
+        #print 'Gross {:.4f} GWh'.format(self.gross_aep)
+        #print 'Array {:.4f} GWh'.format(self.array_aep)
+        #print 'Net   {:.4f} GWh'.format(self.net_aep  )
         #print 'AEff  {:.2f} %'.format(self.aeff*100.0)
         
         # Set the output variables
-        self.array_efficiency = self.ttlArray / self.ttlGross        
-        self.gross_aep = self.ttlGross * 1000000.0
-        self.array_aep = self.ttlArray * 1000000.0
+        self.array_efficiency = self.array_aep / self.gross_aep        
+        self.gross_aep = self.gross_aep * 1000000.0
+        self.array_aep = self.array_aep * 1000000.0
 
         # find net aep
-        self.net_aep = (self.ttlNet * 1000000.0) * self.availability * (1-self.soilingLosses)
+        self.net_aep = (self.net_aep * 1000000.0) * self.availability * (1-self.other_losses)
 
         # find array efficiency
         self.array_losses = 1 - (self.array_aep/self.gross_aep)
@@ -105,6 +105,6 @@ if __name__ == "__main__":
     #owXMLname = 'C:/Python27/openmdao-0.7.0/twister/models/AEP/testOWScript1.xml'
     owXMLname = 'C:/Python27/openmdao-0.7.0/twister/models/AEP/VA_ECap.xml'
     #ow.command[1] = owXMLname
-    ow.scriptfile = owXMLname
+    ow.script_file = owXMLname
     
     ow.execute() # run the openWind process

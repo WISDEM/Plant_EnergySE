@@ -34,39 +34,41 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
     """ Runs OpenWind from OpenMDAO framework """
 
     # Inputs
-    hubHeight = Float(90.0, iotype='in', desc='turbine hub height', unit='m')
-    rotorDiameter = Float(126.0, iotype='in', desc='turbine rotor diameter', unit='m')
-    powerCurve = Array([], iotype='in', desc='wind turbine power curve')
+    hub_height = Float(90.0, iotype='in', desc='turbine hub height', unit='m')
+    rotor_diameter = Float(126.0, iotype='in', desc='turbine rotor diameter', unit='m')
+    power_curve = Array([], iotype='in', desc='wind turbine power curve')
     rpm = Array([], iotype='in', desc='wind turbine rpm curve')
-    turbineNumber = Int(100, iotype='in', desc='plant number of turbines')
-    ratedPower = Float(5000.0, iotype='in', desc='wind turbine rated power', unit='kW')
+    ct = Array([], iotype='in', desc='wind turbine ct curve')
+    turbine_number = Int(100, iotype='in', desc='plant number of turbines')
+    machine_rating = Float(5000.0, iotype='in', desc='wind turbine rated power', unit='kW')
     availability = Float(0.941, iotype='in', desc='wind plant availability')
-    soilingLosses = Float(0.0, iotype='in', desc='wind plant losses due to blade soiling, etc')
-    wt_layout = VarTree(GenericWindFarmTurbineLayout(), iotype='in', desc='properties for each wind turbine and layout')
+    wt_layout = VarTree(GenericWindFarmTurbineLayout(), iotype='in', desc='properties for each wind turbine and layout')    
+    other_losses = Float(0.0, iotype='in', desc='wind plant losses due to blade soiling, etc')
     # TODO: loss inputs
-    # TODO: wake model option selections (should not be OpenMDAO inputs but need to be part up overall inputs)
+    # TODO: wake model option selections
 
     # Outputs
     #ideal_aep = Float(0.0, iotype='out', desc='Ideal Annual Energy Production before topographic, availability and loss impacts', unit='kWh')
     array_aep = Float(0.0, iotype='out', desc='Gross Annual Energy Production net of array impacts', unit='kWh')
     array_losses = Float(0.0, iotype='out', desc='Array Losses')
+    capacity_factor = Float(0.0, iotype='out', desc='capacity factor')
 
     # -------------------
     
-    def __init__(self, owexe, blbpath, tname):
+    def __init__(self, openwind_executable, workbook_path, turbine_name):
         """ Creates a new LCOE Assembly object """
 
-        self.owexe = owexe
-        self.blbpath = blbpath
-        self.tname = tname
+        self.openwind_executable = openwind_executable
+        self.workbook_path = workbook_path
+        self.turbine_name = turbine_name
         super(openwind_assembly, self).__init__()
 
         # TODO: hack for now assigning turbine
         self.turb = GenericWindTurbinePowerCurveVT()
-        self.turb.power_rating = self.ratedPower
-        self.turb.hub_height = self.hubHeight
-        self.turb.power_curve = np.copy(self.powerCurve)
-        for i in xrange(0,self.turbineNumber):
+        self.turb.power_rating = self.machine_rating
+        self.turb.hub_height = self.hub_height
+        self.turb.power_curve = np.copy(self.power_curve)
+        for i in xrange(0,self.turbine_number):
             self.wt_layout.wt_list.append(self.turb)
 
     def configure(self):
@@ -74,22 +76,19 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
 
         super(openwind_assembly, self).configure()        
         
-        ow = OWwrapped(self.owexe)
+        ow = OWwrapped(self.openwind_executable)
         self.add('ow', ow)
         
         self.driver.workflow.add(['ow'])
         
-        self.connect('rotorDiameter', 'ow.rotorDiameter') # todo: hack to force external code execution
-        self.connect('soilingLosses', 'ow.soilingLosses')
+        self.connect('rotor_diameter', 'ow.rotor_diameter') # todo: hack to force external code execution
+        self.connect('other_losses', 'ow.other_losses')
         self.connect('availability', 'ow.availability')
         
         self.connect('ow.array_losses', 'array_losses')
         self.connect('ow.gross_aep', 'gross_aep')
         self.connect('ow.array_aep', 'array_aep')
         self.connect('ow.net_aep', 'net_aep')
-        #self.connect('ow.capacity_factor', 'capacity_factor')
-        
-    # -------------------
     
     def execute(self):
         """
@@ -101,15 +100,15 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
         print "In {0}.execute()...".format(self.__class__)
 
         # Set up turbine to write to xml
-				power = []
+        power = []
         for i in xrange(0,4):
           power.append(0.0)
         counter = 5.0
         for i in xrange(5,26):
-          myi = min(range(self.powerCurve.shape[1]), key=lambda i: abs(self.powerCurve[0][i]-counter))
-          power.append(self.powerCurve[1][myi])
+          myi = min(range(self.power_curve.shape[1]), key=lambda i: abs(self.power_curve[0][i]-counter))
+          power.append(self.power_curve[1][myi])
           counter += 1.0 
-        power.append(self.powerCurve[1][-1])
+        power.append(self.power_curve[1][-1])
 
         thrust = []
         for i in xrange(0,4):
@@ -132,18 +131,18 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
         rpm.append(self.rpm[1][-1])
 
         percosts = []
-        cutInWS = 4.0
-        cutOutWS = 25.0
-        nblades = 3
-        ttlCost = 2000000
-        fndCost =  100000
-        trbname = 'NewTurbine'
+        cut_in_wind_speed = 4.0
+        cut_out_wind_speed = 25.0
+        blade_number = 3
+        turbine_cost = 2000000
+        foundation_cost =  100000
+        turbine_name = 'NewTurbine'
         desc = 'New Turbine'
-        turbtree = wrtTurbXML.getTurbTree(trbname, desc, power, thrust, self.hubHeight, self.rotorDiameter,\
-                                         percosts, cutInWS, cutOutWS, nblades, self.ratedPower, ttlCost, fndCost)
+        turbtree = wrtTurbXML.getTurbTree(turbine_name, desc, power, thrust, self.hub_height, self.rotor_diameter,\
+                                         percosts, cut_in_wind_speed, cut_out_wind_speed, blade_number, self.machine_rating, turbine_cost, foundation_cost)
         turbXML = etree.tostring(turbtree, 
                                  xml_declaration=True,
-                                 doctype='<!DOCTYPE {:}>'.format(trbname), 
+                                 doctype='<!DOCTYPE {:}>'.format(turbine_name), 
                                  pretty_print=True)
 
         thisdir = os.path.dirname(os.path.realpath(__file__))   
@@ -153,29 +152,29 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
         ofh.close()
     
         # write new script for execution  
-        rpath = thisdir + '/' + 'scrtest1.txt'
-        blbpath = self.blbpath
-        tname = self.tname
-        tpath = thisdir + '/' + 'Turbine_Model.owtg'
+        report_path = thisdir + '/' + 'scrtest1.txt'
+        workbook_path = self.workbook_path
+        turbine_name = self.turbine_name
+        turbine_path = thisdir + '/' + 'Turbine_Model.owtg'
     
-        scripttree, ops = wrtScriptXML.getScriptTree(rpath)    
-        # add operations to 'ops' (the 'AllOperations' tree in scripttree)
+        script_tree, operations = wrtScriptXML.getScriptTree(report_path)    
+        # add operations to 'operations' (the 'AllOperations' tree in script_tree)
         
-        wrtScriptXML.makeChWkbkOp(ops,blbpath)       # change workbook
-        wrtScriptXML.makeRepTurbOp(ops,tname,tpath)  # replace turbine
-        wrtScriptXML.makeEnCapOp(ops)                # run energy capture
-        wrtScriptXML.makeExitOp(ops)                 # exit
+        wrtScriptXML.makeChWkbkOp(operations,workbook_path)       # change workbook
+        wrtScriptXML.makeRepTurbOp(operations,turbine_name,turbine_path)  # replace turbine
+        wrtScriptXML.makeEnCapOp(operations)                # run energy capture
+        wrtScriptXML.makeExitOp(operations)                 # exit
         
-        scriptXML = etree.tostring(scripttree, 
+        script_XML = etree.tostring(script_tree, 
                                    xml_declaration=True, 
                                    doctype='<!DOCTYPE OpenWindScript>',
                                    pretty_print=True)
         
         ofh = open(thisdir + '/' + 'OpenWind_Script.xml', 'w')
-        ofh.write(scriptXML)
+        ofh.write(script_XML)
         ofh.close()
     
-        self.ow.scriptfile = thisdir + '/' + 'OpenWind_Script.xml'
+        self.ow.script_file = thisdir + '/' + 'OpenWind_Script.xml'
 
         # will actually run the workflow
         super(openwind_assembly, self).execute()
@@ -190,15 +189,25 @@ def example():
 
     # simple test of module
     owExeV1130 = 'C:/Models/Openwind/OpenWind64.exe'
-    blbpath = 'C:/Models/OpenWind/Workbooks/OpenWind_Model.blb'
-    tname = 'NREL 5 MW'
-    ow = openwind_assembly(owExeV1130, blbpath, tname)
+    workbook_path = 'C:/Models/OpenWind/Workbooks/OpenWind_Model.blb'
+    turbine_name = 'NREL 5 MW'
+    ow = openwind_assembly(owExeV1130, workbook_path, turbine_name)
     
-    ow.powerCurve = np.array([[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, \
+    ow.power_curve = np.array([[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, \
                            11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0], \
                           [0.0, 0.0, 0.0, 187.0, 350.0, 658.30, 1087.4, 1658.3, 2391.5, 3307.0, \
                           4415.70, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, \
                           5000.0, 5000.0, 5000.0, 5000.0, 0.0]])
+
+    ow.ct = np.array([[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, \
+                           11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0], \
+                          [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, \
+                           1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]])
+
+    ow.rpm = np.array([[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, \
+                           11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0], \
+                          [7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, \
+                           7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0]])
 
     ow.execute() # run the openWind process
 
