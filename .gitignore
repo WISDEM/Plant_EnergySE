@@ -49,7 +49,10 @@ nosetests.xml
 .project
 .pydevproject
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> AEPSE_clean
 # Compiled source #
 ###################
 *.com
@@ -58,6 +61,10 @@ nosetests.xml
 *.exe
 *.o
 *.so
+<<<<<<< HEAD
+=======
+*.pyc
+>>>>>>> AEPSE_clean
 
 # Packages #
 ############
@@ -85,6 +92,29 @@ nosetests.xml
 ._*
 .Spotlight-V100
 .Trashes
+<<<<<<< HEAD
 Icon?
 ehthumbs.db
 Thumbs.db
+
+# GNS - 2014 04 14
+
+# UltraEdit backups #
+*.bak
+
+# Compiled python #
+*.pyc
+=======
+ehthumbs.db
+Thumbs.db
+Icon?
+
+# Editor backups #
+##################
+*.bak
+*.pyold
+
+# Openwind files #
+*.xml
+*.txt
+>>>>>>> AEPSE_clean
