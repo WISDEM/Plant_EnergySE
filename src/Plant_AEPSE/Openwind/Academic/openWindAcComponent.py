@@ -239,18 +239,20 @@ class OWACcomp(Component):
 
 if __name__ == "__main__":
 
-    owname = 'C:/rassess/Openwind/OpenWind64_ac.exe'
-    if not os.path.isfile(owname):
-        sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owname))
+    #owexe = 'C:/rassess/Openwind/OpenWind64_ac.exe'
+    from Plant_AEPSE.Openwind.findOW import findOW
+    owexe = findOW(debug=True, academic=True)
+    if not os.path.isfile(owexe):
+        sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owexe))
         exit()
 
     #owXMLname = 'C:/Python27/openmdao-0.7.0/twister/models/AEP/testOWScript1.xml'
     #owXMLname = 'C:/Python27/openmdao-0.7.0/twister/models/AEP/VA_ECap.xml'
-    owXMLname = 'C:/SystemsEngr/Plant_AEPSE_GNS/src/Plant_AEPSE/Openwind/Academic/testOWScript.xml'
-    owXMLname = 'C:/SystemsEngr/Plant_AEPSE_GNS/src/Plant_AEPSE/Openwind/Academic/testOWACScript.xml'
+    #owXMLname = 'C:/SystemsEngr/Plant_AEPSE_GNS/src/Plant_AEPSE/Openwind/Academic/testOWScript.xml'
+    #owXMLname = 'C:/SystemsEngr/Plant_AEPSE_GNS/src/Plant_AEPSE/Openwind/Academic/testOWACScript.xml'
     
-    owXMLname = 'C:/SystemsEngr/test/rtecScript.xml' # replace turb, energy capture
-    owXMLname = 'C:/SystemsEngr/test/owacScript.xml' # optimize operation
+    owXMLname = '../../test/rtecScript.xml' # replace turb, energy capture
+    owXMLname = '../../test/owacScript.xml' # optimize operation
     
     if not os.path.isfile(owXMLname):
         sys.stderr.write('OpenWind script file "{:}" not found\n'.format(owXMLname))
@@ -258,7 +260,7 @@ if __name__ == "__main__":
     
     rwScriptXML.rdScript(owXMLname,debug=True) # Show our operations
     
-    ow = OWACcomp(owExe=owname, debug=True) #, stopOW=False)
+    ow = OWACcomp(owExe=owexe, debug=True) #, stopOW=False)
     ow.script_file = owXMLname
     
     wt_positions = [[456000.00,4085000.00],

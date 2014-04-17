@@ -5,13 +5,16 @@
 
 import sys, os
 
-def findOW(debug=False):
+def findOW(academic=False, debug=False):
     ow_paths = ['C:/rassess/Openwind',  # GNS
                 'C:/Models/Openwind',   # KLD
                ]
-    
+    ow = 'openWind64.exe'
+    if academic:
+        ow = 'openWind64_ac.exe'
+        
     for owp in ow_paths:
-        owname = '/'.join([owp,'openWind64.exe'])
+        owname = '/'.join([owp,ow])
         if os.path.isfile(owname):
             if debug:
                 sys.stderr.write('findOW: found {:}\n'.format(owname))
