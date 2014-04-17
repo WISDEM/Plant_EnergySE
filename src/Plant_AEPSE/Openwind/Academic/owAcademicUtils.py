@@ -20,7 +20,7 @@ sys.path.append('C:/SystemsEngr/openmdao-0.9.3/Lib/site-packages/watchdog-0.6.0-
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-import Plant_AEPSE.Openwind.Enterprise.getworkbookvals as gwb
+import Plant_AEPSE.Openwind.getworkbookvals as gwb
 
 # FUSED-Wind imports
 
@@ -255,11 +255,6 @@ class WTWkbkFile(object):
 def main():
     # test
     
-    wtp = WTPosFile(filename='positions.txt')
-    wt = wtp.read()
-    
-    exit()
-    
     # delete notifyML.txt
     # start watchdog Observer
     # tell user to write notifyML.txt manually
@@ -276,7 +271,12 @@ def main():
     writeNotify()
     sys.stderr.write('Should have created empty owNotify.txt\n')
     
+    sys.stderr.write('\nTesting waitForNotify\n')
+    sys.stderr.write("*** When 'Enter Cntl-C to break' message appears,\n enter 'touch notifyML.txt' from another command shell\n")
     waitForNotify(debug=True)
+    
+    wtp = WTPosFile(filename='positions.txt')
+    wt = wtp.read()
     
     pass
 

@@ -12,8 +12,8 @@ import os.path
 
 import sys
 #sys.path.append('C:/Python27/openmdao-0.7.0/twister/models/AEP/')
-import openWindUtils as utils
-import rwScriptXML
+import Plant_AEPSE.Openwind.openWindUtils as utils
+from Plant_AEPSE.Openwind.rwScriptXML import rdScript
 
 from openmdao.lib.datatypes.api import Float, Int
 from openmdao.lib.components.api import ExternalCode
@@ -95,7 +95,7 @@ class OWwrapped(ExternalCode):
 
         # Parse output file 
         
-        rptpath = rwScriptXML.rdScript(self.command[1], debug=True) #False) # get output file name from script
+        rptpath = rdScript(self.command[1], debug=True) #False) # get output file name from script
         
         self.gross_aep, self.array_aep, self.net_aep, owTurbs = utils.rdReport(rptpath, debug=False) 
         self.nTurbs = len(owTurbs)
@@ -129,9 +129,10 @@ class OWwrapped(ExternalCode):
 #------------------------------------------------------------------
 
 if __name__ == "__main__":
-
-    #owname = 'C:/rassess/Openwind/OpenWind64.exe' # GS path
-    owname = 'C:/Models/Openwind/OpenWind64.exe' #KLD path
+ 
+    owname = 'C:/rassess/Openwind/OpenWind64.exe' # GS path
+    if not os.path.isfile(owname):
+        owname = 'C:/Models/Openwind/OpenWind64.exe' #KLD path
     if not os.path.isfile(owname):
         sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owname))
         exit()
@@ -140,6 +141,7 @@ if __name__ == "__main__":
     owXMLname = 'C:/Python27/openmdao-0.7.0/twister/models/AEP/VA_ECap.xml'
     #owXMLname = 'C:/SystemsEngr/Plant_AEPSE-master/src/Plant_AEPSE/Openwind/Enterprise/testOWScript.xml'
     #owXMLname = 'C:/SystemsEngr/Plant_AEPSE_GNS/src/Plant_AEPSE/Openwind/Enterprise/testOWScript.xml'
+    owXMLname = '../../test/ecScript.xml'
     
     if not os.path.isfile(owXMLname):
         sys.stderr.write('OpenWind script file "{:}" not found\n'.format(owXMLname))

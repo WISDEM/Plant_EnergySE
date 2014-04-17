@@ -37,8 +37,10 @@ from fusedwind.plant_flow.fused_plant_vt import GenericWindFarmTurbineLayout
 from openWindExtCode import OWwrapped  # OpenWind inside an OpenMDAO ExternalCode wrapper
 #from openWindAcExtCode import OWACwrapped  # OpenWind inside an OpenMDAO ExternalCode wrapper
 
-import rwTurbXML
-import rwScriptXML
+#import rwTurbXML
+#import rwScriptXML
+import Plant_AEPSE.Openwind.rwTurbXML as rwTurbXML
+import Plant_AEPSE.Openwind.rwScriptXML as rwScriptXML
 
 #------------------------------------------------------------------
 

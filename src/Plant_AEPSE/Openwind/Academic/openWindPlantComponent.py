@@ -15,8 +15,8 @@ from fused_plant_comp import GenericWSPosition, HubCenterWSPosition, GenericWake
                              WindTurbinePowerCurve, PostProcessWindRose, PlantFromWWH, \
                              WindRoseCaseGenerator, PostProcessSingleWindRose, PostProcessMultipleWindRoses
 
-import openWindUtils as utils
-import owAcademicUtils as acutils
+import Plant_AEPSE.Openwind.Academic.owAcademicUtils as acutils
+import Plant_AEPSE.Openwind.openWindUtils as utils
 
 #-----------------------------------------------------------
 
@@ -116,16 +116,21 @@ if __name__ == "__main__":
     print '\n-------------------- Test Position.txt file ----------\n'
     
     ppf = PlantFromPosFile()
-    ppf.filename = 'defaultPositions.txt'
+    ppf.filename = '../../test/defaultPositions.txt'
     
     ppf.execute()
     ppf.dump()
 
     print '\n-------------------- Test Workbook ----------\n'
     
-    wbname = 'C:/SystemsEngr/Test/VA_test.blb'
-    owexe = 'C:/rassess/OpenWind/Openwind64.exe'
-    #pwb = PlantFromOWWorkbook(wkbk=wbname, owexe=owexe)    
+    #wbname = 'C:/SystemsEngr/Test/VA_test.blb'
+    wbname = '../../test/VA_test.blb'
+    
+    from Plant_AEPSE.Openwind.findOW import findOW
+    owexe = findOW(debug=True)
+    #owexe = 'C:/rassess/OpenWind/Openwind64.exe'
+      
+    #pwb = PlantFromOWWorkbook(wkbk=wbname, owexe=owexe)  
     pwb = PlantFromOWWorkbook()
     pwb.wkbk=wbname
     pwb.owexe=owexe

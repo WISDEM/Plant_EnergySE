@@ -37,9 +37,9 @@ from fusedwind.plant_flow.fused_plant_vt import GenericWindFarmTurbineLayout
 #from openWindAcExtCode import OWACwrapped  # OpenWind inside an OpenMDAO ExternalCode wrapper
 from openWindAcComponent import OWACcomp  # OpenWind inside an OpenMDAO Component
 
-import Plant_AEPSE.Openwind.Enterprise.rwTurbXML as rwTurbXML
-import Plant_AEPSE.Openwind.Enterprise.rwScriptXML as rwScriptXML
-import Plant_AEPSE.Openwind.Enterprise.getworkbookvals as getworkbookvals
+import Plant_AEPSE.Openwind.rwTurbXML as rwTurbXML
+import Plant_AEPSE.Openwind.rwScriptXML as rwScriptXML
+import Plant_AEPSE.Openwind.getworkbookvals as getworkbookvals
 
 #------------------------------------------------------------------
 
