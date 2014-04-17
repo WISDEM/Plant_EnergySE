@@ -14,16 +14,16 @@ import sys, time
 import subprocess
 from lxml import etree
 
-import openWindUtils as utils
+import Plant_AEPSE.Openwind.Enterprise.openWindUtils as utils
 import owAcademicUtils as acutils
-import rwScriptXML
+import Plant_AEPSE.Openwind.Enterprise.rwScriptXML
 
 from openmdao.lib.datatypes.api import Float, Int, VarTree
 from openmdao.main.api import FileMetadata, Component, VariableTree
 
 #from openmdao.util.filewrap import InputFileGenerator, FileParser
 
-from fused_plant_vt import GenericWindTurbineVT, GenericWindTurbinePowerCurveVT, \
+from fusedwind.plant_flow.fused_plant_vt import GenericWindTurbineVT, GenericWindTurbinePowerCurveVT, \
                            ExtendedWindTurbinePowerCurveVT, GenericWindFarmTurbineLayout
 
 #-----------------------------------------------------------------

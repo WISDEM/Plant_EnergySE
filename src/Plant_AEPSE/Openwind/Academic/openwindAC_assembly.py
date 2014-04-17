@@ -30,16 +30,16 @@ from openmdao.main.api import Component, Assembly, VariableTree
 from openmdao.lib.datatypes.api import Float, Array, Int, VarTree
 
 from fusedwind.plant_flow.fused_plant_asym import GenericAEPModel
-from fusedwind.plant_flow.fused_plant_vt import GenericWindTurbinePowerCurveVT
+from fusedwind.plant_flow.fused_plant_vt import GenericWindTurbinePowerCurveVT, ExtendedWindTurbinePowerCurveVT
 from fusedwind.plant_flow.fused_plant_vt import GenericWindFarmTurbineLayout
 
 #from openWindExtCode import OWwrapped  # OpenWind inside an OpenMDAO ExternalCode wrapper
 #from openWindAcExtCode import OWACwrapped  # OpenWind inside an OpenMDAO ExternalCode wrapper
 from openWindAcComponent import OWACcomp  # OpenWind inside an OpenMDAO Component
 
-import rwTurbXML
-import rwScriptXML
-import getworkbookvals
+import Plant_AEPSE.Openwind.Enterprise.rwTurbXML as rwTurbXML
+import Plant_AEPSE.Openwind.Enterprise.rwScriptXML as rwScriptXML
+import Plant_AEPSE.Openwind.Enterprise.getworkbookvals as getworkbookvals
 
 #------------------------------------------------------------------
 

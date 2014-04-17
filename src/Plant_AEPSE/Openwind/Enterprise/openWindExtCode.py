@@ -130,15 +130,16 @@ class OWwrapped(ExternalCode):
 
 if __name__ == "__main__":
 
-    owname = 'C:/rassess/Openwind/OpenWind64.exe'
+    #owname = 'C:/rassess/Openwind/OpenWind64.exe' # GS path
+    owname = 'C:/Models/Openwind/OpenWind64.exe' #KLD path
     if not os.path.isfile(owname):
         sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owname))
         exit()
 
     #owXMLname = 'C:/Python27/openmdao-0.7.0/twister/models/AEP/testOWScript1.xml'
-    #owXMLname = 'C:/Python27/openmdao-0.7.0/twister/models/AEP/VA_ECap.xml'
+    owXMLname = 'C:/Python27/openmdao-0.7.0/twister/models/AEP/VA_ECap.xml'
     #owXMLname = 'C:/SystemsEngr/Plant_AEPSE-master/src/Plant_AEPSE/Openwind/Enterprise/testOWScript.xml'
-    owXMLname = 'C:/SystemsEngr/Plant_AEPSE_GNS/src/Plant_AEPSE/Openwind/Enterprise/testOWScript.xml'
+    #owXMLname = 'C:/SystemsEngr/Plant_AEPSE_GNS/src/Plant_AEPSE/Openwind/Enterprise/testOWScript.xml'
     
     if not os.path.isfile(owXMLname):
         sys.stderr.write('OpenWind script file "{:}" not found\n'.format(owXMLname))
