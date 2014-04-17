@@ -35,7 +35,7 @@ from fusedwind.plant_flow.fused_plant_vt import GenericWindTurbinePowerCurveVT
 from fusedwind.plant_flow.fused_plant_vt import GenericWindFarmTurbineLayout
 
 from openWindExtCode import OWwrapped  # OpenWind inside an OpenMDAO ExternalCode wrapper
-from openWindAcExtCode import OWACwrapped  # OpenWind inside an OpenMDAO ExternalCode wrapper
+#from openWindAcExtCode import OWACwrapped  # OpenWind inside an OpenMDAO ExternalCode wrapper
 
 import rwTurbXML
 import rwScriptXML
@@ -114,7 +114,10 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
         super(openwind_assembly, self).configure()        
         
         if self.academic:
-            ow = OWACwrapped(self.openwind_executable, scriptFile=self.script_file, debug=True)
+            #ow = OWACwrapped(self.openwind_executable, scriptFile=self.script_file, debug=True)
+            sys.stderr.write('\nERROR - openwind_assembly.py not currently configured for Academic version\n')
+            sys.stderr.write('Use ../Academic/openwindAC_assembly.py instead\n')
+            quit()
         else:
             ow = OWwrapped(self.openwind_executable, scriptFile=self.script_file)
         self.add('ow', ow)
@@ -296,14 +299,19 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
 def example():
 
     # simple test of module
+    
+    test_path = '../../../../test/'
+    
     #owExeV1130 = 'C:/Models/Openwind/OpenWind64.exe'
     owExe = 'C:/rassess/Openwind/OpenWind64.exe'
     
     #workbook_path = 'C:/Models/OpenWind/Workbooks/OpenWind_Model.blb'
     #turbine_name = 'NREL 5 MW'
-    workbook_path = 'C:/SystemsEngr/Test/VA_test.blb'
+    #workbook_path = 'C:/SystemsEngr/Test/VA_test.blb'
+    workbook_path = test_path + 'VA_test.blb'
     turbine_name = 'Alstom Haliade 150m 6MW' # should match default turbine in workbook
-    script_file = 'ecScript.xml'
+    #script_file = 'ecScript.xml'
+    script_file = test_path + 'ecScript.xml'
     
     # should check for existence of both owExe and workbook_path before
     #   trying to run openwind
