@@ -73,7 +73,8 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
       
     #ideal_aep = Float(0.0, iotype='out', desc='Ideal Annual Energy Production before topographic, availability and loss impacts', unit='kWh')
     array_aep       = Float(0.0, iotype='out', desc='Gross Annual Energy Production net of array impacts', unit='kWh')
-    array_losses    = Float(0.0, iotype='out', desc='Array Losses')
+    #array_losses    = Float(0.0, iotype='out', desc='Array Losses')
+    total_losses    = Float(0.0, iotype='out', desc='Total Losses (gross to net)')
     capacity_factor = Float(0.0, iotype='out', desc='capacity factor')
     nTurbs          = Int(0, iotype='out', desc='Number of turbines')
 
@@ -82,6 +83,7 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
     def __init__(self, openwind_executable, workbook_path, 
                  turbine_name=None, script_file=None, academic=True,
                  wt_positions=None,
+                 machine_rating=None,
                  debug=False):
         """ Creates a new LCOE Assembly object """
 
@@ -106,21 +108,20 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
         self.script_file = script_file
         self.academic = academic
         self.debug = debug
+        self.machine_rating = machine_rating
         
-        #if wt_positions is not None:
-            #attrs = dir(self)
-            #for a in attrs:
-            #    print a
-                
+        if wt_positions is not None:
+            self.init_wt_positions = wt_positions    
             #self.wt_layout.wt_positions = wt_positions
             
         super(openwindAC_assembly, self).__init__()
 
         # TODO: hack for now assigning turbine
         self.turb = GenericWindTurbinePowerCurveVT()
-        self.turb.power_rating = self.machine_rating
-        self.turb.hub_height = self.hub_height
-        self.turb.power_curve = np.copy(self.power_curve)
+        if self.machine_rating is not None:
+            self.turb.power_rating = self.machine_rating
+        #self.turb.hub_height = self.hub_height
+        #self.turb.power_curve = np.copy(self.power_curve)
         for i in xrange(0,self.turbine_number):
             self.wt_layout.wt_list.append(self.turb)
 
@@ -129,26 +130,29 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
     def configure(self):
         """ make connections """
 
+        #sys.stderr.write('In {:}.configure()\n'.format(self.__class__))
+        
         super(openwindAC_assembly, self).configure()        
         
         ow = OWACcomp(self.openwind_executable, scriptFile=self.script_file, debug=self.debug)
-        #self.add('ow', ow)
+        self.add('ow', ow)
         
         self.driver.workflow.add(['ow'])
         
         # Inputs to OWACcomp
         
-        self.connect('rotor_diameter', 'ow.rotor_diameter') # todo: hack to force external code execution
+        self.connect('turb_props.rotor_diameter', 'ow.rotor_diameter') # todo: hack to force external code execution
         self.connect('other_losses', 'ow.other_losses')
         self.connect('availability', 'ow.availability')
+        self.connect('wt_layout.wt_positions', 'ow.wt_layout.wt_positions')
         
         self.connect('dummyVbl', 'ow.dummyVbl')
         
         # Outputs from OWACcomp
         
-        self.connect('ow.array_losses', 'array_losses')
+        #self.connect('ow.array_losses', 'array_losses')
+        #self.connect('ow.array_aep', 'array_aep') # not available in Academic version
         self.connect('ow.gross_aep', 'gross_aep')
-        self.connect('ow.array_aep', 'array_aep')
         self.connect('ow.net_aep', 'net_aep')
         self.connect('ow.nTurbs', 'nTurbs')
     
@@ -159,8 +163,14 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
             Set up XML and run OpenWind
         """
 
-        sys.stderr.write("In {0}.execute()...\n".format(self.__class__))
-        print self.wt_layout.wt_positions
+        if self.debug:
+            sys.stderr.write("In {0}.execute()...\n".format(self.__class__))
+            
+        self.wt_layout.wt_positions = self.init_wt_positions
+        if self.debug:
+            for i in range(len(self.wt_layout.wt_positions)):
+                sys.stderr.write('{:3d} {:.1f} {:.1f}\n'.format(i, 
+                   self.wt_layout.wt_positions[i][0],self.wt_layout.wt_positions[i][1]))
 
         report_path = self.workDir + '/' + 'scrtest1.txt'
         workbook_path = self.workbook_path
@@ -184,7 +194,14 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
         #    and that self.wt_layout is correct
         
         #self.capacity_factor = ((self.net_aep) / (self.wt_layout.wt_list[0].power_rating * 8760.0 * len(self.wt_layout.wt_list)))
-        self.capacity_factor = ((self.net_aep) / (self.wt_layout.wt_list[0].power_rating * 8760.0 * self.nTurbs))
+        if (self.wt_layout.wt_list[0].power_rating is None or 
+            self.wt_layout.wt_list[0].power_rating == 0.0):
+            self.capacity_factor = 0.0
+            sys.stderr.write('\n*** WARNING: turbine power_rating not set\n\n')
+        else:
+            self.capacity_factor = ((self.net_aep) / (self.wt_layout.wt_list[0].power_rating * 8760.0 * self.nTurbs))
+        
+        self.total_losses = (self.gross_aep - self.net_aep) / self.gross_aep
         
     # -------------------
     
@@ -227,33 +244,45 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
         if rp is None:
             sys.stderr.write('Can\'t find report path in "{:}"\n'.format(self.ow.script_file))
             return
-            
-        sys.stderr.write('Changing report path from "{:}" to "{:}"\n'.format(rp.get('value'),rptPathName))
+        
+        if self.debug:    
+            sys.stderr.write('Changing report path from "{:}" to "{:}"\n'.format(rp.get('value'),rptPathName))
         rp.set('value',rptPathName)
         
         rwScriptXML.wrtScript(e, newScriptName)
         self.ow.script_file = self.workDir + '/' + newScriptName
-        sys.stderr.write('Wrote new script file "{:}"\n'.format(self.ow.script_file))
+        if self.debug:    
+            sys.stderr.write('Wrote new script file "{:}"\n'.format(self.ow.script_file))
             
 #------------------------------------------------------------------
 
 def example():
 
+    debug = False 
+    for arg in sys.argv[1:]:
+        if arg == '-debug':
+            debug = True
+    
     owExe = 'C:/rassess/Openwind/OpenWind64_ac.exe'
+    from Plant_AEPSE.Openwind.findOW import findOW
+    owExe = findOW(debug=debug, academic=True)
     
     #workbook_path = 'C:/Models/OpenWind/Workbooks/OpenWind_Model.blb'
+    workbook_path = '../../test/VA_test.blb'
+    
     #turbine_name = 'NREL 5 MW'
-    workbook_path = 'C:/SystemsEngr/Test/VA_test.blb'
     turbine_name = 'Alstom Haliade 150m 6MW' # should match default turbine in workbook
+    machine_rating = 6000.0
+    
     #script_file = 'C:/SystemsEngr/test/ecScript.xml'
-    script_file = 'C:/SystemsEngr/test/owacScript.xml' # optimize operation
+    script_file = '../../test/owacScript.xml' # optimize operation
     
     #wt_positions = [[456000.00,4085000.00],
     #                [456500.00,4085000.00]]
     wt_positions = getworkbookvals.getTurbPos(workbook_path, owExe)
-    for i in range(len(wt_positions)):
-        sys.stderr.write('Turb{:2d} {:.1f} {:.1f}\n'.format(i,wt_positions[i][0],wt_positions[i][1]))
-    # Pass these positions to openWindAcComponent somehow
+    if debug:
+        for i in range(len(wt_positions)):
+            sys.stderr.write('Turb{:2d} {:.1f} {:.1f}\n'.format(i,wt_positions[i][0],wt_positions[i][1]))
 
     # should check for existence of both owExe and workbook_path before
     #   trying to run openwind
@@ -262,7 +291,8 @@ def example():
                              turbine_name=turbine_name, 
                              script_file=script_file,
                              wt_positions=wt_positions,
-                             debug=True)
+                             machine_rating=machine_rating,
+                             debug=debug) 
     owAsy.updateRptPath('newReport.txt', 'newTestScript.xml')
     
     # Originally, there was a turbine power/ct/rpm definition here, but that's not
@@ -270,14 +300,16 @@ def example():
     
     owAsy.execute() # run the openWind process
 
-    otherLosses = 1.0 - (owAsy.net_aep/owAsy.array_aep)
+    #otherLosses = 1.0 - (owAsy.net_aep/owAsy.array_aep)
     
-    print 'Gross {:.4f} kWh'.format(owAsy.gross_aep*0.001)
-    print 'Array losses {:.2f} %'.format(owAsy.array_losses*100.0)
-    print 'Array {:.4f} kWh'.format(owAsy.array_aep*0.001)
-    print 'Other losses {:.2f} %'.format(otherLosses*100.0)
-    print 'Net   {:.4f} kWh'.format(owAsy.net_aep*0.001)
-    print 'CF    {:.4f} %'.format(owAsy.capacity_factor*100.0)
+    print 'openwindAC_assembly results:'
+    print '  Gross {:.4f} kWh'.format(owAsy.gross_aep*0.001)
+    print '  Net   {:.4f} kWh'.format(owAsy.net_aep*0.001)
+    print '  Total losses {:.2f} %'.format(owAsy.total_losses*100.0)
+    #print '  Array losses {:.2f} %'.format(owAsy.array_losses*100.0)
+    #print '  Array {:.4f} kWh'.format(owAsy.array_aep*0.001)
+    #print '  Other losses {:.2f} %'.format(otherLosses*100.0)
+    print '  CF    {:.4f} %'.format(owAsy.capacity_factor*100.0)
 
 if __name__ == "__main__":
 

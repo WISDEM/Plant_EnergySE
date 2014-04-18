@@ -4,11 +4,8 @@
 
 # Utility functions for working with OpenWind Academic version
 #   - writePositionFile(): write new turbine location file
-#   - wait for a new 'results.txt' file
-#   - extract locations from file
-#   - wait for notify file (IN)
+#   - waitForNotify(watchFile='results.txt'): wait for a new 'results.txt' file
 #   - writeNotify(): write notify file (OUT)
-#   - convertToLayout(): convert file to fused_wind layout
 
 #   - class WTPosFile(WEFileIO) - read turbine positions from text file
 #   - class WTWkbkFile(object)  - read turbine positions from OpenWind workbook
@@ -47,16 +44,13 @@ class MyNotifyMLHandler(FileSystemEventHandler):
         self.callback = callback
         
     def on_modified(self, event):
-        #print "Detected modification! {:} {:}".format(event.src_path, event.event_type)
-        #if event.src_path.endswith('notifyML.txt'):
-        #if event.src_path.endswith(self.watchFile):
         if os.path.basename(event.src_path) == os.path.basename(self.watchFile):
             if self.debug:
                 sys.stderr.write('Detected modified {:} file'.format(self.watchFile))
                 sys.stderr.write('  Modtime {:} '.format(time.asctime(time.localtime(os.path.getmtime(event.src_path)))))
             self.observer.stop()
             
-            # read results.txt
+            # read results.txt (if that's what we're waiting for) and return netEnergy
             
             if os.path.basename(event.src_path) == 'results.txt':
                 try:
@@ -96,12 +90,12 @@ class MyNotifyMLHandler(FileSystemEventHandler):
 def waitForNotify(watchFile='notifyML.txt', path='.', callback=None, debug=False):
     ''' wait for Openwind to write 'notifyML.txt' (or other watchFile)
     
-    2014 04 10: OW doesn't write notifyML.txt, so usually we watch for 'results.txt'
-              : added path argument so we can watch folder that contains workbook
+        2014 04 10: OW doesn't write notifyML.txt, so usually we watch for 'results.txt'
+                  : added path argument so we can watch folder that contains workbook
     '''
     
     observer = Observer()
-    event_handler = MyNotifyMLHandler(observer, watchFile, callback=callback, debug=True)
+    event_handler = MyNotifyMLHandler(observer, watchFile, callback=callback, debug=debug)
     observer.schedule(event_handler, path=path, recursive=False)
     observer.start()
 
@@ -124,7 +118,7 @@ def writePositionFile(wt_positions, debug=False, path=None):
           (could be the wt_positions array from a GenericWindFarmTurbineLayout object
         coordinates should be in UTM meters '''
         
-    ofname = 'positions.txt'
+    ofname = 'positions.txt' # OpenWind looks for this exact name
     if path is not None:
         ofname = '/'.join([path,ofname])
     try:
@@ -134,6 +128,8 @@ def writePositionFile(wt_positions, debug=False, path=None):
         return 0
     
     nt = len(wt_positions)
+    if nt == 0:
+        sys.stderr.write('\n*** WARNING: calling writePositionFile() with zero-length wt_positions\n\n')
     if debug:
         sys.stderr.write('writePositionFile: {:} Nturb {:}\n\n'.format(ofname,nt))
     
@@ -149,7 +145,7 @@ def writePositionFile(wt_positions, debug=False, path=None):
 def writeNotify(path=None, debug=False):
     ''' write 'notifyOW.txt' to let OW know that 'positions.txt' is ready '''
 
-    ofname = 'notifyOW.txt'
+    ofname = 'notifyOW.txt' # OpenWind looks for this exact name
     if path is not None:
         ofname = '/'.join([path,ofname])
     try:
@@ -161,20 +157,6 @@ def writeNotify(path=None, debug=False):
         return 0
     if debug:
         sys.stderr.write('writeNotify: {:}\n'.format(ofname))
-    return 1
-    
-#--------------
-    
-def convertToLayout(fname='results.txt'):
-    # read/parse OpenWind optimization output file
-      
-    try:
-        fh = open(fname,'r')
-    except:
-        sys.stderr.write('\n*** ERROR in convertToLayout: opening {:} for writing\n'.format(fname))
-        return 0
-    
-    fh.close()
     return 1
     
 #--------------
@@ -220,9 +202,16 @@ class WTPosFile(WEFileIO):
         WEFileIO calls _read on creation, but can be called when file changes
     '''
     
-    def _read(self, debug=True):
+    def __init__(self, filename=None, debug=False):
+        super(WTPosFile, self).__init__()
+        self.debug = debug
+        self.filename = filename
+        
+        self._read()
+        
+    def _read(self):
         self.xy = np.loadtxt(self.filename, comments='#')
-        if debug:
+        if self.debug:
             sys.stderr.write('WTPosFile: read array {:} from {:}\n'.format(self.xy.shape, self.filename))
             for i in range(self.xy.shape[0]):
                 for j in range(self.xy.shape[1]):
@@ -236,14 +225,17 @@ class WTWkbkFile(object):
           - positions are saved in self.xy (a NumPy ndarray)
           - uses getworkbookvals::getTurbPos() which calls OpenWind
     '''
-    def __init__(self, wkbk=None, owexe=None):
+    def __init__(self, wkbk=None, owexe=None, debug=False):
         self.wkbk = wkbk
         self.owexe = owexe
+        self.debug = debug
         
-    def _read(self, debug=True):
+        self._read()
+        
+    def _read(self):
         self.xy = np.array(gwb.getTurbPos(self.wkbk, self.owexe, delFiles=True))
         
-        if debug:
+        if self.debug:
             sys.stderr.write('WTWkbkFile: read array {:} from {:}\n'.format(self.xy.shape, self.wkbk))
             for i in range(self.xy.shape[0]):
                 for j in range(self.xy.shape[1]):

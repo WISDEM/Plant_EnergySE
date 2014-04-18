@@ -49,12 +49,12 @@ class OWACcomp(Component):
 
     # outputs
     
-    array_efficiency = Float(0.0, iotype='out', desc='Array Efficiency')
     gross_aep        = Float(0.0, iotype='out', desc='Gross Output')
     net_aep          = Float(0.0, iotype='out', desc='Net Output')
-    array_losses     = Float(0.0, iotype='out', desc='Array losses')
     nTurbs           = Int(0,     iotype='out', desc='Number of turbines')
-    array_aep        = Float(0.0, iotype='out', desc='Array output - NOT USED IN ACADEMIC VERSION')
+    #array_aep        = Float(0.0, iotype='out', desc='Array output - NOT USED IN ACADEMIC VERSION')
+    #array_efficiency = Float(0.0, iotype='out', desc='Array Efficiency')
+    #array_losses     = Float(0.0, iotype='out', desc='Array losses')
     
     #------------------ 
     
@@ -86,14 +86,13 @@ class OWACcomp(Component):
         
         self.command = [owExe, self.script_file]
         
-        #self.wt_positions = []
-
     #------------------ 
     
     def execute(self):
         """ Executes our component. """
 
-        sys.stderr.write("  In {0}.execute() {1}...\n".format(self.__class__, self.script_file))
+        if self.debug:
+            sys.stderr.write("  In {0}.execute() {1}...\n".format(self.__class__, self.script_file))
 
         # Prepare input file here
         #   - write a new script file?
@@ -163,15 +162,20 @@ class OWACcomp(Component):
         #if self.debug:
         #    sys.stderr.write('Writing position file\n')
         #acutils.writePositionFile(self.wt_positions, path=dname, debug=self.debug)
+        #if self.debug:
+        #    sys.stderr.write('wt_p: {:} shape {:}\n'.format(self.wt_layout.wt_positions.__class__, 
+        #                  self.wt_layout.wt_positions.shape))
         acutils.writePositionFile(self.wt_layout.wt_positions, path=dname, debug=self.debug)
         
         # see if results.txt is there already
         
         if os.path.exists(resname):
             resmtime = os.path.getmtime(resname)
-            sys.stderr.write('ModTime({:}): {:}\n'.format(resname, time.asctime(time.localtime(resmtime))))
+            if self.debug:
+                sys.stderr.write('ModTime({:}): {:}\n'.format(resname, time.asctime(time.localtime(resmtime))))
         else:
-            sys.stderr.write('{:} does not exist yet\n'.format(resname))
+            if self.debug:
+                sys.stderr.write('{:} does not exist yet\n'.format(resname))
             
         acutils.writeNotify(path=dname, debug=self.debug) # tell OW that we're ready for the next (only) iteration
         
@@ -180,7 +184,8 @@ class OWACcomp(Component):
         if os.path.exists(resname):
             resNewmtime = os.path.getmtime(resname)
             if resNewmtime > resmtime: # file has changed
-                sys.stderr.write('results.txt already updated')
+                if self.debug:
+                    sys.stderr.write('results.txt already updated')
             else:
                 acutils.waitForNotify(watchFile=resname, path=dname, callback=self.getCBvalue, debug=self.debug)
         else:
@@ -207,8 +212,9 @@ class OWACcomp(Component):
             sys.stderr.write('{:}\n'.format(self.dump()))
         
         # Set the output variables
-        self.array_efficiency = self.array_aep / self.gross_aep        
-        self.array_losses = 1 - (self.array_aep/self.gross_aep)
+        #   - array_aep is not available from Academic 'results.txt' file
+        #self.array_efficiency = self.array_aep / self.gross_aep        
+        #self.array_losses = 1 - (self.array_aep/self.gross_aep)
         
         #if self.debug:
         #    sys.stderr.write('Gross {:.1f} Net {:.1f}\n'.format(self.gross_aep, self.net_aep))
@@ -239,9 +245,14 @@ class OWACcomp(Component):
 
 if __name__ == "__main__":
 
+    debug = False
+    for arg in sys.argv[1:]:
+        if arg == '-debug':
+            debug = True
+            
     #owexe = 'C:/rassess/Openwind/OpenWind64_ac.exe'
     from Plant_AEPSE.Openwind.findOW import findOW
-    owexe = findOW(debug=True, academic=True)
+    owexe = findOW(debug=debug, academic=True)
     if not os.path.isfile(owexe):
         sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owexe))
         exit()
@@ -258,9 +269,9 @@ if __name__ == "__main__":
         sys.stderr.write('OpenWind script file "{:}" not found\n'.format(owXMLname))
         exit()
     
-    rwScriptXML.rdScript(owXMLname,debug=True) # Show our operations
+    rwScriptXML.rdScript(owXMLname,debug=debug) # Show our operations
     
-    ow = OWACcomp(owExe=owexe, debug=True) #, stopOW=False)
+    ow = OWACcomp(owExe=owexe, debug=debug) #, stopOW=False)
     ow.script_file = owXMLname
     
     wt_positions = [[456000.00,4085000.00],

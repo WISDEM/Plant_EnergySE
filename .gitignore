@@ -95,3 +95,8 @@ Thumbs.db
 *.old
 *.pyold
 
+# OpenWind generated files #
+############################
+notifyML.txt
+notifyOW.txt
+*.txt

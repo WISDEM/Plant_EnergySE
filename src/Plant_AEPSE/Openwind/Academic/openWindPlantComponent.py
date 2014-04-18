@@ -34,10 +34,13 @@ class PlantFromPosFile(Component):
                             desc='Windrose array [directions, frequency, weibull_A, weibull_k]', 
                             unit='m/s')
 
+    def __init__(self, debug=False):
+        super(PlantFromPosFile, self).__init__()
+        self.debug = debug
 
     def execute(self):
         ### Reading the positions file
-        wtp = acutils.WTPosFile(self.filename)
+        wtp = acutils.WTPosFile(filename=self.filename, debug=self.debug)
         
         self.wt_layout.wt_positions = np.zeros([wtp.xy.shape[0],2])
         for i in range(wtp.xy.shape[0]):
@@ -74,15 +77,16 @@ class PlantFromOWWorkbook(Component):
     wt_layout = VarTree(GenericWindFarmTurbineLayout(), iotype='out', desc='wind turbine properties and layout')
     wind_rose_array = Array(iotype='out', desc='Windrose array [directions, frequency, weibull_A, weibull_k]', unit='m/s')
 
-
-    #def __init__(self, wkbk=None, owexe=None):
+    def __init__(self, wkbk=None, owexe=None, debug=False):
+        super(PlantFromOWWorkbook, self).__init__()
+        self.debug = debug
     #    self.wkbk = wkbk
     #    self.owexe = owexe
     #    print self.wt_layout.__class__
         
     def execute(self):
         ### Reading the positions file
-        wkb = acutils.WTWkbkFile(self.wkbk, self.owexe)
+        wkb = acutils.WTWkbkFile(self.wkbk, self.owexe, debug=self.debug)
         wkb._read()
         xy = wkb.xy
         
@@ -113,9 +117,14 @@ class PlantFromOWWorkbook(Component):
 
 if __name__ == "__main__":
 
+    debug = False
+    for arg in sys.argv[1:]:
+        if arg == '-debug':
+            debug = True
+
     print '\n-------------------- Test Position.txt file ----------\n'
     
-    ppf = PlantFromPosFile()
+    ppf = PlantFromPosFile(debug=debug)
     ppf.filename = '../../test/defaultPositions.txt'
     
     ppf.execute()
@@ -127,11 +136,11 @@ if __name__ == "__main__":
     wbname = '../../test/VA_test.blb'
     
     from Plant_AEPSE.Openwind.findOW import findOW
-    owexe = findOW(debug=True)
+    owexe = findOW(debug=debug)
     #owexe = 'C:/rassess/OpenWind/Openwind64.exe'
       
     #pwb = PlantFromOWWorkbook(wkbk=wbname, owexe=owexe)  
-    pwb = PlantFromOWWorkbook()
+    pwb = PlantFromOWWorkbook(debug=debug)
     pwb.wkbk=wbname
     pwb.owexe=owexe
     

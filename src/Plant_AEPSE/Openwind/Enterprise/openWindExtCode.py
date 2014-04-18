@@ -47,7 +47,7 @@ class OWwrapped(ExternalCode):
     
     #------------------ 
     
-    def __init__(self, owExe, scriptFile=None):
+    def __init__(self, owExe, scriptFile=None, debug=False):
         """ Constructor for the OWwrapped component """
 
         super(OWwrapped, self).__init__()
@@ -57,6 +57,8 @@ class OWwrapped(ExternalCode):
         self.input_file = 'myinput.txt'
         self.output_file = 'myoutput.txt'
         self.stderr = 'myerror.log'
+        
+        self.debug = debug
         
         self.script_file = 'script_file.xml' # replace with actual file name
         if scriptFile is not None:
@@ -79,7 +81,8 @@ class OWwrapped(ExternalCode):
     def execute(self):
         """ Executes our file-wrapped component. """
 
-        sys.stderr.write("  In {0}.execute()...\n".format(self.__class__))
+        if self.debug:
+            sys.stderr.write("  In {0}.execute()...\n".format(self.__class__))
 
         # Prepare input file here
         #   - write a new script file?
@@ -91,13 +94,14 @@ class OWwrapped(ExternalCode):
         self.command[1] = self.script_file
         super(OWwrapped, self).execute()
         
-        sys.stderr.write('Ran openWindExtCode: dummyVbl {:} returnCode {:}\n'.format(self.dummyVbl,self.return_code))
+        if self.debug:
+            sys.stderr.write('Ran openWindExtCode: dummyVbl {:} returnCode {:}\n'.format(self.dummyVbl,self.return_code))
 
         # Parse output file 
         
-        rptpath = rdScript(self.command[1], debug=True) #False) # get output file name from script
+        rptpath = rdScript(self.command[1], debug=self.debug) # get output file name from script
         
-        self.gross_aep, self.array_aep, self.net_aep, owTurbs = utils.rdReport(rptpath, debug=False) 
+        self.gross_aep, self.array_aep, self.net_aep, owTurbs = utils.rdReport(rptpath, debug=self.debug) 
         self.nTurbs = len(owTurbs)
         
         #print 'Gross {:.4f} GWh'.format(self.gross_aep)
@@ -123,22 +127,27 @@ class OWwrapped(ExternalCode):
         # returns a string with a summary of object parameters
         dumpstr = ''
         dumpstr += 'Gross {:10.4f} GWh Net {:10.4f} GWh from {:4d} turbines'.format(
-        self.gross_aep*0.000001,self.net_aep*0.000001, self.nTurbs)
+            self.gross_aep*0.000001,self.net_aep*0.000001, self.nTurbs)
         return dumpstr
         
 #------------------------------------------------------------------
 
 if __name__ == "__main__":
  
-    owname = 'C:/rassess/Openwind/OpenWind64.exe' # GS path
-    if not os.path.isfile(owname):
-        owname = 'C:/Models/Openwind/OpenWind64.exe' #KLD path
+    debug = False
+    for arg in sys.argv[1:]:
+        if arg == '-debug':
+            debug = True
+
+    #owname = 'C:/rassess/Openwind/OpenWind64.exe' # GS path
+    from Plant_AEPSE.Openwind.findOW import findOW
+    owname = findOW(debug=debug)
     if not os.path.isfile(owname):
         sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owname))
         exit()
 
     #owXMLname = 'C:/Python27/openmdao-0.7.0/twister/models/AEP/testOWScript1.xml'
-    owXMLname = 'C:/Python27/openmdao-0.7.0/twister/models/AEP/VA_ECap.xml'
+    #owXMLname = 'C:/Python27/openmdao-0.7.0/twister/models/AEP/VA_ECap.xml'
     #owXMLname = 'C:/SystemsEngr/Plant_AEPSE-master/src/Plant_AEPSE/Openwind/Enterprise/testOWScript.xml'
     #owXMLname = 'C:/SystemsEngr/Plant_AEPSE_GNS/src/Plant_AEPSE/Openwind/Enterprise/testOWScript.xml'
     owXMLname = '../../test/ecScript.xml'
@@ -147,7 +156,7 @@ if __name__ == "__main__":
         sys.stderr.write('OpenWind script file "{:}" not found\n'.format(owXMLname))
         exit()
     
-    ow = OWwrapped(owExe = owname)
+    ow = OWwrapped(owExe = owname, debug=debug)
     ow.script_file = owXMLname
     
     ow.execute() # run the openWind process
