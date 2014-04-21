@@ -84,6 +84,7 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
                  turbine_name=None, script_file=None, academic=True,
                  wt_positions=None,
                  machine_rating=None,
+                 start_once=False,
                  debug=False):
         """ Creates a new LCOE Assembly object """
 
@@ -109,6 +110,7 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
         self.academic = academic
         self.debug = debug
         self.machine_rating = machine_rating
+        self.start_once = start_once
         
         if wt_positions is not None:
             self.init_wt_positions = wt_positions    
@@ -134,7 +136,10 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
         
         super(openwindAC_assembly, self).configure()        
         
-        ow = OWACcomp(self.openwind_executable, scriptFile=self.script_file, debug=self.debug)
+        ow = OWACcomp(self.openwind_executable, 
+                      scriptFile=self.script_file, 
+                      start_once=self.start_once,
+                      debug=self.debug)
         self.add('ow', ow)
         
         self.driver.workflow.add(['ow'])
@@ -259,9 +264,13 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
 def example():
 
     debug = False 
+    start_once = False
+    
     for arg in sys.argv[1:]:
         if arg == '-debug':
             debug = True
+        if arg == '-once':
+            start_once = True
     
     owExe = 'C:/rassess/Openwind/OpenWind64_ac.exe'
     from Plant_AEPSE.Openwind.findOW import findOW
@@ -279,7 +288,7 @@ def example():
     
     #wt_positions = [[456000.00,4085000.00],
     #                [456500.00,4085000.00]]
-    wt_positions = getworkbookvals.getTurbPos(workbook_path, owExe)
+    wt_positions = getworkbookvals.getTurbPos(workbook_path, owExe, delFiles=False)
     if debug:
         for i in range(len(wt_positions)):
             sys.stderr.write('Turb{:2d} {:.1f} {:.1f}\n'.format(i,wt_positions[i][0],wt_positions[i][1]))
@@ -292,6 +301,7 @@ def example():
                              script_file=script_file,
                              wt_positions=wt_positions,
                              machine_rating=machine_rating,
+                             start_once = start_once,
                              debug=debug) 
     owAsy.updateRptPath('newReport.txt', 'newTestScript.xml')
     
