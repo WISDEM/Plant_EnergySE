@@ -259,6 +259,14 @@ class OWACcomp(Component):
         '''
         self.net_aep = val
 
+    #------------------ 
+    
+    def terminateOW(self):
+        ''' Terminate the OpenWind process '''
+        if self.debug:
+            sys.stderr.write('Stopping OpenWind with pid {:}\n'.format(self.pid))
+        self.proc.terminate()
+        
 #------------------------------------------------------------------
 
 if __name__ == "__main__":
@@ -286,25 +294,50 @@ if __name__ == "__main__":
     owXMLname = '../../test/rtecScript.xml' # replace turb, energy capture
     owXMLname = '../../test/owacScript.xml' # optimize operation
     
+    #owXMLname = '../../test/owac100Script.xml' # optimize operation
+    
     if not os.path.isfile(owXMLname):
         sys.stderr.write('OpenWind script file "{:}" not found\n'.format(owXMLname))
         exit()
     
     rwScriptXML.rdScript(owXMLname,debug=debug) # Show our operations
     
+    wt_positions = [[456000.00,4085000.00],
+                    [456500.00,4085000.00]]
+    deltaX =  3000.0
+    deltaY = -2000.0
+    
+    # Read turbine positions from workbook
+    
+    e = rwScriptXML.parseScript(owXMLname)
+    ops = e.xpath('//Operation')
+    workbook = None
+    for op in ops:
+        if op.find('Type').get('value') == 'Change Workbook':
+            workbook = op.find('Path').get('value')
+            
+    wb = acutils.WTWkbkFile(wkbk=workbook, owexe=owexe)
+    wt_positions = wb.xy
+    deltaX =  200.0
+    deltaY = -200.0
+    
+    # Initialize OWACcomp component
+        
     #ow = OWACcomp(owExe=owexe, debug=debug) #, stopOW=False)
     #ow.script_file = owXMLname
     ow = OWACcomp(owExe=owexe, debug=debug, scriptFile=owXMLname, start_once=start_once)
     
-    wt_positions = [[456000.00,4085000.00],
-                    [456500.00,4085000.00]]
-    
     # move turbines farther offshore with each iteration
     
+    if debug:
+        ofh = open('wtp.txt', 'w')
+        
     for irun in range(1,4):
         for i in range(len(wt_positions)):
-            wt_positions[i][0] += 3000.
-            wt_positions[i][1] -= 2000.
+            wt_positions[i][0] += deltaX
+            wt_positions[i][1] += deltaY
+            if debug:
+                ofh.write('{:2d} {:3d} {:.1f} {:.1f}\n'.format(irun, i, wt_positions[i][0], wt_positions[i][1]))
         ow.wt_layout.wt_positions = wt_positions
         
         ow.execute() # run the openWind process
@@ -313,4 +346,7 @@ if __name__ == "__main__":
         owd = ow.dump()
         print '  {:}'.format(owd)
         print '-' * 40, '\n'
-                    
+
+    if start_once:
+        ow.terminateOW()
+        

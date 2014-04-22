@@ -1,0 +1,252 @@
+<?xml version='1.0' encoding='ASCII'?>
+<!DOCTYPE OWTestTurb>
+<OWTestTurb>
+  <Name>OpenWind Test Turbine</Name>
+  <HubHeight value="100"/>
+  <RotorDiameter value="126"/>
+  <VoltageV value="690"/>
+  <CapacityKW value="3000"/>
+  <IsPitchControlled value="1"/>
+  <LowCutIn value="3"/>
+  <HighCutOut value="25"/>
+  <IEC_adjustment value="0"/>
+  <NumBlades value="3"/>
+  <LowTemperatureShutDown value="-30"/>
+  <HighTemperatureShutDown value="45"/>
+  <LowTemperatureUnits value="0"/>
+  <HighTemperatureUnits value="0"/>
+  <LowTemperatureRestart value="-20"/>
+  <HighTemperatureRestart value="30"/>
+  <IsVariableSpeed value="1"/>
+  <TiltAngleDegrees value="5"/>
+  <PeakOutputKW value="3000"/>
+  <SpeedClass value="1"/>
+  <TiClass value="1"/>
+  <SpeedMax value="10"/>
+  <TiMax value="14"/>
+  <Comments>This is not a warrantied power curve.</Comments>
+  <Power_Tables>
+    <Count value="1"/>
+    <Power_Table0>
+      <Type>TurbineTable</Type>
+      <TI_min value="0"/>
+      <TI_max value="60"/>
+      <Velocities>
+        <Count value="26"/>
+        <Velocity0 value="0.000"/>
+        <Velocity1 value="1.000"/>
+        <Velocity2 value="2.000"/>
+        <Velocity3 value="3.000"/>
+        <Velocity4 value="4.000"/>
+        <Velocity5 value="5.000"/>
+        <Velocity6 value="6.000"/>
+        <Velocity7 value="7.000"/>
+        <Velocity8 value="8.000"/>
+        <Velocity9 value="9.000"/>
+        <Velocity10 value="10.000"/>
+        <Velocity11 value="11.000"/>
+        <Velocity12 value="12.000"/>
+        <Velocity13 value="13.000"/>
+        <Velocity14 value="14.000"/>
+        <Velocity15 value="15.000"/>
+        <Velocity16 value="16.000"/>
+        <Velocity17 value="17.000"/>
+        <Velocity18 value="18.000"/>
+        <Velocity19 value="19.000"/>
+        <Velocity20 value="20.000"/>
+        <Velocity21 value="21.000"/>
+        <Velocity22 value="22.000"/>
+        <Velocity23 value="23.000"/>
+        <Velocity24 value="24.000"/>
+        <Velocity25 value="25.000"/>
+      </Velocities>
+      <AirDensities>
+        <Count value="1"/>
+        <Rho0 value="1.225"/>
+      </AirDensities>
+      <Values>
+        <Columns value="1"/>
+        <Rho1.225000>
+          <Rows value="26"/>
+          <v0-0 value="0.000"/>
+          <v0-1 value="0.000"/>
+          <v0-2 value="0.000"/>
+          <v0-3 value="50.000"/>
+          <v0-4 value="100.000"/>
+          <v0-5 value="150.000"/>
+          <v0-6 value="300.000"/>
+          <v0-7 value="1000.000"/>
+          <v0-8 value="1500.000"/>
+          <v0-9 value="2000.000"/>
+          <v0-10 value="2500.000"/>
+          <v0-11 value="3000.000"/>
+          <v0-12 value="3000.000"/>
+          <v0-13 value="3000.000"/>
+          <v0-14 value="3000.000"/>
+          <v0-15 value="3000.000"/>
+          <v0-16 value="3000.000"/>
+          <v0-17 value="3000.000"/>
+          <v0-18 value="3000.000"/>
+          <v0-19 value="3000.000"/>
+          <v0-20 value="3000.000"/>
+          <v0-21 value="3000.000"/>
+          <v0-22 value="3000.000"/>
+          <v0-23 value="3000.000"/>
+          <v0-24 value="3000.000"/>
+          <v0-25 value="3000.000"/>
+        </Rho1.225000>
+      </Values>
+    </Power_Table0>
+  </Power_Tables>
+  <Thrust_Table>
+    <Type>TurbineTable</Type>
+    <TI_min value="0"/>
+    <TI_max value="60"/>
+    <Velocities>
+      <Count value="26"/>
+      <Velocity0 value="0.000"/>
+      <Velocity1 value="1.000"/>
+      <Velocity2 value="2.000"/>
+      <Velocity3 value="3.000"/>
+      <Velocity4 value="4.000"/>
+      <Velocity5 value="5.000"/>
+      <Velocity6 value="6.000"/>
+      <Velocity7 value="7.000"/>
+      <Velocity8 value="8.000"/>
+      <Velocity9 value="9.000"/>
+      <Velocity10 value="10.000"/>
+      <Velocity11 value="11.000"/>
+      <Velocity12 value="12.000"/>
+      <Velocity13 value="13.000"/>
+      <Velocity14 value="14.000"/>
+      <Velocity15 value="15.000"/>
+      <Velocity16 value="16.000"/>
+      <Velocity17 value="17.000"/>
+      <Velocity18 value="18.000"/>
+      <Velocity19 value="19.000"/>
+      <Velocity20 value="20.000"/>
+      <Velocity21 value="21.000"/>
+      <Velocity22 value="22.000"/>
+      <Velocity23 value="23.000"/>
+      <Velocity24 value="24.000"/>
+      <Velocity25 value="25.000"/>
+    </Velocities>
+    <AirDensities>
+      <Count value="1"/>
+      <Rho0 value="1.225"/>
+    </AirDensities>
+    <Values>
+      <Columns value="1"/>
+      <Rho1.225000>
+        <Rows value="26"/>
+        <v0-0 value="0.000"/>
+        <v0-1 value="0.000"/>
+        <v0-2 value="0.000"/>
+        <v0-3 value="0.878"/>
+        <v0-4 value="0.880"/>
+        <v0-5 value="0.881"/>
+        <v0-6 value="0.881"/>
+        <v0-7 value="0.882"/>
+        <v0-8 value="0.882"/>
+        <v0-9 value="0.843"/>
+        <v0-10 value="0.764"/>
+        <v0-11 value="0.544"/>
+        <v0-12 value="0.390"/>
+        <v0-13 value="0.297"/>
+        <v0-14 value="0.235"/>
+        <v0-15 value="0.190"/>
+        <v0-16 value="0.156"/>
+        <v0-17 value="0.131"/>
+        <v0-18 value="0.111"/>
+        <v0-19 value="0.096"/>
+        <v0-20 value="0.083"/>
+        <v0-21 value="0.073"/>
+        <v0-22 value="0.064"/>
+        <v0-23 value="0.057"/>
+        <v0-24 value="0.051"/>
+        <v0-25 value="0.046"/>
+      </Rho1.225000>
+    </Values>
+  </Thrust_Table>
+  <RPM_Table>
+    <Type>TurbineTable</Type>
+    <TI_min value="0"/>
+    <TI_max value="60"/>
+    <Velocities>
+      <Count value="26"/>
+      <Velocity0 value="0.000"/>
+      <Velocity1 value="1.000"/>
+      <Velocity2 value="2.000"/>
+      <Velocity3 value="3.000"/>
+      <Velocity4 value="4.000"/>
+      <Velocity5 value="5.000"/>
+      <Velocity6 value="6.000"/>
+      <Velocity7 value="7.000"/>
+      <Velocity8 value="8.000"/>
+      <Velocity9 value="9.000"/>
+      <Velocity10 value="10.000"/>
+      <Velocity11 value="11.000"/>
+      <Velocity12 value="12.000"/>
+      <Velocity13 value="13.000"/>
+      <Velocity14 value="14.000"/>
+      <Velocity15 value="15.000"/>
+      <Velocity16 value="16.000"/>
+      <Velocity17 value="17.000"/>
+      <Velocity18 value="18.000"/>
+      <Velocity19 value="19.000"/>
+      <Velocity20 value="20.000"/>
+      <Velocity21 value="21.000"/>
+      <Velocity22 value="22.000"/>
+      <Velocity23 value="23.000"/>
+      <Velocity24 value="24.000"/>
+      <Velocity25 value="25.000"/>
+    </Velocities>
+    <AirDensities>
+      <Count value="1"/>
+      <Rho0 value="1.225"/>
+    </AirDensities>
+    <Values>
+      <Columns value="1"/>
+      <Rho1.225000>
+        <Rows value="26"/>
+        <v0-0 value="0.000"/>
+        <v0-1 value="1.000"/>
+        <v0-2 value="2.000"/>
+        <v0-3 value="3.000"/>
+        <v0-4 value="4.000"/>
+        <v0-5 value="5.000"/>
+        <v0-6 value="6.000"/>
+        <v0-7 value="7.000"/>
+        <v0-8 value="8.000"/>
+        <v0-9 value="9.000"/>
+        <v0-10 value="10.000"/>
+        <v0-11 value="11.000"/>
+        <v0-12 value="12.000"/>
+        <v0-13 value="13.000"/>
+        <v0-14 value="14.000"/>
+        <v0-15 value="15.000"/>
+        <v0-16 value="16.000"/>
+        <v0-17 value="17.000"/>
+        <v0-18 value="18.000"/>
+        <v0-19 value="19.000"/>
+        <v0-20 value="20.000"/>
+        <v0-21 value="21.000"/>
+        <v0-22 value="22.000"/>
+        <v0-23 value="23.000"/>
+        <v0-24 value="24.000"/>
+        <v0-25 value="25.000"/>
+      </Rho1.225000>
+    </Values>
+  </RPM_Table>
+  <TotalCost value="2000000"/>
+  <FoundationCost value="100000"/>
+  <TotalNoise value="100"/>
+  <Noise63hz value="0"/>
+  <Noise125hz value="0"/>
+  <Noise250hz value="0"/>
+  <Noise500hz value="0"/>
+  <Noise1000hz value="0"/>
+  <Noise2000hz value="0"/>
+  <Noise4000hz value="0"/>
+  <Noise8000hz value="0"/>
+</OWTestTurb>

@@ -22,6 +22,11 @@ import subprocess
 #-----------------------------------------
 
 def getTurbPos(workbook, owexe, delFiles=True):
+    '''
+      Run openWind executable 'owexe' 
+        - do an energy capture on 'workbook'
+        - return xy[nturb][2] with coordinates of turbines
+    '''
     
     rpath = 'gtpReport.txt'
     scriptname = 'gtpScript.xml'
