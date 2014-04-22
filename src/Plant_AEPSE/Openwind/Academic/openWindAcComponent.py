@@ -80,12 +80,13 @@ class OWACcomp(Component):
         self.start_once = start_once
         
         self.script_file = 'script_file.xml' # replace with actual file name
+        self.scriptOK = False
         if scriptFile is not None:
             self.script_file = scriptFile
 
             # Check script file for validity and extract some path information
         
-            scriptOK = self.parse_scriptFile()
+            self.scriptOK = self.parse_scriptFile()
         
         # Set the version of OpenWind that we want to use
         
@@ -108,11 +109,15 @@ class OWACcomp(Component):
         #   directory that contains the *blb workbook file
         # find where the results file will be found     
         
+        if not os.path.isfile(self.script_file):
+            sys.stderr.write('\n*** OpenWind script file "{:}" not found\n'.format(self.script_file))
+            return False
+
         try:
             e = etree.parse(self.script_file)
             self.rptpath = e.getroot().find('ReportPath').get('value')
         except:
-            sys.stderr.write("Can't find ReportPath in {:}\n".format(self.script_file))
+            sys.stderr.write("\n*** Can't find ReportPath in {:}\n".format(self.script_file))
             self.rptpath = 'NotFound'
         
         # Make sure there's an optimize operation - otherwise OWAC won't find anything
@@ -134,6 +139,10 @@ class OWACcomp(Component):
         for op in ops:
             if op.find('Type').get('value') == 'Change Workbook':
                 wkbk = op.find('Path').get('value')
+                if not os.path.isfile(wkbk):
+                    sys.stderr.write("\n*** OpenWind workbook file {:}\n  not found\n".format(wkbk))
+                    sys.stderr.write("  (specified in script file {:})\n".format(self.script_file))
+                    return False
                 self.dname = os.path.dirname(wkbk)
                 if self.debug:
                     sys.stderr.write('Working directory: {:}\n'.format(self.dname))
@@ -315,9 +324,13 @@ if __name__ == "__main__":
     for op in ops:
         if op.find('Type').get('value') == 'Change Workbook':
             workbook = op.find('Path').get('value')
-            
+    
+    if debug:
+        sys.stderr.write('Getting turbine positions from {:}\n'.format(workbook))        
     wb = acutils.WTWkbkFile(wkbk=workbook, owexe=owexe)
     wt_positions = wb.xy
+    if debug:
+        sys.stderr.write('Got {:} turbine positions\n'.format(len(wt_positions)))        
     deltaX =  200.0
     deltaY = -200.0
     
@@ -326,7 +339,10 @@ if __name__ == "__main__":
     #ow = OWACcomp(owExe=owexe, debug=debug) #, stopOW=False)
     #ow.script_file = owXMLname
     ow = OWACcomp(owExe=owexe, debug=debug, scriptFile=owXMLname, start_once=start_once)
-    
+    if not ow.scriptOK:
+        sys.stderr.write("\n*** ERROR found in script file\n\n")
+        exit()
+        
     # move turbines farther offshore with each iteration
     
     if debug:
