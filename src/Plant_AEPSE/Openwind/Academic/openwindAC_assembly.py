@@ -239,8 +239,8 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
     
     def updateRptPath(self, rptPathName, newScriptName):
         '''
-        Writes a new script file and sets internal script name
-        New script writes to 'rptPathName'
+        Writes a new script file and sets self.ow.script_file
+        New script is identical to current script, except that it writes to 'rptPathName'
         rptPathName should be a full path name (if possible)
         '''
         
@@ -265,12 +265,18 @@ def example():
 
     debug = False 
     start_once = False
+    modify_turbine = False
     
     for arg in sys.argv[1:]:
         if arg == '-debug':
             debug = True
         if arg == '-once':
             start_once = True
+        if arg == '-modturb':
+            modify_turbine = True
+        if arg == '-help':
+            sys.stderr.write('USAGE: python openWindAcComponent.py [-once] [-debug] [-modturb]\n')
+            exit()
     
     owExe = 'C:/rassess/Openwind/OpenWind64_ac.exe'
     from Plant_AEPSE.Openwind.findOW import findOW
@@ -285,9 +291,9 @@ def example():
     
     #script_file = 'C:/SystemsEngr/test/ecScript.xml'
     script_file = '../../test/owacScript.xml' # optimize operation
-    
-    #wt_positions = [[456000.00,4085000.00],
-    #                [456500.00,4085000.00]]
+    if modify_turbine:
+        script_file = '../../test/rtopScript.xml' # replace turbine, optimize
+        
     wt_positions = getworkbookvals.getTurbPos(workbook_path, owExe, delFiles=False)
     if debug:
         for i in range(len(wt_positions)):
@@ -305,6 +311,10 @@ def example():
                              debug=debug) 
     owAsy.updateRptPath('newReport.txt', 'newTestScript.xml')
     
+    if modify_turbine:
+        if debug:
+            ofh.write('Modifying turbine\n')
+                
     # Originally, there was a turbine power/ct/rpm definition here, but that's not
     # part of an owAsy, so that code is now in C:/SystemsEngr/test/pcrvtst.py
     

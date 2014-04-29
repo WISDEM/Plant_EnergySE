@@ -26,7 +26,9 @@ import rwTurbXML
 import numpy as np
 from lxml import etree
 
-from fused_plant_vt import GenericWindTurbineVT, GenericWindTurbinePowerCurveVT, \
+#from fused_plant_vt import GenericWindTurbineVT, GenericWindTurbinePowerCurveVT, \
+#                           ExtendedWindTurbinePowerCurveVT, GenericWindFarmTurbineLayout
+from fusedwind.plant_flow.fused_plant_vt import GenericWindTurbineVT, GenericWindTurbinePowerCurveVT, \
                            ExtendedWindTurbinePowerCurveVT, GenericWindFarmTurbineLayout
 
 #---------------------------------------------
@@ -55,19 +57,21 @@ def owtg_to_wtpc(owtg_file):
 
 #---------------------------------------------
 
-def wtpc_to_owtg(wtpc):
+def wtpc_to_owtg(wtpc, trbname='GenericTurbine', desc='GenericDescription'):
     ''' convert FUSED-Wind ExtendedWindTurbinePowerCurveVT to OWTG string for openWind '''
     
     #rpm = [0.0 for i in range(wtpc.power_curve.shape[0]) ] 
     # rpm not stored in GenericWindTurbinePowerCurveVT
     #  but it is in Extended...
     
-    trbname = 'GenericTurbine'
-    desc = 'GenericDescription'
-    
     turbtree = rwTurbXML.newTurbTree(trbname, desc,
-        wtpc.power_curve[:,0], wtpc.power_curve[:,1], wtpc.c_t_curve[:,1], wtpc.rpm_curve[:,1], 
-        wtpc.hub_height, wtpc.rotor_diameter, machineRating=wtpc.power_rating*0.001)
+        wtpc.power_curve[:,0], 
+        wtpc.power_curve[:,1], 
+        wtpc.c_t_curve[:,1], 
+        wtpc.rpm_curve[:,1], 
+        wtpc.hub_height, 
+        wtpc.rotor_diameter, 
+        machineRating=wtpc.power_rating*0.001)
         
     turbXML = etree.tostring(turbtree, 
                              xml_declaration=True,

@@ -136,7 +136,7 @@ def writePositionFile(wt_positions, debug=False, path=None):
     for i in range(nt):
         ofh.write('{:9.1f}\t{:10.1f}\n'.format(wt_positions[i][0],wt_positions[i][1]))
         if debug:
-            sys.stderr.write('writePositionFile: {:} {:9.1f}\t{:10.1f}\n'.format(i,wt_positions[i][0],wt_positions[i][1]))
+            sys.stderr.write('writePositionFile: {:} {:9.1f}\t{:10.1f}\n'.format(i+1,wt_positions[i][0],wt_positions[i][1]))
     ofh.close()
     return 1
     

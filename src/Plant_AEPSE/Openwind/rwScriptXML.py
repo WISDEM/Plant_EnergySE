@@ -61,7 +61,15 @@ def parseScript(fname, debug=False):
 def rdScript(fname, debug=False):
     ''' read an OpenWind XML script file and extract useful info 
         if debug, lists all operations found in script
+        returns a dictionary that may include the following keys:
+          rptpath
+          workbook
+          turbname
+          replturbname
+          replturbpath
     '''
+    
+    dscript = {} # dictionary to return
     
     #e = ET.parse(fname)
     #e = etree.parse(fname)
@@ -70,6 +78,7 @@ def rdScript(fname, debug=False):
     if debug:
         sys.stderr.write('\nrdScript: {:}\n'.format(fname))
     root = e.getroot()
+    
     #if debug:
     #    for child in root:
     #        sys.stderr.write('  {:}\n'.format(child.tag))
@@ -78,6 +87,7 @@ def rdScript(fname, debug=False):
     
     for atype in e.findall('ReportPath'):
         rptpath = atype.get('value').replace('\\','/')
+        dscript['rptpath'] = rptpath
         if debug:
             sys.stderr.write('  ReportPath: {:}\n'.format(rptpath))        
 
@@ -90,16 +100,24 @@ def rdScript(fname, debug=False):
             arg = ''
             optype = atype.find('Type').get('value')
             if optype == "Change Workbook":
-                arg = atype.find('Path').get('value')
+                wkbk = atype.find('Path').get('value')
+                dscript['workbook'] = wkbk
+                arg = wkbk
             if optype == "Replace Turbine Type":
-                arg = atype.find('TurbineName').get('value')
-                arg = arg + ' --> ' + atype.find('TurbinePath').get('value')
+                tname = atype.find('TurbineName').get('value')
+                tpath = atype.find('TurbinePath').get('value')
+                dscript['replturbname'] = tname
+                dscript['replturbpath'] = tpath
+                arg = tname + ' --> ' + tpath
+            if optype == "Optimize":
+                sys.stderr.write("\n*** WARNING: OpenWind prefers 'Optimise' to 'Optimize\n")
+                sys.stderr.write('  Please rename your operation\n\n')
             if debug:
                 sys.stderr.write('    Operation {:}: {:} {:}\n'.format(nop, optype, arg))        
     if debug:
         sys.stderr.write('\n')
        
-    return rptpath
+    return dscript
         
 #-------------- WRITING OPERATIONS --------------
 
@@ -303,7 +321,7 @@ def main():
     
     # Read it back
     
-    rptpath = rdScript(scriptFile, debug=True)
+    rptpath = rdScript(scriptFile, debug=True)['rptpath']
     #print 'Report path: {:}'.format(rptpath)
     
 #---------------------------------------------------

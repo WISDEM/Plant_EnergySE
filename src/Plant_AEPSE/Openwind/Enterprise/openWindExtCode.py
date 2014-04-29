@@ -99,7 +99,8 @@ class OWwrapped(ExternalCode):
 
         # Parse output file 
         
-        rptpath = rdScript(self.command[1], debug=self.debug) # get output file name from script
+        dscr = rdScript(self.command[1], debug=self.debug) # get output file name from script
+        rptpath = dscr['rptpath']
         
         self.gross_aep, self.array_aep, self.net_aep, owTurbs = utils.rdReport(rptpath, debug=self.debug) 
         self.nTurbs = len(owTurbs)
