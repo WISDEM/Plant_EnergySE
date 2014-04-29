@@ -397,7 +397,8 @@ if __name__ == "__main__":
     
     # Initialize OWACcomp component
         
-    ow = OWACcomp(owExe=owexe, debug=debug, scriptFile=owXMLname, start_once=start_once, opt_log=opt_log, stopOW=False)
+    ow = OWACcomp(owExe=owexe, debug=debug, scriptFile=owXMLname, start_once=start_once, opt_log=opt_log)
+           #, stopOW=False)
     if not ow.scriptOK:
         sys.stderr.write("\n*** ERROR found in script file\n\n")
         exit()
@@ -430,7 +431,15 @@ if __name__ == "__main__":
                 ofh.write('{:2d} {:3d} {:.1f} {:.1f}\n'.format(irun, i, wt_positions[i][0], wt_positions[i][1]))
         ow.wt_layout.wt_positions = wt_positions
         
+        # modify the turbine
+        
         ow.rotor_diameter += 1.0
+        if ow.replace_turbine:
+            wte = ow.wt_layout.wt_list[0]
+            wte.power_rating *= 1.05
+            for i in range(len(wte.power_curve)):
+                wte.power_curve[i][1] *= 1.05
+            ow.wt_layout.wt_list = [wte for i in range(len(ow.wt_layout.wt_list)) ]
         
         ow.execute() # run the openWind process
         
