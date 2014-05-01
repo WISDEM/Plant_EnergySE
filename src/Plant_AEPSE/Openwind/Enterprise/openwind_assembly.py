@@ -302,10 +302,25 @@ def example():
 
     # simple test of module
     
-    test_path = '../../../../test/'
+    debug = False 
+    
+    for arg in sys.argv[1:]:
+        if arg == '-debug':
+            debug = True
+        if arg == '-help':
+            sys.stderr.write('USAGE: python openwind_assembly.py [-debug]\n')
+            exit()
     
     #owExeV1130 = 'C:/Models/Openwind/OpenWind64.exe'
-    owExe = 'C:/rassess/Openwind/OpenWind64.exe'
+    #owExe = 'C:/rassess/Openwind/OpenWind64.exe'
+    from Plant_AEPSE.Openwind.findOW import findOW
+    owExe = findOW(debug=debug, academic=False)
+    if not os.path.isfile(owExe):
+        exit()
+
+    
+    test_path = '../../../../test/'
+    test_path = '../../test/'
     
     #workbook_path = 'C:/Models/OpenWind/Workbooks/OpenWind_Model.blb'
     #turbine_name = 'NREL 5 MW'
@@ -318,34 +333,35 @@ def example():
     # should check for existence of both owExe and workbook_path before
     #   trying to run openwind
     
-    ow = openwind_assembly(owExe, workbook_path, turbine_name=turbine_name, script_file=script_file)
-    ow.updateRptPath('newReport.txt', 'newTestScript.xml')
+    owAsm = openwind_assembly(owExe, workbook_path, turbine_name=turbine_name, script_file=script_file)
+    owAsm.updateRptPath('newReport.txt', 'newTestScript.xml')
     
-    ow.power_curve = np.array([[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, \
+    owAsm.power_curve = np.array([[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, \
                            11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0], \
                           [0.0, 0.0, 0.0, 187.0, 350.0, 658.30, 1087.4, 1658.3, 2391.5, 3307.0, \
                           4415.70, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, \
                           5000.0, 5000.0, 5000.0, 5000.0, 0.0]])
 
-    ow.ct = np.array([[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, \
+    owAsm.ct = np.array([[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, \
                            11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0], \
                           [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, \
                            1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]])
 
-    ow.rpm = np.array([[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, \
+    owAsm.rpm = np.array([[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, \
                            11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0], \
                           [7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, \
                            7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0]])
 
-    ow.execute() # run the openWind process
+    owAsm.execute() # run the openWind process
 
-    print 'Gross {:.4f} kWh'.format(ow.gross_aep*0.001)
-    print 'Array losses {:.2f} %'.format(ow.array_losses*100.0)
-    print 'Array {:.4f} kWh'.format(ow.array_aep*0.001)
-    otherLosses = 1.0 - (ow.net_aep/ow.array_aep)
-    print 'Other losses {:.2f} %'.format(otherLosses*100.0)
-    print 'Net   {:.4f} kWh'.format(ow.net_aep*0.001)
-    print 'CF    {:.4f} %'.format(ow.capacity_factor*100.0)
+    print 'openwind_assembly Final Values'
+    print '  Gross {:.4f} kWh'.format(owAsm.gross_aep*0.001)
+    print '  Array losses {:.2f} %'.format(owAsm.array_losses*100.0)
+    print '  Array {:.4f} kWh'.format(owAsm.array_aep*0.001)
+    otherLosses = 1.0 - (owAsm.net_aep/owAsm.array_aep)
+    print '  Other losses {:.2f} %'.format(otherLosses*100.0)
+    print '  Net   {:.4f} kWh'.format(owAsm.net_aep*0.001)
+    print '  CF    {:.4f} %'.format(owAsm.capacity_factor*100.0)
 
 if __name__ == "__main__":
 
