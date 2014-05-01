@@ -5,6 +5,7 @@
   Based on example from http://openmdao.org/docs/plugin-guide/filewrapper_plugin.html
   
   2014 03 26: GNS revisions
+  2014 05 01: GNS renamed nTurbs to turbine_number
   
 '''
 
@@ -43,7 +44,7 @@ class OWwrapped(ExternalCode):
     net_aep   = Float(0.0, iotype='out', desc='Net Output')
     array_aep = Float(0.0, iotype='out', desc='Array Output')
     array_losses = Float(0.0, iotype='out', desc='Array losses')
-    nTurbs = Int(0, iotype='out', desc='Number of turbines')
+    turbine_number = Int(0, iotype='out', desc='Number of turbines')
     
     #------------------ 
     
@@ -103,7 +104,7 @@ class OWwrapped(ExternalCode):
         rptpath = dscr['rptpath']
         
         self.gross_aep, self.array_aep, self.net_aep, owTurbs = utils.rdReport(rptpath, debug=self.debug) 
-        self.nTurbs = len(owTurbs)
+        self.turbine_number = len(owTurbs)
         
         #print 'Gross {:.4f} GWh'.format(self.gross_aep)
         #print 'Array {:.4f} GWh'.format(self.array_aep)
@@ -128,7 +129,7 @@ class OWwrapped(ExternalCode):
         # returns a string with a summary of object parameters
         dumpstr = ''
         dumpstr += 'Gross {:10.4f} GWh Net {:10.4f} GWh from {:4d} turbines'.format(
-            self.gross_aep*0.000001,self.net_aep*0.000001, self.nTurbs)
+            self.gross_aep*0.000001,self.net_aep*0.000001, self.turbine_number)
         return dumpstr
         
 #------------------------------------------------------------------

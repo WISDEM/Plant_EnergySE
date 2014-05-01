@@ -4,6 +4,7 @@
     2013 03 15: G. Scott
     2013 06 07: GNS - revisions
     2014 03 26: GNS - revisions to example: paths, etc.
+    2014 05 01: GNS - nTurbs replaced with turbine_number
     
     Requires
     --------
@@ -53,7 +54,6 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
     power_curve    = Array([], iotype='in', desc='wind turbine power curve')
     rpm            = Array([], iotype='in', desc='wind turbine rpm curve')
     ct             = Array([], iotype='in', desc='wind turbine ct curve')
-    turbine_number = Int(100, iotype='in', desc='plant number of turbines')
     machine_rating = Float(6000.0, iotype='in', desc='wind turbine rated power', unit='kW')
     availability   = Float(0.941, iotype='in', desc='wind plant availability')
     wt_layout      = VarTree(GenericWindFarmTurbineLayout(), iotype='in', desc='properties for each wind turbine and layout')    
@@ -70,11 +70,13 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
     array_aep       = Float(0.0, iotype='out', desc='Gross Annual Energy Production net of array impacts', unit='kWh')
     array_losses    = Float(0.0, iotype='out', desc='Array Losses')
     capacity_factor = Float(0.0, iotype='out', desc='capacity factor')
-    nTurbs          = Int(0, iotype='out', desc='Number of turbines')
+    turbine_number = Int(100, iotype='out', desc='plant number of turbines')
+    #nTurbs          = Int(0, iotype='out', desc='Number of turbines')
 
     # -------------------
     
-    def __init__(self, openwind_executable, workbook_path, turbine_name=None, script_file=None, academic=False):
+    def __init__(self, openwind_executable, workbook_path, turbine_name=None, script_file=None, 
+                 academic=False, debug=False):
         """ Creates a new LCOE Assembly object """
 
         foundErrors = False
@@ -97,6 +99,7 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
         self.turbine_name = turbine_name
         self.script_file = script_file
         self.academic = academic
+        self.debug = debug
         
         super(openwind_assembly, self).__init__()
 
@@ -121,7 +124,7 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
             sys.stderr.write('Use ../Academic/openwindAC_assembly.py instead\n')
             quit()
         else:
-            ow = OWwrapped(self.openwind_executable, scriptFile=self.script_file)
+            ow = OWwrapped(self.openwind_executable, scriptFile=self.script_file, debug=self.debug)
         self.add('ow', ow)
         
         self.driver.workflow.add(['ow'])
@@ -140,7 +143,7 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
         self.connect('ow.gross_aep', 'gross_aep')
         self.connect('ow.array_aep', 'array_aep')
         self.connect('ow.net_aep', 'net_aep')
-        self.connect('ow.nTurbs', 'nTurbs')
+        self.connect('ow.turbine_number', 'turbine_number')
     
     # -------------------
     
@@ -179,7 +182,7 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
         #    and that self.wt_layout is correct
         
         #self.capacity_factor = ((self.net_aep) / (self.wt_layout.wt_list[0].power_rating * 8760.0 * len(self.wt_layout.wt_list)))
-        self.capacity_factor = ((self.net_aep) / (self.wt_layout.wt_list[0].power_rating * 8760.0 * self.nTurbs))
+        self.capacity_factor = ((self.net_aep) / (self.wt_layout.wt_list[0].power_rating * 8760.0 * self.turbine_number))
         
     # -------------------
     
@@ -333,7 +336,8 @@ def example():
     # should check for existence of both owExe and workbook_path before
     #   trying to run openwind
     
-    owAsm = openwind_assembly(owExe, workbook_path, turbine_name=turbine_name, script_file=script_file)
+    owAsm = openwind_assembly(owExe, workbook_path, turbine_name=turbine_name, script_file=script_file,
+                              debug=debug)
     owAsm.updateRptPath('newReport.txt', 'newTestScript.xml')
     
     owAsm.power_curve = np.array([[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, \
@@ -355,6 +359,7 @@ def example():
     owAsm.execute() # run the openWind process
 
     print 'openwind_assembly Final Values'
+    print '  NumTurbs {:}'.format(owAsm.turbine_number)
     print '  Gross {:.4f} kWh'.format(owAsm.gross_aep*0.001)
     print '  Array losses {:.2f} %'.format(owAsm.array_losses*100.0)
     print '  Array {:.4f} kWh'.format(owAsm.array_aep*0.001)
