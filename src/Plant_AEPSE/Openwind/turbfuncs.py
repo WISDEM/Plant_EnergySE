@@ -22,6 +22,7 @@ class ExtendedWindTurbinePowerCurveVT(GenericWindTurbinePowerCurveVT):
     pitch_curve = Array(desc='The wind turbine pitch curve', unit='deg') 
     
 """
+import sys, os
 import rwTurbXML
 import numpy as np
 from lxml import etree
@@ -34,7 +35,7 @@ from fusedwind.plant_flow.fused_plant_vt import GenericWindTurbineVT, GenericWin
 #---------------------------------------------
 
 def owtg_to_wtpc(owtg_file):
-    ''' convert OWTG string for openWind to FUSED-Wind ExtendedWindTurbinePowerCurveVT '''
+    ''' convert OWTG turbine definition file for openWind to FUSED-Wind ExtendedWindTurbinePowerCurveVT '''
     
     wtpc = ExtendedWindTurbinePowerCurveVT()
     tree = rwTurbXML.parseOWTG(owtg_file)
@@ -64,6 +65,11 @@ def wtpc_to_owtg(wtpc, trbname='GenericTurbine', desc='GenericDescription'):
     # rpm not stored in GenericWindTurbinePowerCurveVT
     #  but it is in Extended...
     
+    #sys.stderr.write('{:}\n'.format(wtpc.power_curve.__class__))
+    if wtpc.power_curve.ndim < 2:
+        sys.stderr.write('\n*** WARNING: wtpc power curve not specified\n\n')
+        return ''
+    
     turbtree = rwTurbXML.newTurbTree(trbname, desc,
         wtpc.power_curve[:,0], 
         wtpc.power_curve[:,1], 
@@ -78,6 +84,18 @@ def wtpc_to_owtg(wtpc, trbname='GenericTurbine', desc='GenericDescription'):
                              doctype='<!DOCTYPE {:}>'.format(trbname), 
                              pretty_print=True)
     return turbXML
+
+#---------------------------------------------
+
+def wtpc_dump(wtpc):
+    ''' dump FUSED-Wind ExtendedWindTurbinePowerCurveVT contents to string '''
+    s = 'Dump of ExtendedWindTurbinePowerCurveVT\n'
+    s = s + '  HH {:5.1f}m\n  RD {:5.1f}m\n  PR {:7.1f}kW\n'.format(wtpc.hub_height, wtpc.rotor_diameter, wtpc.power_rating)
+    if len(wtpc.power_curve) < 1:
+        s = s + '  *** No Power Curve specified!\n'
+    for i in range(len(wtpc.power_curve)):
+        s = s + '    {:4.1f} mps {:7.1f} kW\n'.format(wtpc.power_curve[i,0], wtpc.power_curve[i,1])
+    return  s
      
 #------------------------------------------------------------------
 
@@ -92,4 +110,7 @@ if __name__ == "__main__":
     
     txml = wtpc_to_owtg(wtpc)
     print txml
+    
+    s = wtpc_dump(wtpc)
+    print s
        

@@ -2,9 +2,19 @@
 # 2014 04 08
 '''
   Execute OpenWindAcademic as an OpenMDAO Component
-  
+  After execute(), the following variables have been updated:
+        nTurbs   
+        net_aep  
+        gross_aep
+  They can be accessed through appropriate connections.
+
   NOTE: Script file must contain an Optimize/Optimise operation - otherwise,
     no results will be found.
+  
+  Typical use (e.g., from an Assembly):
+    owac = OWACcomp(owExe, scriptFile=scrptName, debug=False, stopOW=True, start_once=False, opt_log=False)
+    
+  main() runs OWACcomp.execute() 3 times, moving and modifying the turbines each time
   
 '''
 
@@ -63,6 +73,9 @@ class OWACcomp(Component):
     def __init__(self, owExe, scriptFile=None, debug=False, stopOW=True, start_once=False, opt_log=False):
         """ Constructor for the OWACwrapped component """
 
+        self.debug = debug
+        if self.debug:
+            sys.stderr.write('\nIn {:}.__init__()\n'.format(self.__class__))
         super(OWACcomp, self).__init__()
 
         # public variables
@@ -77,22 +90,23 @@ class OWACcomp(Component):
             FileMetadata(path=self.stderr),
         ]
         
-        self.debug = debug
         self.stopOW = stopOW
         self.start_once = start_once
         self.replace_turbine = False
         self.opt_log = opt_log
         
-        self.script_file = 'script_file.xml' # replace with actual file name
+        self.script_file = scriptFile
         self.scriptOK = False
         if scriptFile is not None:
-            self.script_file = scriptFile
 
             # Check script file for validity and extract some path information
         
             self.scriptOK = self.parse_scriptFile()
             self.scriptDict = rwScriptXML.rdScript(self.script_file, self.debug)
-            print self.scriptDict
+            if self.debug:
+                sys.stderr.write('Script File Contents:\n')
+                for k in self.scriptDict.keys():
+                    sys.stderr.write('  {:12s} {:}\n'.format(k,self.scriptDict[k]))
         
         # Log all optimization settings?
         
@@ -120,6 +134,9 @@ class OWACcomp(Component):
             if self.debug:
                 sys.stderr.write('Started OpenWind with pid {:}\n'.format(self.pid))
                 sys.stderr.write('  OWACComp: dummyVbl {:}\n'.format(self.dummyVbl))
+        
+        if self.debug:
+            sys.stderr.write('\nLeaving {:}.__init__()\n'.format(self.__class__))
         
     #------------------ 
     
@@ -200,13 +217,27 @@ class OWACcomp(Component):
         
         #if 'replturbpath' in self.scriptDict: 
         if self.replace_turbine:
-            newXML = turbfuncs.wtpc_to_owtg(self.wt_layout.wt_list[0], trbname='trbname', desc='trbdesc')
-            tfname = self.scriptDict['replturbpath'] # this is the file that will be overwritten with new turbine parameters
-            tfh = open(tfname, 'w')
-            tfh.write(newXML)
-            tfh.close()
+            if len(self.wt_layout.wt_list) < 1:
+                sys.stderr.write('\n*** ERROR ***  OWACcomp::execute(): no turbines in wt_layout!\n\n')
+                return
             if self.debug:
-                sys.stderr.write('Wrote new turbine file to {:}\n'.format(tfname))
+                sys.stderr.write('Replacement turbine parameters:\n')
+                sys.stderr.write('{:}\n'.format(turbfuncs.wtpc_dump(self.wt_layout.wt_list[0])))
+                #sys.stderr.write('{:}\n'.format(wtlDump(self.wt_layout.wt_list[0])))
+                
+            newXML = turbfuncs.wtpc_to_owtg(self.wt_layout.wt_list[0], 
+                                            trbname='ReplTurb', 
+                                            desc='OWACcomp replacement turbine')
+            if len(newXML) > 50:
+                tfname = self.scriptDict['replturbpath'] # this is the file that will be overwritten with new turbine parameters
+                tfh = open(tfname, 'w')
+                tfh.write(newXML)
+                tfh.close()
+                maxPower = self.wt_layout.wt_list[0].power_rating
+                if self.debug:
+                    sys.stderr.write('Wrote new turbine file to {:} (rated pwr {:.2f} MW\n'.format(tfname, maxPower*0.000001))
+            else:
+                sys.stderr.write('*** NO new turbine file written\n')
             
         # Execute the component and save process ID
         
@@ -289,7 +320,12 @@ class OWACcomp(Component):
             if self.debug:
                 sys.stderr.write('Stopping OpenWind with pid {:}\n'.format(self.pid))
             self.proc.terminate()
-    
+            
+        self.checkReport() # check for execution errors
+
+        if self.debug:
+            sys.stderr.write("  Leaving {0}.execute() {1}...\n".format(self.__class__, self.script_file))
+
     #------------------ 
     
     def dump(self):
@@ -318,6 +354,24 @@ class OWACcomp(Component):
         if self.debug:
             sys.stderr.write('Stopping OpenWind with pid {:}\n'.format(self.pid))
         self.proc.terminate()
+
+    #------------------ 
+    
+    def checkReport(self):
+        ''' check the report file for errors '''
+        
+        fname = self.scriptDict['rptpath']
+        if self.debug:
+            sys.stderr.write('checkReport : {:}\n'.format(fname))
+        fh = open(fname, 'r')
+        for line in fh.readlines():
+            if line.startswith('Failed to find and replace turbine type'):
+                sys.stderr.write('\n*** ERROR: turbine replacement operation failed\n')
+                sys.stderr.write('    Replace {:}\n'.format(self.scriptDict['replturbname']))
+                sys.stderr.write('    with    {:}\n'.format(self.scriptDict['replturbpath']))
+                sys.stderr.write('\n')
+                
+        fh.close()
         
 #------------------------------------------------------------------
 
@@ -333,7 +387,15 @@ def dummy_wt_list():
     wtl.c_t_curve   = [ [float(i), 10.0] for i in range(nv) ]
     wtl.power_curve = [ [float(i), 10.0] for i in range(nv) ]
     return wtl
-    
+
+#------------------------------------------------------------------
+
+def wtlDump(wtl):
+    wstr = 'WTL: pclen {:}'.format(len(wtl.c_t_curve))
+    return wstr
+        
+#------------------------------------------------------------------
+
 if __name__ == "__main__":
 
     debug = False
@@ -405,17 +467,16 @@ if __name__ == "__main__":
     
     # starting point for turbine mods
     
-    wt_list_elem = dummy_wt_list()    
-    print 'WLE ', wt_list_elem.__class__
+    #wt_list_elem = dummy_wt_list()    
     
     base_turbine_file = '../../test/Alstom6MW.owtg'
     base_turbine = turbfuncs.owtg_to_wtpc(base_turbine_file)
     wt_list_elem = base_turbine
         
-    print 'WLE ', wt_list_elem.__class__
-    
     wt_list = [wt_list_elem for i in range(len(wt_positions)) ]
     ow.wt_layout.wt_list = wt_list
+    if debug:
+        sys.stderr.write('Initialized {:} turbines in wt_layout\n'.format(len(wt_positions)))
     #print 'OWW ', ow.wt_layout.wt_list[0].__class__
     
     # move turbines farther offshore with each iteration
@@ -440,6 +501,9 @@ if __name__ == "__main__":
             for i in range(len(wte.power_curve)):
                 wte.power_curve[i][1] *= 1.05
             ow.wt_layout.wt_list = [wte for i in range(len(ow.wt_layout.wt_list)) ]
+            if debug:
+                ofh.write('Updated {:} turbines with:\n'.format(len(ow.wt_layout.wt_list)))
+                ofh.write(turbfuncs.wtpc_dump(ow.wt_layout.wt_list[0]))
         
         ow.execute() # run the openWind process
         

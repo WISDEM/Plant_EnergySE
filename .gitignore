@@ -100,3 +100,13 @@ Thumbs.db
 notifyML.txt
 notifyOW.txt
 *.txt
+
+# Other files that don't belong in git #
+
+*.csv
+*.xml
+*.out
+*.owtg
+*.tmp
+tmp.*
+src/Plant_AEPSE/Openwind/development/

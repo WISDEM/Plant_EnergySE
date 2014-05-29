@@ -64,7 +64,7 @@ class MyNotifyMLHandler(FileSystemEventHandler):
                 nturb = int(f[0])
                 netEnergy = float(f[3])
                 if self.debug:
-                    sys.stderr.write('{:} turbines - {:.1f} kWh\n'.format(nturb,netEnergy))
+                    sys.stderr.write('{:} : {:} turbines - {:.1f} kWh\n'.format(os.path.basename(event.src_path),nturb,netEnergy))
                 fh.close()
                 
                 if self.callback is not None:
@@ -131,12 +131,12 @@ def writePositionFile(wt_positions, debug=False, path=None):
     if nt == 0:
         sys.stderr.write('\n*** WARNING: calling writePositionFile() with zero-length wt_positions\n\n')
     if debug:
-        sys.stderr.write('writePositionFile: {:} Nturb {:}\n\n'.format(ofname,nt))
+        sys.stderr.write('writePositionFile: {:} Nturb {:}\n'.format(ofname,nt))
     
     for i in range(nt):
         ofh.write('{:9.1f}\t{:10.1f}\n'.format(wt_positions[i][0],wt_positions[i][1]))
         if debug:
-            sys.stderr.write('writePositionFile: {:} {:9.1f}\t{:10.1f}\n'.format(i+1,wt_positions[i][0],wt_positions[i][1]))
+            sys.stderr.write('  wPF: {:} {:9.1f}\t{:10.1f}\n'.format(i+1,wt_positions[i][0],wt_positions[i][1]))
     ofh.close()
     return 1
     
@@ -164,7 +164,7 @@ def writeNotify(path=None, debug=False):
 def parseACresults(fname='results.txt'):
     # read/parse OpenWind optimization output file
     # returns:
-    #   netEnergy : scalar value in GWh
+    #   netEnergy : scalar value in kWh
     #   netNRGturb[] : net energy by turbine
     #   grossNRGturb[] : gross energy by turbine
       
