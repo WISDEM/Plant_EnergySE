@@ -38,6 +38,7 @@ wt_positions = [[456000.00,4085000.00],
 
 owXMLname = '../../test/rtopScript.xml' # replace turbine and optimize
 #owXMLname = '../../test/opScript.xml' # optimize only
+#owXMLname = '../../test/rtecscript.xml' # check how this crashes (no optimize op)
 
 global drvType
 drvType = 'ff' # default is FullFactorial
@@ -45,16 +46,31 @@ drvType = 'ff' # default is FullFactorial
 #-------------------------------------------------------------------
 
 class Analysis(Assembly):
+    
+    def __init__(self, scriptFile=None, wt_positions=None):
+        # added 2014 06 16
+        self.scriptFile = scriptFile
+        self.wt_positions = wt_positions
+        super(self.__class__, self).__init__()
+        
     def configure(self):
 
         debug = True
+        if debug:
+            sys.stderr.write("  In {0}.configure()...\n".format(self.__class__))
         owexe = findOW(debug=debug, academic=True)
 
         # Create component instances
         
         wtp = WTPupdate(debug=debug, wt_positions=wt_positions)
         wtl = WTLupdate(debug=debug)
-        owc = OWACcomp(owexe, scriptFile=owXMLname, debug=debug)
+        try:
+            owc = OWACcomp(owexe, scriptFile=owXMLname, debug=debug)
+        except:
+            sys.stderr.write('\n*** ERROR creating OWAComp object\n\n')
+            exit()
+            
+        print 'OWC ', owc
         
         self.add('wtpupdate', wtp) # update turbine positions
         
@@ -91,6 +107,9 @@ class Analysis(Assembly):
 
         self.driver.workflow.add(['wtpupdate', 'wtlupdate', 'owc'])
 
+        if debug:
+            sys.stderr.write("  Leaving {0}.configure()...\n".format(self.__class__))
+
     def execute(self):
         sys.stderr.write("  In {0}.execute()...\n".format(self.__class__))
         super(self.__class__, self).execute()
@@ -111,7 +130,8 @@ if __name__ == "__main__": # pragma: no cover
     else:
         print 'No replaceTurb operation found'
     
-    analysis = Analysis()
+    #analysis = Analysis()
+    analysis = Analysis(scriptFile=owXMLname, wt_positions=wt_positions)
 
     if replturbpath is not None:
         analysis.wtlupdate.replturbpath = replturbpath

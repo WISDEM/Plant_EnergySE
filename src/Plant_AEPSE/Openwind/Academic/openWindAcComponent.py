@@ -95,6 +95,8 @@ class OWACcomp(Component):
         self.replace_turbine = False
         self.opt_log = opt_log
         
+        self.resname = '' # start with empty string
+        
         self.script_file = scriptFile
         self.scriptOK = False
         if scriptFile is not None:
@@ -102,6 +104,10 @@ class OWACcomp(Component):
             # Check script file for validity and extract some path information
         
             self.scriptOK = self.parse_scriptFile()
+            if not self.scriptOK:
+                raise ValueError
+                return
+                
             self.scriptDict = rwScriptXML.rdScript(self.script_file, self.debug)
             if self.debug:
                 sys.stderr.write('Script File Contents:\n')
@@ -156,6 +162,7 @@ class OWACcomp(Component):
         except:
             sys.stderr.write("\n*** Can't find ReportPath in {:}\n".format(self.script_file))
             self.rptpath = 'NotFound'
+            return False
         
         # Make sure there's an optimize operation - otherwise OWAC won't find anything
         
@@ -206,6 +213,10 @@ class OWACcomp(Component):
 
         if self.debug:
             sys.stderr.write("  In {0}.execute() {1}...\n".format(self.__class__, self.script_file))
+        
+        if (len(self.resname) < 1):
+            sys.stderr.write('\n*** ERROR: OWAcomp results file name not assigned! (problem with script file?)\n\n')
+            return False
 
         # Prepare input file here
         #   - write a new script file?
@@ -219,10 +230,11 @@ class OWACcomp(Component):
         if self.replace_turbine:
             if len(self.wt_layout.wt_list) < 1:
                 sys.stderr.write('\n*** ERROR ***  OWACcomp::execute(): no turbines in wt_layout!\n\n')
-                return
+                return False
             if self.debug:
                 sys.stderr.write('Replacement turbine parameters:\n')
-                sys.stderr.write('{:}\n'.format(turbfuncs.wtpc_dump(self.wt_layout.wt_list[0])))
+                #sys.stderr.write('{:}\n'.format(turbfuncs.wtpc_dump(self.wt_layout.wt_list[0])))
+                sys.stderr.write('{:}\n'.format(turbfuncs.wtpc_dump(self.wt_layout.wt_list[0], shortFmt=True)))
                 #sys.stderr.write('{:}\n'.format(wtlDump(self.wt_layout.wt_list[0])))
                 
             newXML = turbfuncs.wtpc_to_owtg(self.wt_layout.wt_list[0], 
@@ -297,7 +309,7 @@ class OWACcomp(Component):
             if self.debug:
                 sys.stderr.write('Stopping OpenWind with pid {:}\n'.format(self.pid))
             self.proc.terminate()
-            return
+            return False
         
         # Set the output variables
         #   - array_aep is not available from Academic 'results.txt' file

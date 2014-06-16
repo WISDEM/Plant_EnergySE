@@ -87,14 +87,24 @@ def wtpc_to_owtg(wtpc, trbname='GenericTurbine', desc='GenericDescription'):
 
 #---------------------------------------------
 
-def wtpc_dump(wtpc):
+def wtpc_dump(wtpc, shortFmt=False):
     ''' dump FUSED-Wind ExtendedWindTurbinePowerCurveVT contents to string '''
     s = 'Dump of ExtendedWindTurbinePowerCurveVT\n'
     s = s + '  HH {:5.1f}m\n  RD {:5.1f}m\n  PR {:7.1f}kW\n'.format(wtpc.hub_height, wtpc.rotor_diameter, wtpc.power_rating)
     if len(wtpc.power_curve) < 1:
         s = s + '  *** No Power Curve specified!\n'
-    for i in range(len(wtpc.power_curve)):
-        s = s + '    {:4.1f} mps {:7.1f} kW\n'.format(wtpc.power_curve[i,0], wtpc.power_curve[i,1])
+    
+    if shortFmt:    
+        for i in range(len(wtpc.power_curve)):
+            s = s + ' {:7.1f}'.format(wtpc.power_curve[i,0])
+        s = s + '\n'
+        for i in range(len(wtpc.power_curve)):
+            s = s + ' {:7.1f}'.format(wtpc.power_curve[i,1])
+        s = s + '\n'
+    else:
+        for i in range(len(wtpc.power_curve)):
+            s = s + '    {:4.1f} mps {:7.1f} kW\n'.format(wtpc.power_curve[i,0], wtpc.power_curve[i,1])
+        
     return  s
      
 #------------------------------------------------------------------
