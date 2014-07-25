@@ -119,6 +119,7 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
         super(openwindAC_assembly, self).__init__()
 
         # TODO: hack for now assigning turbine
+        
         self.turb = GenericWindTurbinePowerCurveVT()
         if self.machine_rating is not None:
             self.turb.power_rating = self.machine_rating
@@ -184,7 +185,9 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
         #   - write new scripts
         #   - write new turbine files
         #   - etc.
-
+        
+        owtg_str = turbfuncs.wtpc_to_owtg(self.turb_props)
+        
         # write new script for execution  
     
         # newScriptName = 'OpenWind_Script.xml'

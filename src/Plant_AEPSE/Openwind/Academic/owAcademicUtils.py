@@ -6,14 +6,16 @@
 #   - writePositionFile(): write new turbine location file
 #   - waitForNotify(watchFile='results.txt'): wait for a new 'results.txt' file
 #   - writeNotify(): write notify file (OUT)
+#   - parseACresults(): read/parse OpenWind optimization output file
 
+#   - class MyNotifyMLHandler(FileSystemEventHandler) - watch for changes in file
 #   - class WTPosFile(WEFileIO) - read turbine positions from text file
 #   - class WTWkbkFile(object)  - read turbine positions from OpenWind workbook
 
 import sys, os, time
 import numpy as np
-sys.path.append('C:/SystemsEngr/openmdao-0.9.3/Lib/site-packages/pathtools-0.1.2-py2.7.egg')
-sys.path.append('C:/SystemsEngr/openmdao-0.9.3/Lib/site-packages/watchdog-0.6.0-py2.7.egg')
+sys.path.append('D:/SystemsEngr/openmdao-0.9.3/Lib/site-packages/pathtools-0.1.2-py2.7.egg')
+sys.path.append('D:/SystemsEngr/openmdao-0.9.3/Lib/site-packages/watchdog-0.6.0-py2.7.egg')
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -44,6 +46,7 @@ class MyNotifyMLHandler(FileSystemEventHandler):
         self.callback = callback
         
     def on_modified(self, event):
+        print event.src_path
         if os.path.basename(event.src_path) == os.path.basename(self.watchFile):
             if self.debug:
                 sys.stderr.write('Detected modified {:} file'.format(self.watchFile))
@@ -73,7 +76,9 @@ class MyNotifyMLHandler(FileSystemEventHandler):
                 return netEnergy
         
         else:
-            sys.stderr.write('Ignoring change to {:}\n'.format(event.src_path))    
+            if self.debug:
+                #sys.stderr.write('Ignoring change to {:}\n'.format(event.src_path))
+                pass    
         
         return None     
             
@@ -100,7 +105,7 @@ def waitForNotify(watchFile='notifyML.txt', path='.', callback=None, debug=False
     observer.start()
 
     if debug:
-        sys.stderr.write('\nwaitForNotify: waiting for {:}\n  Hit Cntl-C to break\n'.format(watchFile))
+        sys.stderr.write('\nwaitForNotify: waiting for {:} in {:}\n  Hit Cntl-C to break\n'.format(watchFile, path))
     
     # What was the purpose of this loop in example code? Works fine without it
     #try:
@@ -269,9 +274,6 @@ def main():
     
     wtp = WTPosFile(filename='positions.txt')
     wt = wtp.read()
-    
-    pass
-
     
 #---------------------------------------------------
 

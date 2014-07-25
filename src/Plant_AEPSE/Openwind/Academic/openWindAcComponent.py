@@ -14,6 +14,11 @@ import sys, time
 import subprocess
 from lxml import etree
 
+# For desktop machine only!
+sys.path.append('D:/SystemsEngr/openMDAO')
+import setpath
+sys.path.append('D:/SystemsEngr/FUSED-Wind/src/fusedwind')
+
 import Plant_AEPSE.Openwind.openWindUtils as utils
 import owAcademicUtils as acutils
 import Plant_AEPSE.Openwind.rwScriptXML as rwScriptXML
@@ -107,7 +112,7 @@ class OWACcomp(Component):
 
         # OWac looks for the notify files and writes the 'results.txt' file to the 
         #   directory that contains the *blb workbook file
-        # find where the results file will be found     
+        # Find where the results file will be found     
         
         if not os.path.isfile(self.script_file):
             sys.stderr.write('\n*** OpenWind script file "{:}" not found\n'.format(self.script_file))
@@ -126,9 +131,16 @@ class OWACcomp(Component):
         ops = e.getroot().findall('.//Operation')
         for op in ops:
             optype = op.find('Type').get('value')
+            
+            if optype == 'Replace Turbine Type' and self.start_once:
+                sys.stderr.write('\n*** WARNING: start_once will be set to False because Replace Turbine\n')
+                sys.stderr.write('         operation is present in {:}\n\n'.format(self.script_file))
+                self.start_once = False
+                
             if optype == 'Optimize' or optype == 'Optimise':
                 foundOpt = True
                 break
+                
         if not foundOpt:
             sys.stderr.write('\n*** ERROR: no Optimize operation found in {:}\n\n'.format(self.script_file))
             return False
@@ -302,6 +314,7 @@ if __name__ == "__main__":
     
     owXMLname = '../../test/rtecScript.xml' # replace turb, energy capture
     owXMLname = '../../test/owacScript.xml' # optimize operation
+    owXMLname = '../../test/rtopScript.xml' # replace turb, optimize
     
     #owXMLname = '../../test/owac100Script.xml' # optimize operation
     
@@ -315,15 +328,22 @@ if __name__ == "__main__":
                     [456500.00,4085000.00]]
     deltaX =  3000.0
     deltaY = -2000.0
+    deltaX =  200.0
+    deltaY = -200.0
     
     # Read turbine positions from workbook
     
     e = rwScriptXML.parseScript(owXMLname)
     ops = e.xpath('//Operation')
     workbook = None
+    turb_path = None
+    turb_name = None
     for op in ops:
         if op.find('Type').get('value') == 'Change Workbook':
             workbook = op.find('Path').get('value')
+        if op.find('Type').get('value') == 'Replace Turbine Type':
+            turb_path = op.find('TurbinePath').get('value')
+            turb_name = op.find('TurbineName').get('value')
     
     if debug:
         sys.stderr.write('Getting turbine positions from {:}\n'.format(workbook))        
@@ -331,18 +351,21 @@ if __name__ == "__main__":
     wt_positions = wb.xy
     if debug:
         sys.stderr.write('Got {:} turbine positions\n'.format(len(wt_positions)))        
-    deltaX =  200.0
-    deltaY = -200.0
     
     # Initialize OWACcomp component
         
-    #ow = OWACcomp(owExe=owexe, debug=debug) #, stopOW=False)
-    #ow.script_file = owXMLname
     ow = OWACcomp(owExe=owexe, debug=debug, scriptFile=owXMLname, start_once=start_once)
+         #, stopOW=False)
     if not ow.scriptOK:
         sys.stderr.write("\n*** ERROR found in script file\n\n")
         exit()
-        
+    
+    if turb_path is not None:
+        ow.replace_turbine = True
+        ow.turb_path = turb_path
+    else:
+        ow.replace_turbine = False
+            
     # move turbines farther offshore with each iteration
     
     if debug:

@@ -7,6 +7,7 @@
    2013 06 26: added rdScript(), converted it to lxml
    2014 03 28: getScriptTree() renamed to newScriptTree()
    2014 03 30: name changed from 'wrtScriptXML.py' to 'rwScriptXML.py'
+   2014 07 16: added 'Iterations' to Optimize operation
      
    USAGE:
     import rwScriptXML
@@ -14,8 +15,8 @@
     rwScriptXML.makeChWkbkOp(ops,blbpath)       # change workbook
     rwScriptXML.makeRepTurbOp(ops,tname,tpath) # replace turbine
     rwScriptXML.makeEnCapOp(ops, wm = "DAWM Eddy-Viscosity" ) # energy capture
-    rwScriptXML.makeOptimiseOp(ops) # optimize for energy
-    rwScriptXML.makeOptimizeOp(ops) # alternate spelling
+    rwScriptXML.makeOptimiseOp(ops [,nIter=NN]) # optimize for energy
+    rwScriptXML.makeOptimizeOp(ops [,nIter=NN]) # alternate spelling
     rwScriptXML.makeOptCostEnergyOp(ops) # optimize for cost
     
     ... (other operations when they are added)
@@ -61,15 +62,21 @@ def parseScript(fname, debug=False):
 def rdScript(fname, debug=False):
     ''' read an OpenWind XML script file and extract useful info 
         if debug, lists all operations found in script
+        returns a dictionary that may include the following keys:
+          rptpath
+          workbook
+          turbname
+          replturbname
+          replturbpath
     '''
-    
-    #e = ET.parse(fname)
-    #e = etree.parse(fname)
-    e = parseScript(fname)
     
     if debug:
         sys.stderr.write('\nrdScript: {:}\n'.format(fname))
+    dscript = {} # dictionary to return
+    
+    e = parseScript(fname)
     root = e.getroot()
+    
     #if debug:
     #    for child in root:
     #        sys.stderr.write('  {:}\n'.format(child.tag))
@@ -78,6 +85,7 @@ def rdScript(fname, debug=False):
     
     for atype in e.findall('ReportPath'):
         rptpath = atype.get('value').replace('\\','/')
+        dscript['rptpath'] = rptpath
         if debug:
             sys.stderr.write('  ReportPath: {:}\n'.format(rptpath))        
 
@@ -90,16 +98,24 @@ def rdScript(fname, debug=False):
             arg = ''
             optype = atype.find('Type').get('value')
             if optype == "Change Workbook":
-                arg = atype.find('Path').get('value')
+                wkbk = atype.find('Path').get('value')
+                dscript['workbook'] = wkbk
+                arg = wkbk
             if optype == "Replace Turbine Type":
-                arg = atype.find('TurbineName').get('value')
-                arg = arg + ' --> ' + atype.find('TurbinePath').get('value')
+                tname = atype.find('TurbineName').get('value')
+                tpath = atype.find('TurbinePath').get('value')
+                dscript['replturbname'] = tname
+                dscript['replturbpath'] = tpath
+                arg = tname + ' --> ' + tpath
+            if optype == "Optimize":
+                sys.stderr.write("\n*** WARNING: OpenWind prefers 'Optimise' to 'Optimize\n")
+                sys.stderr.write('  Please rename your operation\n\n')
             if debug:
                 sys.stderr.write('    Operation {:}: {:} {:}\n'.format(nop, optype, arg))        
     if debug:
         sys.stderr.write('\n')
        
-    return rptpath
+    return dscript
         
 #-------------- WRITING OPERATIONS --------------
 
@@ -188,17 +204,19 @@ def makeEnCapOp(parent, wm = "DAWM Eddy-Viscosity" ):
     
 #---------------------------------------------------
 
-def makeOptimiseOp(parent):
+def makeOptimiseOp(parent, nIter=None):
     ''' adds 'Optimise' operation to parent '''
     
     op = etree.SubElement(parent, 'Operation')
     opv = etree.SubElement(op, 'Type', value='Optimise')
+    
+    if nIter is not None:
+        opv = etree.SubElement(op, 'Iterations', value='{:}'.format(nIter))
 
-def makeOptimizeOp(parent):
+def makeOptimizeOp(parent, nIter=None):
     ''' adds 'Optimise' operation to parent - convenience function with American spelling '''
     
-    op = etree.SubElement(parent, 'Operation')
-    opv = etree.SubElement(op, 'Type', value='Optimise')
+    makeOptimiseOp(parent, nIter=nIter)
     
 #---------------------------------------------------
 
@@ -282,6 +300,9 @@ def main():
     makeChWkbkOp(ops,blbpath)       # change workbook
     makeRepTurbOp(ops,tname,tpath)  # replace turbine
     makeEnCapOp(ops)                # run energy capture
+    
+    makeOptimizeOp(ops, nIter=40)   # optimize operation with 40 iterations
+    
     makeExitOp(ops)                 # exit
     
     # Save script to file
@@ -303,7 +324,7 @@ def main():
     
     # Read it back
     
-    rptpath = rdScript(scriptFile, debug=True)
+    rptpath = rdScript(scriptFile, debug=True)['rptpath']
     #print 'Report path: {:}'.format(rptpath)
     
 #---------------------------------------------------
