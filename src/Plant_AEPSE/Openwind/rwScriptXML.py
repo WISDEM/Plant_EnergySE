@@ -7,6 +7,7 @@
    2013 06 26: added rdScript(), converted it to lxml
    2014 03 28: getScriptTree() renamed to newScriptTree()
    2014 03 30: name changed from 'wrtScriptXML.py' to 'rwScriptXML.py'
+   2014 07 16: added 'Iterations' to Optimize operation
      
    USAGE:
     import rwScriptXML
@@ -14,8 +15,8 @@
     rwScriptXML.makeChWkbkOp(ops,blbpath)       # change workbook
     rwScriptXML.makeRepTurbOp(ops,tname,tpath) # replace turbine
     rwScriptXML.makeEnCapOp(ops, wm = "DAWM Eddy-Viscosity" ) # energy capture
-    rwScriptXML.makeOptimiseOp(ops) # optimize for energy
-    rwScriptXML.makeOptimizeOp(ops) # alternate spelling
+    rwScriptXML.makeOptimiseOp(ops [,nIter=NN]) # optimize for energy
+    rwScriptXML.makeOptimizeOp(ops [,nIter=NN]) # alternate spelling
     rwScriptXML.makeOptCostEnergyOp(ops) # optimize for cost
     
     ... (other operations when they are added)
@@ -206,17 +207,21 @@ def makeEnCapOp(parent, wm = "DAWM Eddy-Viscosity" ):
     
 #---------------------------------------------------
 
-def makeOptimiseOp(parent):
+def makeOptimiseOp(parent, nIter=None):
     ''' adds 'Optimise' operation to parent '''
     
     op = etree.SubElement(parent, 'Operation')
     opv = etree.SubElement(op, 'Type', value='Optimise')
+    
+    if nIter is not None:
+        opv = etree.SubElement(op, 'Iterations', value='{:}'.format(nIter))
 
-def makeOptimizeOp(parent):
+def makeOptimizeOp(parent, nIter=None):
     ''' adds 'Optimise' operation to parent - convenience function with American spelling '''
     
-    op = etree.SubElement(parent, 'Operation')
-    opv = etree.SubElement(op, 'Type', value='Optimise')
+    makeOptimiseOp(parent, nIter=nIter)
+    #op = etree.SubElement(parent, 'Operation')
+    #opv = etree.SubElement(op, 'Type', value='Optimise')
     
 #---------------------------------------------------
 
@@ -300,6 +305,9 @@ def main():
     makeChWkbkOp(ops,blbpath)       # change workbook
     makeRepTurbOp(ops,tname,tpath)  # replace turbine
     makeEnCapOp(ops)                # run energy capture
+    
+    makeOptimizeOp(ops, nIter=40)   # optimize operation with 40 iterations
+    
     makeExitOp(ops)                 # exit
     
     # Save script to file
