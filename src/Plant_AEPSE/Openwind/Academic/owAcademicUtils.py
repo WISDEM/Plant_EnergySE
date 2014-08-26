@@ -6,7 +6,9 @@
 #   - writePositionFile(): write new turbine location file
 #   - waitForNotify(watchFile='results.txt'): wait for a new 'results.txt' file
 #   - writeNotify(): write notify file (OUT)
+#   - parseACresults(): read/parse OpenWind optimization output file
 
+#   - class MyNotifyMLHandler(FileSystemEventHandler) - watch for changes in file
 #   - class WTPosFile(WEFileIO) - read turbine positions from text file
 #   - class WTWkbkFile(object)  - read turbine positions from OpenWind workbook
 
@@ -76,7 +78,9 @@ class MyNotifyMLHandler(FileSystemEventHandler):
                 sys.stderr.write('\n*** File {:} does not appear to be an OpenWind results file\n'.format(event.src_path))
                 return None
         else:
-            sys.stderr.write('Ignoring change to {:}\n'.format(event.src_path))    
+            if debug:
+                #sys.stderr.write('Ignoring change to {:}\n'.format(event.src_path))    
+                pass
         
         return None     
             
@@ -103,7 +107,7 @@ def waitForNotify(watchFile='notifyML.txt', path='.', callback=None, debug=False
     observer.start()
 
     if debug:
-        sys.stderr.write('\nwaitForNotify: waiting for {:}\n  Hit Cntl-C to break\n'.format(watchFile))
+        sys.stderr.write('\nwaitForNotify: waiting for {:} in {:}\n  Hit Cntl-C to break\n'.format(watchFile, path))
     
     # What was the purpose of this loop in example code? Works fine without it
     #try:
@@ -307,9 +311,6 @@ def main():
     
     wtp = WTPosFile(filename='positions.txt')
     wt = wtp.read()
-    
-    pass
-
     
 #---------------------------------------------------
 
