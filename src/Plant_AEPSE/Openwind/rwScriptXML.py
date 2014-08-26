@@ -70,6 +70,12 @@ def rdScript(fname, debug=False):
           replturbpath
     '''
     
+    dscript = {} # dictionary to return
+    
+    #e = ET.parse(fname)
+    #e = etree.parse(fname)
+    e = parseScript(fname)
+    
     if debug:
         sys.stderr.write('\nrdScript: {:}\n'.format(fname))
     dscript = {} # dictionary to return
@@ -217,6 +223,8 @@ def makeOptimizeOp(parent, nIter=None):
     ''' adds 'Optimise' operation to parent - convenience function with American spelling '''
     
     makeOptimiseOp(parent, nIter=nIter)
+    #op = etree.SubElement(parent, 'Operation')
+    #opv = etree.SubElement(op, 'Type', value='Optimise')
     
 #---------------------------------------------------
 

@@ -30,6 +30,9 @@
      ofh.write(turbXML)
      ofh.close()
    
+   USAGE (modifying):
+     modTurbXML(oldTurbFile, newTurbFile, rotor_diameter=rdiam)
+     
 '''
 
 #-------------------------------------------------------
@@ -379,6 +382,31 @@ def makeTable(tblName, vels, rho, y):
         makeTblRows(rv, y, 'v{:}-'.format(i), 'Rows')
         
     return tbl
+
+# ----------- MODIFYING -----------------
+
+def modTurbXML(oldTurbFile, newTurbFile, rotor_diameter=None):
+    ''' read contents of a turbine OWTG file,
+        modify some parameters,
+        write new OWTG file '''
+    
+    turbtree = parseOWTG(oldTurbFile)
+    trbname = turbtree.getroot().tag
+    
+    if rotor_diameter is not None:
+        turbtree.find('RotorDiameter').set('value', '{:.2f}'.format(rotor_diameter))
+    
+    # ... modify other params here
+    
+    # write new OWTG file
+    
+    turbXML = etree.tostring(turbtree, 
+                             xml_declaration=True,
+                             doctype='<!DOCTYPE {:}>'.format(trbname), 
+                             pretty_print=True)
+    ofh = open(newTurbFile, 'w')
+    ofh.write(turbXML)
+    ofh.close()
     
 # ----------- TESTING -----------------
 

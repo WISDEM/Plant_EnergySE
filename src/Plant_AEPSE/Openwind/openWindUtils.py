@@ -6,13 +6,10 @@
     class owWindTurbine()
     rdOWTG(fname)
     
-  For reading/writing OpenWind scripts, see wrtScriptXML.py
-    rdScript(fname, debug=False):
+  For reading/writing OpenWind scripts, see rwScriptXML.py
   
    G. Scott, NREL 2013 06 25
    
-   Move wrtTurbXML.py into this file?
-  
 '''
 
 import sys, os
@@ -83,7 +80,7 @@ def rdReport(rptpath, debug=False):
         
         USAGE:
         import openWindUtils
-        # get rptpath from script with wrtTurbXML.rdScript()
+        # get rptpath from script with rwTurbXML.rdScript()
         gross_aep, array_aep, net_aep = openWindUtils.rdReport(rptpath)
         
         Returns:

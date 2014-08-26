@@ -49,32 +49,35 @@ class MyNotifyMLHandler(FileSystemEventHandler):
         print event.src_path
         if os.path.basename(event.src_path) == os.path.basename(self.watchFile):
             if self.debug:
-                sys.stderr.write('Detected modified {:} file'.format(self.watchFile))
-                sys.stderr.write('  Modtime {:} '.format(time.asctime(time.localtime(os.path.getmtime(event.src_path)))))
+                sys.stderr.write('on_modified: Detected modified {:} file\n'.format(self.watchFile))
+                sys.stderr.write('  Modtime {:} \n'.format(time.asctime(time.localtime(os.path.getmtime(event.src_path)))))
             self.observer.stop()
             
             # read results.txt (if that's what we're waiting for) and return netEnergy
+            # 2014 07 16 : file name is not always 'results.txt', so let's open the file and see if it makes sense
             
-            if os.path.basename(event.src_path) == 'results.txt':
-                try:
-                    fh = open(event.src_path, 'r')
-                except:
-                    sys.stderr.write("MyNotifyMLHandler: Can't open '{:}'\n".format(event.src_path))
-                    return None
-                    
+            try:
+                fh = open(event.src_path, 'r')
+            except:
+                sys.stderr.write("MyNotifyMLHandler: Can't open '{:}'\n".format(event.src_path))
+                return None
+            
+            try:    
                 line = fh.readline().strip()
                 f = line.split()
                 nturb = int(f[0])
                 netEnergy = float(f[3])
                 if self.debug:
-                    sys.stderr.write('{:} turbines - {:.1f} kWh\n'.format(nturb,netEnergy))
+                    sys.stderr.write('{:} : {:} turbines - {:.1f} kWh\n'.format(os.path.basename(event.src_path),nturb,netEnergy))
                 fh.close()
                 
                 if self.callback is not None:
                     self.callback(netEnergy)
                     
                 return netEnergy
-        
+            except:
+                sys.stderr.write('\n*** File {:} does not appear to be an OpenWind results file\n'.format(event.src_path))
+                return None
         else:
             if self.debug:
                 #sys.stderr.write('Ignoring change to {:}\n'.format(event.src_path))
@@ -136,12 +139,40 @@ def writePositionFile(wt_positions, debug=False, path=None):
     if nt == 0:
         sys.stderr.write('\n*** WARNING: calling writePositionFile() with zero-length wt_positions\n\n')
     if debug:
-        sys.stderr.write('writePositionFile: {:} Nturb {:}\n\n'.format(ofname,nt))
+        sys.stderr.write('writePositionFile: {:} Nturb {:}\n'.format(ofname,nt))
     
     for i in range(nt):
         ofh.write('{:9.1f}\t{:10.1f}\n'.format(wt_positions[i][0],wt_positions[i][1]))
         if debug:
-            sys.stderr.write('writePositionFile: {:} {:9.1f}\t{:10.1f}\n'.format(i,wt_positions[i][0],wt_positions[i][1]))
+            sys.stderr.write('  wPF: {:} {:9.1f}\t{:10.1f}\n'.format(i+1,wt_positions[i][0],wt_positions[i][1]))
+    ofh.close()
+    return 1
+    
+#--------------
+    
+def logPositions(wt_positions, ofname=None):
+    ''' append a line containing x-y coordinate pairs for all turbines to file named in 'ofname'
+        similar to writePositionFile(), but keeps a permanent record of positions
+        wt_positions[n][2] is a 2-D array of X and Y coordinates
+          (could be the wt_positions array from a GenericWindFarmTurbineLayout object
+        coordinates should be in UTM meters '''
+        
+    if ofname is None:
+        sys.stderr.write('\n*** ERROR in logPositions: ofname not specified\n')
+        return 0
+    try:
+        ofh = open(ofname,'a')
+    except:
+        sys.stderr.write('\n*** ERROR in logPositions: opening {:} for appending\n'.format(ofname))
+        return 0
+    
+    nt = len(wt_positions)
+    if nt == 0:
+        sys.stderr.write('\n*** WARNING: calling logPositions() with zero-length wt_positions\n\n')
+    
+    for i in range(nt):
+        ofh.write('{:9.1f}\t{:10.1f}\t'.format(wt_positions[i][0],wt_positions[i][1]))
+    ofh.write('\n')
     ofh.close()
     return 1
     
@@ -166,12 +197,13 @@ def writeNotify(path=None, debug=False):
     
 #--------------
     
-def parseACresults(fname='results.txt'):
+def parseACresults(fname='results.txt', debug=False):
     # read/parse OpenWind optimization output file
     # returns:
-    #   netEnergy : scalar value in GWh
+    #   netEnergy : scalar value in kWh
     #   netNRGturb[] : net energy by turbine
     #   grossNRGturb[] : gross energy by turbine
+    # debug=True : dumps contents of fname to STDOUT
       
     try:
         fh = open(fname,'r')
@@ -179,15 +211,21 @@ def parseACresults(fname='results.txt'):
         sys.stderr.write('\n*** ERROR in parseACresults: opening {:} for writing\n'.format(fname))
         return None, None, None
     
-    line = fh.readline()
-    f = line.strip().split()
+    line = fh.readline().strip()
+    if debug:
+        print 'pACr :', line
+        
+    f = line.split()
     nturb = int(f[0])
     netEnergy = float(f[3])
     
     netNRG   = [None for i in range(nturb)]
     grossNRG = [None for i in range(nturb)]
     for i in range(nturb):
-        f = fh.readline().split()
+        line = fh.readline().strip()
+        if debug:
+            print 'pACr :', line
+        f = line.split()
         netNRG[i] = float(f[0])
         grossNRG[i] = float(f[1])
     
