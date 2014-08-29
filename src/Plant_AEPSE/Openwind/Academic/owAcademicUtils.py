@@ -14,8 +14,8 @@
 
 import sys, os, time
 import numpy as np
-sys.path.append('C:/SystemsEngr/openmdao-0.9.3/Lib/site-packages/pathtools-0.1.2-py2.7.egg')
-sys.path.append('C:/SystemsEngr/openmdao-0.9.3/Lib/site-packages/watchdog-0.6.0-py2.7.egg')
+sys.path.append('D:/SystemsEngr/openmdao-0.9.3/Lib/site-packages/pathtools-0.1.2-py2.7.egg')
+sys.path.append('D:/SystemsEngr/openmdao-0.9.3/Lib/site-packages/watchdog-0.6.0-py2.7.egg')
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -46,6 +46,7 @@ class MyNotifyMLHandler(FileSystemEventHandler):
         self.callback = callback
         
     def on_modified(self, event):
+        print event.src_path
         if os.path.basename(event.src_path) == os.path.basename(self.watchFile):
             if self.debug:
                 sys.stderr.write('on_modified: Detected modified {:} file\n'.format(self.watchFile))
@@ -78,9 +79,9 @@ class MyNotifyMLHandler(FileSystemEventHandler):
                 sys.stderr.write('\n*** File {:} does not appear to be an OpenWind results file\n'.format(event.src_path))
                 return None
         else:
-            if debug:
-                #sys.stderr.write('Ignoring change to {:}\n'.format(event.src_path))    
-                pass
+            if self.debug:
+                #sys.stderr.write('Ignoring change to {:}\n'.format(event.src_path))
+                pass    
         
         return None     
             

@@ -150,7 +150,7 @@ class OWACcomp(Component):
 
         # OWac looks for the notify files and writes the 'results.txt' file to the 
         #   directory that contains the *blb workbook file
-        # find where the results file will be found     
+        # Find where the results file will be found     
         
         if not os.path.isfile(self.script_file):
             sys.stderr.write('\n*** OpenWind script file "{:}" not found\n'.format(self.script_file))
@@ -171,6 +171,11 @@ class OWACcomp(Component):
         ops = e.getroot().findall('.//Operation')
         for op in ops:
             optype = op.find('Type').get('value')
+            
+            sys.stderr.write('\n*** WARNING: start_once will be set to False because Replace Turbine\n')
+            sys.stderr.write('         operation is present in {:}\n\n'.format(self.script_file))
+            self.start_once = False
+                
             if optype == 'Optimize' or optype == 'Optimise':
                 foundOpt = True
                 break
@@ -473,6 +478,7 @@ if __name__ == "__main__":
         
     ow = OWACcomp(owExe=owexe, debug=debug, scriptFile=owXMLname, start_once=start_once, opt_log=opt_log)
            #, stopOW=False)
+         #, stopOW=False)
     if not ow.scriptOK:
         sys.stderr.write("\n*** ERROR found in script file\n\n")
         exit()

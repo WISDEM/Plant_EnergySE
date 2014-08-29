@@ -78,6 +78,9 @@ def rdScript(fname, debug=False):
     
     if debug:
         sys.stderr.write('\nrdScript: {:}\n'.format(fname))
+    dscript = {} # dictionary to return
+    
+    e = parseScript(fname)
     root = e.getroot()
     
     #if debug:
