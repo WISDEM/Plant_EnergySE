@@ -1,6 +1,4 @@
-# Plant_AEPSE
-
-A set of models for analyzing wind plant energy production for use in plant layout design and cost of energy analysis.
+Plant_AEPSE is a set of models for analyzing wind plant energy production for use in plant layout design and cost of energy analysis.
 
 Author: [K. Dykes](mailto:katherine.dykes@nrel.gov)
 
