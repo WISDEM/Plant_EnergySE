@@ -29,9 +29,9 @@ from openmdao.lib.casehandlers.api import ListCaseRecorder
 from openWindAcComponent import OWACcomp  # OpenWind inside an OpenMDAO Component
 #from wtpmodComponent import WTPMcomp, WTPupdate, WTLupdate
 from wtlayoutComponents import WTPupdate, WTLupdate
-from Plant_AEPSE.Openwind.findOW import findOW
+from openwind.findOW import findOW
 
-from Plant_AEPSE.Openwind.rwScriptXML import rdScript
+from openwind.rwScriptXML import rdScript
 
 wt_positions = [[456000.00,4085000.00],
                 [456500.00,4085000.00]]

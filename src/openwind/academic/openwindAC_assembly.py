@@ -41,10 +41,10 @@ from fusedwind.plant_flow.fused_plant_vt import GenericWindFarmTurbineLayout
 #from openWindAcExtCode import OWACwrapped  # OpenWind inside an OpenMDAO ExternalCode wrapper
 from openWindAcComponent import OWACcomp  # OpenWind inside an OpenMDAO Component
 
-import Plant_AEPSE.Openwind.rwTurbXML as rwTurbXML
-import Plant_AEPSE.Openwind.rwScriptXML as rwScriptXML
-import Plant_AEPSE.Openwind.getworkbookvals as getworkbookvals
-import Plant_AEPSE.Openwind.turbfuncs as turbfuncs
+import openwind.rwTurbXML as rwTurbXML
+import openwind.rwScriptXML as rwScriptXML
+import openwind.getworkbookvals as getworkbookvals
+import openwind.turbfuncs as turbfuncs
 
 #------------------------------------------------------------------
 
@@ -332,7 +332,7 @@ def example():
             exit()
     
     owExe = 'C:/rassess/Openwind/OpenWind64_ac.exe'
-    from Plant_AEPSE.Openwind.findOW import findOW
+    from openwind.findOW import findOW
     owExe = findOW(debug=debug, academic=True)
     
     workbook_path = '../../test/VA_test.blb'

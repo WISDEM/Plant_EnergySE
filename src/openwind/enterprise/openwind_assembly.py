@@ -40,8 +40,8 @@ from openWindExtCode import OWwrapped  # OpenWind inside an OpenMDAO ExternalCod
 
 #import rwTurbXML
 #import rwScriptXML
-import Plant_AEPSE.Openwind.rwTurbXML as rwTurbXML
-import Plant_AEPSE.Openwind.rwScriptXML as rwScriptXML
+import openwind.rwTurbXML as rwTurbXML
+import openwind.rwScriptXML as rwScriptXML
 
 #------------------------------------------------------------------
 
@@ -316,7 +316,7 @@ def example():
     
     #owExeV1130 = 'C:/Models/Openwind/OpenWind64.exe'
     #owExe = 'C:/rassess/Openwind/OpenWind64.exe'
-    from Plant_AEPSE.Openwind.findOW import findOW
+    from openwind.findOW import findOW
     owExe = findOW(debug=debug, academic=False)
     if not os.path.isfile(owExe):
         exit()

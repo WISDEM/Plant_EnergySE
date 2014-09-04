@@ -13,8 +13,8 @@ import os.path
 
 import sys
 #sys.path.append('C:/Python27/openmdao-0.7.0/twister/models/AEP/')
-import Plant_AEPSE.Openwind.openWindUtils as utils
-from Plant_AEPSE.Openwind.rwScriptXML import rdScript
+import openwind.openWindUtils as utils
+from openwind.rwScriptXML import rdScript
 
 from openmdao.lib.datatypes.api import Float, Int
 from openmdao.lib.components.api import ExternalCode
@@ -142,7 +142,7 @@ if __name__ == "__main__":
             debug = True
 
     #owname = 'C:/rassess/Openwind/OpenWind64.exe' # GS path
-    from Plant_AEPSE.Openwind.findOW import findOW
+    from openwind.findOW import findOW
     owname = findOW(debug=debug)
     if not os.path.isfile(owname):
         sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owname))

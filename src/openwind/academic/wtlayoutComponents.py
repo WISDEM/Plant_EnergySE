@@ -13,9 +13,9 @@
 
 import sys, os
 
-import Plant_AEPSE.Openwind.openWindUtils as utils
+import openwind.openWindUtils as utils
 import owAcademicUtils as acutils
-import Plant_AEPSE.Openwind.turbfuncs as turbfuncs
+import openwind.turbfuncs as turbfuncs
 
 from openmdao.lib.datatypes.api import Float, Int, VarTree
 from openmdao.main.api import FileMetadata, Component, VariableTree

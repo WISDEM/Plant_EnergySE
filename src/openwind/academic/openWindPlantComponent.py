@@ -15,8 +15,8 @@ from fused_plant_comp import GenericWSPosition, HubCenterWSPosition, GenericWake
                              WindTurbinePowerCurve, PostProcessWindRose, PlantFromWWH, \
                              WindRoseCaseGenerator, PostProcessSingleWindRose, PostProcessMultipleWindRoses
 
-import Plant_AEPSE.Openwind.Academic.owAcademicUtils as acutils
-import Plant_AEPSE.Openwind.openWindUtils as utils
+import openwind.academic.owAcademicUtils as acutils
+import openwind.openWindUtils as utils
 
 #-----------------------------------------------------------
 
@@ -135,7 +135,7 @@ if __name__ == "__main__":
     #wbname = 'C:/SystemsEngr/Test/VA_test.blb'
     wbname = '../../test/VA_test.blb'
     
-    from Plant_AEPSE.Openwind.findOW import findOW
+    from openwind.findOW import findOW
     owexe = findOW(debug=debug)
     #owexe = 'C:/rassess/OpenWind/Openwind64.exe'
       
