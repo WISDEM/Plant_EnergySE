@@ -1,4 +1,4 @@
-Plant_AEPSE is a set of models for analyzing wind plant energy production for use in plant layout design and cost of energy analysis.
+Plant_EnergySE is a set of models for analyzing wind plant energy production for both land-based and offshore wind plants.
 
 Author: [K. Dykes](mailto:katherine.dykes@nrel.gov)
 
@@ -8,7 +8,7 @@ NumPy, SciPy, FUSED-Wind, OpenMDAO
 
 ## Installation
 
-Install Plant_AEPSE within an activated OpenMDAO environment
+Install PLant_EnergySE within an activated OpenMDAO environment
 
 	$ plugin install
 
@@ -19,12 +19,14 @@ It is not recommended to install the software outside of OpenMDAO.
 To check if installation was successful try to import the module
 
 	$ python
-	> import plant_aepse.plant_aepse
+	> import ...
+
+Note that you must have the enterprise or academic versions and corresponding licesnses for OpenWind in order to use those software packages.  This software contains only the OpenMDAO wrapper for those models.
 
 You may also run the unit tests.
 
-	$ python src/test/test_Plant_AEPSE_gradients.py
+	$ python src/test/test_Plant_EnergysSE_gradients.py
 
 ## Detailed Documentation
 
-Online documentation is available at <http://wisdem.github.io/Plant_AEPSE/>
+Online documentation is available at <http://wisdem.github.io/Plant_EnergySE/>

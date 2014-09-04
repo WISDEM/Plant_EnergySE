@@ -3,10 +3,6 @@
 # OpenMDAO
 openmdao_log.txt
 
-# ST
-*.sublime-project
-*.sublime-workspace
-
 # Sphinx
 _build
 generated
@@ -49,6 +45,7 @@ nosetests.xml
 .project
 .pydevproject
 
+
 # Compiled source #
 ###################
 *.com
@@ -87,27 +84,3 @@ nosetests.xml
 Icon?
 ehthumbs.db
 Thumbs.db
-
-# GNS - 2014 04 14
-
-# UltraEdit backups #
-*.bak
-*.old
-*.pyold
-
-# OpenWind generated files #
-############################
-notifyML.txt
-notifyOW.txt
-*.txt
-*.blb
-
-# Other files that don't belong in git #
-
-*.csv
-*.xml
-*.out
-*.owtg
-*.tmp
-tmp.*
-src/Plant_AEPSE/Openwind/development/
