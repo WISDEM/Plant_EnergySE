@@ -18,6 +18,8 @@
      
 '''
 
+# TODO: should this be in release version?? not documented atm
+
 import sys, os
 
 from openmdao.main.api import Assembly

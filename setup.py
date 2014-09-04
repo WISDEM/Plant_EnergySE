@@ -8,22 +8,15 @@ from setuptools import setup, find_packages
 
 kwargs = {'author': 'Katherine Dykes and George Scott',
  'author_email': 'systems.engineering@nrel.gov',
- 'classifiers': ['Intended Audience :: Science/Research',
-                 'Topic :: Scientific/Engineering'],
  'description': 'NREL WISDEM modules for plant energy production and flow',
- 'download_url': '',
  'include_package_data': True,
  'install_requires': ['openmdao.main'],
  'keywords': ['openmdao'],
- 'license': 'Apache v. 2.0',
- #'maintainer': '',
- #'maintainer_email': '',
- 'name': 'Plant_AEPSE',
- 'package_data': {'Plant_AEPSE': []},
+ 'license' : 'Apache License, Version 2.0',
+ 'name': 'Plant_EnergySE',
+ 'package_data': {'Plant_EnergySE': []},
  'package_dir': {'': 'src'},
- 'packages': ['Plant_AEPSE', 'Plant_AEPSE.test','Plant_AEPSE.Basic_AEP', 'Plant_AEPSE.NREL_CSM_AEP', 'Plant_AEPSE.Openwind.Enterprise', 'Plant_AEPSE.Openwind.Academic'],
- 'url': '',
- 'version': '0.1',
+ 'packages': ['test','basic_aep', 'nrel_csm_aep', 'openwind', 'openwind.enterprise', 'openwind.academic'],
  'zip_safe': False}
 
 

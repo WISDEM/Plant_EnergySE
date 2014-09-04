@@ -1,4 +1,4 @@
-# Plant_CostsSE Changelog
+# Plant_EnergySE Changelog
 
 ## 0.1.0 ([09/30/2014])
 

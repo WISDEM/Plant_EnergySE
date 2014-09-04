@@ -2,6 +2,7 @@
 # 2014 04 17
 
 # Look for an openWind executable in the usual places
+# TODO: eliminate this from the release version? or have user input added?
 
 import sys, os
 

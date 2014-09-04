@@ -19,13 +19,20 @@ It is not recommended to install the software outside of OpenMDAO.
 To check if installation was successful try to import the module
 
 	$ python
-	> import ...
+	> import basic_aep.basic_aep
+	> import nrel_csm_aep.nrel_csm_aep
+	> import openwind.enterprise.openWindExtCode
+	> import openwind.enterprise.openwind_assembly
+	> import openwind.academic.openWindAcComponent
+	> import openwind.academic.openwindAC_assembly
 
 Note that you must have the enterprise or academic versions and corresponding licesnses for OpenWind in order to use those software packages.  This software contains only the OpenMDAO wrapper for those models.
 
 You may also run the unit tests.
 
 	$ python src/test/test_Plant_EnergysSE_gradients.py
+
+Note that the gradient test is only provided for the basic_aep software.
 
 ## Detailed Documentation
 
