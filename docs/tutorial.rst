@@ -38,6 +38,7 @@ We then print out the resulting cost values
 The result is:
 
 >>>AEP gross output: 1570713782.15
+
 >>>AEP output: 1389359168.87
 
 
@@ -73,11 +74,19 @@ We then print out the resulting cost values.
 The result is:
 
 >>>5 MW Reference Turbine
+
 >>>rated rotor speed: 12.126
+
 >>>rated wind speed: 11.506
+
 >>>maximum efficiency: 0.902
+
 >>>gross annual energy production: 0.0
+
 >>>annual energy production: 0.0
+
 >>>Power Curve:
+
 >>>[[4.0 80.0]
+
 >>> [2.5 5000.0]]

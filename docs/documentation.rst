@@ -83,7 +83,7 @@ The following inputs and outputs are defined for openwind_assembly:
 .. literalinclude:: ../src/openwind/enterprise/openwind_assembly.py
     :language: python
     :start-after: openwind_assembly(GenericAEPModel)
-    :end-before: def __init__(self, ssfile)
+    :end-before: def __init__(self, openwind_executable, workbook_path, turbine_name=None, script_file=None, 
     :prepend: class openwind_assembly(Assembly):
 
 Referenced Energy Production Modules
@@ -105,7 +105,7 @@ Turbine Description Translation
 .. function:: wtpc_dump(wtpc, shortFmt=False)
 
 Read/Write Turbine XML File
-..module:: openwind.rwTurbXML
+.. module:: openwind.rwTurbXML
 Read
 .. function:: parseOWTG(fname,debug=False)
 .. function:: getTurbParams(tree,debug=False)
@@ -124,28 +124,28 @@ Write
 
 Read/Write OpenWind Script File
 Read
-..module:: openwind.rwScriptXML
-..function:: parseScript(fname, debug=False)
+.. module:: openwind.rwScriptXML
+.. function:: parseScript(fname, debug=False)
 ..function:: rdScript(fname, debug=False)
 Write
-..function:: newScriptTree(rpath)
-..function:: makeChWkbkOp(parent,blbpath)
-..function:: makeRepTurbOp(parent,tname,tpath)
-..function:: makeEnCapOp(parent, wm = "DAWM Eddy-Viscosity" )
-..function:: makeOptimiseOp(parent, nIter=None)
-..function:: makeOptimizeOp(parent, nIter=None)
-..function:: makeOptCostEnergyOp(parent)
-..function:: makeExitOp(parent)
-..function:: makeEnableOp(parent, siteName, enable=True)
-..function:: wrtScript(scripttree, ofname, addCols=False)
+.. function:: newScriptTree(rpath)
+.. function:: makeChWkbkOp(parent,blbpath)
+.. function:: makeRepTurbOp(parent,tname,tpath)
+.. function:: makeEnCapOp(parent, wm = "DAWM Eddy-Viscosity" )
+.. function:: makeOptimiseOp(parent, nIter=None)
+.. function:: makeOptimizeOp(parent, nIter=None)
+.. function:: makeOptCostEnergyOp(parent)
+.. function:: makeExitOp(parent)
+.. function:: makeEnableOp(parent, siteName, enable=True)
+.. function:: wrtScript(scripttree, ofname, addCols=False)
 
 OpenWind Utilities
-..module:: openwind.openWindUtils
-..class:: owWindTurbine
-..function:: rdReport(rptpath, debug=False)
-..module:: openwind.getworkbookvals
-..function:: getTurbPos(workbook, owexe, delFiles=True)
-..function:: getEC(workbook, owexe, delFiles=True)
+.. module:: openwind.openWindUtils
+.. class:: owWindTurbine
+.. function:: rdReport(rptpath, debug=False)
+.. module:: openwind.getworkbookvals
+.. function:: getTurbPos(workbook, owexe, delFiles=True)
+.. function:: getEC(workbook, owexe, delFiles=True)
 
 
 .. currentmodule:: openwind.academic.openwindAC_assembly
@@ -158,7 +158,7 @@ The following inputs and outputs are defined for openwindAC_assembly:
 .. literalinclude:: ../src/openwind/academic/openwindAC_assembly.py
     :language: python
     :start-after: openwindAC_assembly(GenericAEPModel)
-    :end-before: def __init__(self, ssfile)
+    :end-before: def __init__(self, openwind_executable, workbook_path,
     :prepend: class openwindAC_assembly(Assembly):
 
 Referenced Energy Production Modules
@@ -182,7 +182,7 @@ Supporting Models for OpenWind Academic
 .. module:: openwind.academic.owAcademicUtils
 .. class:: MyNotifyMLHandler
 .. function:: waitForNotify(watchFile='notifyML.txt', path='.', callback=None, debug=False)
-.. function:: writePositionFile(wt_positions, debug=False, path=None
+.. function:: writePositionFile(wt_positions, debug=False, path=None)
 .. function:: logPositions(wt_positions, ofname=None)
 .. function:: writeNotify(path=None, debug=False)
 .. function:: parseACresults(fname='results.txt', debug=False)
