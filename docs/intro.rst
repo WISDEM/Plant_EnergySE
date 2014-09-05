@@ -1,6 +1,0 @@
-Introduction
-------------
-
-The set of models contained in this Plant_EnergySE are used to assess the energy production for a wind plant.  The first two models are based on using simple statistics to determine wind plant output.  The first model (basic_aep) takes a power curve and estimates plant annual energy production given either a Rayleigh or Weibull wind distribution.  The second model (nrel_csm_aep) is based on the NREL Cost and Scaling Model :cite:`Fingersh2006` and estimates energy production with either a pre-determined power curve as an input or a determined power curve based on key wind turbine parameters.  The latter software is a wrapper for the AWS Truepower OpenWind software :cite:`ref` and one must have the model and license in order to use the enterprise and academic versions of this software.  Only an OpenMDAO wrapper for the model is provided in this software set.
-
-Plant_EnergySE is implemented as an `OpenMDAO <http://openmdao.org/>`_ assembly.  All supporting code is also in OpenMDAO based on the Python programming language with the exception of the AWS Truepower Openwind Software which was developed in the U++ development framework for C++.  You must have the model and license in order to use the academic and enterprise versions of this software.
