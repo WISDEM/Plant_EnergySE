@@ -42,7 +42,7 @@ class aep_csm_assembly(GenericAEPModel):
     # Outputs
     rated_wind_speed = Float(11.506, units = 'm / s', iotype='out', desc='wind speed for rated power')
     rated_rotor_speed = Float(12.126, units = 'rpm', iotype='out', desc = 'rotor speed at rated power')
-    power_curve = Array(np.array([[0,0],[25.0, 0.0]]), iotype='out', desc = 'power curve for a particular rotor')
+    power_curve = Array(np.array([[4.0,80.0],[25.0, 5000.0]]), iotype='out', desc = 'power curve for a particular rotor')
     max_efficiency = Float(0.902, iotype='out', desc = 'maximum efficiency of rotor and drivetrain - at rated power')  
     gross_aep = Float(0.0, iotype='out', desc='Gross Annual Energy Production before availability and loss impacts', unit='kWh')
     net_aep = Float(0.0, units= 'kW * h', iotype='out', desc='Annual energy production in kWh')  # use PhysicalUnits to set units='kWh'
@@ -109,7 +109,6 @@ class aep_csm_assembly(GenericAEPModel):
 def example():
 
     aepA = aep_csm_assembly()
-    #aepA.machine_rating = 5000.0 # Setting an input to get components to execute
     
     aepA.execute()
     

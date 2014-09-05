@@ -21,6 +21,14 @@ Referenced Energy Production Modules
 .. module:: basic_aep.basic_aep
 .. class:: BasicAEP
 .. class:: aep_assembly
+.. class:: aep_weibull_assembly
+
+Referenced Supporting Modules
+==============================
+.. class:: CDFBase
+.. class:: WeibullCDF
+.. class:: RayleighCDF 
+.. class:: aep_component
 
 Referenced Utilities
 =================================================
@@ -46,23 +54,22 @@ The following inputs and outputs are defined for NREL_CSM_AEP:
 Referenced Energy Production Modules
 ===========================================
 .. module:: nrel_csm_aep.nrel_csm_aep
-.. class:: aep_csm_component
 .. class:: aep_csm_assembly
 
 Optional Referenced Power Curve Calculation Models
 ===================================================
+.. module:: nrel_csm_aep.aep_csm_component
+.. class:: aep_csm_component
+
+.. module:: nrel_csm_aep.aero_csm_component
+.. class:: aero_csm_component
+
 .. module:: nrel_csm_aep.csmDriveEfficiency
 .. class:: DrivetrainEfficiencyModel
 .. class:: csmDriveEfficiency
 
 .. module:: nrel_csm_aep.drivetrain_csm_component
 .. class:: drive_csm_component
-
-.. module:: nrel_csm_aep.aero_csm_component
-.. class:: aero_csm_component
-
-.. module:: nrel_csm_aep.aep_csm_component
-.. class:: aep_csm_component
 
 
 
