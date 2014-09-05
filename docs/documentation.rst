@@ -99,52 +99,90 @@ Supporting Models for OpenWind Enterprise
 General Supporting Models for OpenWind
 ==========================================
 Turbine Description Translation
+
 .. module:: openwind.turbfuncs
+
 .. function:: owtg_to_wtpc(owtg_file)
+
 .. function:: wtpc_to_owtg(wtpc, trbname='GenericTurbine', desc='GenericDescription')
+
 .. function:: wtpc_dump(wtpc, shortFmt=False)
 
 Read/Write Turbine XML File
+
 .. module:: openwind.rwTurbXML
+
 Read
+
 .. function:: parseOWTG(fname,debug=False)
+
 .. function:: getTurbParams(tree,debug=False)
+
 .. function:: getTbls(tree,tblname,debug=False)
+
 .. function:: getPwrTbls(tree,debug=False)
+
 .. function:: getThrustTbls(tree,debug=False)
 .. function:: getRPMTbls(tree,debug=False)
 
 Write
+
 .. function:: newTurbTree(trbname, desc, vels, power, thrust, rpm, hubht, rdiam, rho=[1.225], percosts=[], cutInWS=3.0, cutOutWS=25.0, nblades=3, machineRating=3000.0, ttlCost=2000000, fndCost=100000)
+
 .. class:: PerCost
+
 .. function:: makeTblRows(parent, x, xname, cr)
+
 .. function:: addNoiseRows(parent, ttl, tnl, hz, nhz)
+
 .. function:: makeTable(tblName, vels, rho, y)
+
 .. function:: modTurbXML(oldTurbFile, newTurbFile, rotor_diameter=None)
 
 Read/Write OpenWind Script File
+
 Read
+
 .. module:: openwind.rwScriptXML
+
 .. function:: parseScript(fname, debug=False)
+
 ..function:: rdScript(fname, debug=False)
+
 Write
+
 .. function:: newScriptTree(rpath)
+
 .. function:: makeChWkbkOp(parent,blbpath)
+
 .. function:: makeRepTurbOp(parent,tname,tpath)
+
 .. function:: makeEnCapOp(parent, wm = "DAWM Eddy-Viscosity" )
+
 .. function:: makeOptimiseOp(parent, nIter=None)
+
 .. function:: makeOptimizeOp(parent, nIter=None)
+
 .. function:: makeOptCostEnergyOp(parent)
+
 .. function:: makeExitOp(parent)
+
 .. function:: makeEnableOp(parent, siteName, enable=True)
+
 .. function:: wrtScript(scripttree, ofname, addCols=False)
+
 
 OpenWind Utilities
 .. module:: openwind.openWindUtils
+
 .. class:: owWindTurbine
+
 .. function:: rdReport(rptpath, debug=False)
+
 .. module:: openwind.getworkbookvals
+
 .. function:: getTurbPos(workbook, owexe, delFiles=True)
+
 .. function:: getEC(workbook, owexe, delFiles=True)
 
 
@@ -190,3 +228,6 @@ Supporting Models for OpenWind Academic
 .. class: WTWkbkFile
 
 
+General Supporting Models for OpenWind
+==========================================
+See above from OpenWind Enterprise documentation
