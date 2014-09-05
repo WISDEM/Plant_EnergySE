@@ -13,7 +13,7 @@ The following inputs and outputs are defined for Basic_AEP:
 .. literalinclude:: ../src/basic_aep/basic_aep.py
     :language: python
     :start-after: aep_assembly(GenericAEPModel)
-    :end-before: def configure(self)
+    :end-before: def __init__(self)
     :prepend: class aep_assembly(Assembly):
 
 Referenced Energy Production Modules
@@ -48,7 +48,7 @@ The following inputs and outputs are defined for NREL_CSM_AEP:
 .. literalinclude:: ../src/nrel_csm_aep/nrel_csm_aep.py
     :language: python
     :start-after: aep_csm_assembly(GenericAEPModel)
-    :end-before: def configure(self)
+    :end-before: def __init__(self)
     :prepend: class aep_csm_assembly(Assembly):
 
 Referenced Energy Production Modules
