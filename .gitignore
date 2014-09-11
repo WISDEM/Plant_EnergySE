@@ -111,3 +111,5 @@ notifyOW.txt
 *.tmp
 tmp.*
 src/Plant_AEPSE/Openwind/development/
+test/
+src/Plant_AEPSE/test/
