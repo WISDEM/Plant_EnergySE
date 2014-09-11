@@ -8,14 +8,9 @@ Copyright (c) NREL. All rights reserved.
 import numpy as np
 
 from openmdao.main.api import Component, Assembly, set_as_top, VariableTree
-from openmdao.main.datatypes.api import Int, Bool, Float, Array, VarTree, Slot
+from openmdao.main.datatypes.api import Int, Bool, Float, Array, VarTree, Instance
 
-from csmDriveEfficiency import DrivetrainEfficiencyModel, csmDriveEfficiency
-
-class aero_csm_component(Component):
-
-    # Drivetrain Efficiency Model
-    drivetrain = Slot(DrivetrainEfficiencyModel, iotype = 'in', desc= "drivetrain efficiency model", required = True)   
+class aero_csm_component(Component): 
     
     # Variables
     machine_rating = Float(5000.0, units = 'kW', iotype='in', desc= 'rated machine power in kW')
@@ -28,60 +23,21 @@ class aero_csm_component(Component):
     hub_height = Float(90.0, units = 'm', iotype='in', desc= 'hub height of wind turbine above ground / sea level')
     altitude = Float(0.0, units = 'm', iotype='in', desc= 'altitude of wind plant')
     air_density = Float(0.0, units = 'kg / (m * m * m)', iotype='in', desc= 'air density at wind plant site')  # default air density value is 0.0 - forces aero csm to calculate air density in model
+    max_efficiency = Float(0.902, iotype='in', desc = 'maximum efficiency of rotor and drivetrain - at rated power') 
 
     # Outputs
     rated_wind_speed = Float(11.506, units = 'm / s', iotype='out', desc='wind speed for rated power')
     rated_rotor_speed = Float(12.126, units = 'rpm', iotype='out', desc = 'rotor speed at rated power')
-    power_curve = Array(np.array([[0,0],[25.0, 0.0]]), iotype='out', desc = 'power curve for a particular rotor')
-    max_efficiency = Float(0.902, iotype='out', desc = 'maximum efficiency of rotor and drivetrain - at rated power')  
-
+    power_curve = Array(iotype='out', units='kW', desc='total power before drivetrain losses')
+    wind_curve = Array(iotype='out', units='m/s', desc='wind curve associated with power curve')
 
     def __init__(self):
         """
         OpenMDAO component to wrap Aerodynamics module of the NREL _cost and Scaling Model (csmAero.py)
         
-        Parameters
-        ----------
-        drivetrain_design : DrivetrainEfficiencyModel
-          drivetrain efficiency model (required and must conform with interface)
-        machine_rating : float
-          wind turbine rated power [kW]
-        max_tip_speed : float
-          maximum allowable tip speed for the rotor [m/s]
-        rotor_diameter : float
-          rotor diameter of the machine [m]
-        max_power_coefficient : float
-          maximum power coefficient of rotor for operation in region 2
-        opt_tsr : float
-          optimum tip speed ratio for operation in region 2
-        cut_in_wind_speed : float
-          cut in wind speed for the wind turbine [m/s]
-        cut_out_wind_speed : float
-          cut out wind speed for the wind turbine [m/s]
-        hub_height : float
-          hub height of wind turbine above ground / sea level
-        altitude : float
-          altitude of wind plant [m]
-        air_density : float
-          air density at wind plant site [kg / m^3]
-          
-        Returns
-        -------
-        rated_wind_speed : float
-          wind speed for rated power [m/s]
-        rated_rotor_speed : float
-          rotor speed at rated power [m/s]
-        power_curve : array_like of float
-          power curve for a particular rotor as a 2-D array of power vs. wind [kW vs. m/s]
-        max_efficiency : float
-          maximum efficiency of rotor and drivetrain - at rated power
-        
         """
 
         super(aero_csm_component,self).__init__()
-
-        self.drivetrain = csmDriveEfficiency(1)
-
 
     def execute(self):
         """
@@ -117,8 +73,8 @@ class aero_csm_component(Component):
         # determine power curve inputs
         self.reg2pt5slope  = 0.05
         
-        self.maxEfficiency = self.drivetrain.getMaxEfficiency()
-        self.ratedHubPower = self.ratedPower / self.maxEfficiency  # RatedHubPower
+        #self.max_efficiency = self.drivetrain.getMaxEfficiency()
+        self.ratedHubPower = self.ratedPower / self.max_efficiency  # RatedHubPower
 
         self.omegaM = self.maxTipSpd/(self.rotorDiam/2.)  # Omega M - rated rotor speed
         omega0 = self.omegaM/(1+self.reg2pt5slope)       # Omega 0 - rotor speed at which region 2 hits zero torque
@@ -173,18 +129,17 @@ class aero_csm_component(Component):
         # determine power curve after losses
         mtp = [None] * n
         for i in xrange(0,n):
-           mtp[i] = itp[i] * self.drivetrain.getDrivetrainEfficiency(itp[i],self.ratedHubPower)
+           mtp[i] = itp[i] #* self.drivetrain.getDrivetrainEfficiency(itp[i],self.ratedHubPower)
            #print [Wind[i],itp[i],self.drivetrain.getDrivetrainEfficiency(itp[i],self.ratedHubPower),mtp[i]] # for testing
            if (mtp[i] > self.ratedPower):
               if not ratedWSflag:
                 ratedWSflag = True
               mtp[i] = self.ratedPower
 
-        self.powerCurve = np.array([Wind,mtp])
         self.rated_wind_speed = self.ratedWindSpeed
         self.rated_rotor_speed = self.ratedRPM
-        self.power_curve = self.powerCurve
-        self.max_efficiency = self.drivetrain.getMaxEfficiency()
+        self.power_curve = mtp
+        self.wind_curve = Wind
 
     def idealPowerCurve( self, Wind, ITP, kTorque, windOmegaT, pwrOmegaT, n , omegaTflag):
         """
@@ -214,11 +169,8 @@ def example():
   
     aerotest = aero_csm_component()
     
-    drivetrain = csmDriveEfficiency(1)
-    aerotest.drivetrain = drivetrain
-    
     # Test for NREL 5 MW turbine
-    aerotest.execute()
+    aerotest.run()
     
     print "NREL 5MW Reference Turbine"
     print "Rated rotor speed: {0}".format(aerotest.rated_rotor_speed)

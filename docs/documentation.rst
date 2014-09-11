@@ -64,12 +64,9 @@ Optional Referenced Power Curve Calculation Models
 .. module:: nrel_csm_aep.aero_csm_component
 .. class:: aero_csm_component
 
-.. module:: nrel_csm_aep.csmDriveEfficiency
-.. class:: DrivetrainEfficiencyModel
-.. class:: csmDriveEfficiency
-
-.. module:: nrel_csm_aep.drivetrain_csm_component
-.. class:: drive_csm_component
+.. module:: nrel_csm_aep.CSMDrivetrain
+.. class:: DrivetrainLossesBase
+.. class:: CSMDrivetrain
 
 
 

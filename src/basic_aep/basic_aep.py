@@ -12,9 +12,12 @@ from openmdao.main.datatypes.api import Int, Bool, Float, Array, VarTree
 
 from commonse.utilities import hstack, vstack
 
-from fusedwind.plant_flow.fused_plant_asym import GenericAEPModel
+from fusedwind.plant_flow.asym import BaseAEPModel
+from fusedwind.plant_flow.comp import BaseAEPAggregator
+from fusedwind.interface import implement_base
 
-class aep_assembly(GenericAEPModel):
+@implement_base(BaseAEPModel)
+class aep_assembly(Assembly):
 
     # variables
     AEP_one_turbine = Float(iotype='in', units='kW*h')
@@ -25,9 +28,9 @@ class aep_assembly(GenericAEPModel):
     availability = Float(0.94, iotype='in', desc='average annual availbility of wind turbines at plant')
     turbine_number = Int(100, iotype='in', desc='total number of wind turbines at the plant')
 
-    def __init__(self):
-
-        super(aep_assembly, self).__init__()
+    # outputs
+    gross_aep = Float(iotype='out', desc='Gross Annual Energy Production before availability and loss impacts', units='kW*h')
+    net_aep = Float(iotype='out', desc='Net Annual Energy Production after availability and loss impacts', units='kW*h')
 
     def configure(self):
 
@@ -48,6 +51,7 @@ class aep_assembly(GenericAEPModel):
         self.connect('aep.gross_aep', 'gross_aep')
         self.connect('aep.net_aep', 'net_aep')
 
+@implement_base(BaseAEPAggregator)
 class BasicAEP(Component):
 
     # in
@@ -62,8 +66,12 @@ class BasicAEP(Component):
     # outputs
     gross_aep = Float(iotype='out', desc='Gross Annual Energy Production before availability and loss impacts', units='kW*h')
     net_aep = Float(iotype='out', desc='Net Annual Energy Production after availability and loss impacts', units='kW*h')
-
-    missing_deriv_policy = 'assume_zero'
+    
+    def __init__(self):
+        
+        Component.__init__(self)
+        
+        self.missing_deriv_policy = 'assume_zero'
 
     def execute(self):
 
@@ -83,7 +91,8 @@ class BasicAEP(Component):
 
         return J
 
-class aep_weibull_assembly(GenericAEPModel):
+@implement_base(BaseAEPModel)
+class aep_weibull_assembly(Assembly):
 
     # variables
     A = Float(iotype='in', desc='scale factor')
@@ -97,9 +106,9 @@ class aep_weibull_assembly(GenericAEPModel):
     availability = Float(0.94, iotype='in', desc = 'average annual availbility of wind turbines at plant')
     turbine_number = Int(100, iotype='in', desc = 'total number of wind turbines at the plant')
 
-    def __init__(self):
-
-        super(aep_weibull_assembly, self).__init__()
+    # outputs
+    gross_aep = Float(iotype='out', desc='Gross Annual Energy Production before availability and loss impacts', units='kW*h')
+    net_aep = Float(iotype='out', desc='Net Annual Energy Production after availability and loss impacts', units='kW*h')
 
     def configure(self):
 
@@ -204,7 +213,7 @@ class RayleighCDF(CDFBase):
 
         return self.J
 
-
+@implement_base(BaseAEPAggregator)
 class aep_component(Component):
     """annual energy production"""
 
@@ -224,7 +233,7 @@ class aep_component(Component):
 
     def __init__(self):
 
-        super(aep_component,self).__init__()
+        Component.__init__(self)
 
         #controls what happens if derivatives are missing
         self.missing_deriv_policy = 'assume_zero'

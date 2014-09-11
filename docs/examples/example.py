@@ -48,7 +48,7 @@ aepA = aep_csm_assembly()
 # 6 ----------
 # 7 ----------
 
-aepA.execute() #TODO - not executing the same as the main component - not running full assembly
+aepA.run()
 
 # 7 ----------
 # 8 ----------
