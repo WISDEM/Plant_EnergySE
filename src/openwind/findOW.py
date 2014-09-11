@@ -6,10 +6,12 @@
 
 import sys, os
 
+ow_paths = ['C:/rassess/Openwind',  # GNS
+            'D:/rassess/Openwind',
+            'C:/Models/Openwind' ]  # KLD
+               
 def findOW(academic=False, debug=False):
-    ow_paths = ['C:/rassess/Openwind',  # GNS
-                'C:/Models/Openwind',   # KLD
-               ]
+
     ow = 'openWind64.exe'
     if academic:
         ow = 'openWind64_ac.exe'
@@ -23,3 +25,6 @@ def findOW(academic=False, debug=False):
             
     sys.stderr.write('findOW: OpenWind executable file not found in ow_paths\n')
     return None
+
+def owPaths():
+    return ow_paths

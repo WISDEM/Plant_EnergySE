@@ -24,11 +24,11 @@ import sys, time
 import subprocess
 from lxml import etree
 
-import Plant_AEPSE.Openwind.openWindUtils as utils
+import openwind.openWindUtils as utils
 import owAcademicUtils as acutils
-import Plant_AEPSE.Openwind.rwScriptXML as rwScriptXML
-import Plant_AEPSE.Openwind.rwTurbXML as rwTurbXML
-import Plant_AEPSE.Openwind.turbfuncs as turbfuncs
+import openwind.rwScriptXML as rwScriptXML
+import openwind.rwTurbXML as rwTurbXML
+import openwind.turbfuncs as turbfuncs
 
 from openmdao.lib.datatypes.api import Float, Int, VarTree
 from openmdao.main.api import FileMetadata, Component, VariableTree
@@ -434,7 +434,11 @@ if __name__ == "__main__":
     
     # Find OpenWind executable
             
+<<<<<<< HEAD:src/Plant_AEPSE/Openwind/Academic/openWindAcComponent.py
     from Plant_AEPSE.Openwind.findOW import findOW, owPaths
+=======
+    from openwind.findOW import findOW
+>>>>>>> 761bfaa581e281f48349805657bf65e9606857c5:src/openwind/academic/openWindAcComponent.py
     owexe = findOW(debug=debug, academic=True)
     
     if owexe is None or not os.path.isfile(owexe):

@@ -24,6 +24,11 @@ import sys, time
 import subprocess
 from lxml import etree
 
+# For desktop machine only!
+sys.path.append('D:/SystemsEngr/openMDAO')
+import setpath
+sys.path.append('D:/SystemsEngr/FUSED-Wind/src/fusedwind')
+
 import Plant_AEPSE.Openwind.openWindUtils as utils
 import owAcademicUtils as acutils
 import Plant_AEPSE.Openwind.rwScriptXML as rwScriptXML
@@ -172,15 +177,20 @@ class OWACcomp(Component):
         for op in ops:
             optype = op.find('Type').get('value')
             
-            sys.stderr.write('\n*** WARNING: start_once will be set to False because Replace Turbine\n')
-            sys.stderr.write('         operation is present in {:}\n\n'.format(self.script_file))
-            self.start_once = False
+            if optype == 'Replace Turbine Type' and self.start_once:
+                sys.stderr.write('\n*** WARNING: start_once will be set to False because Replace Turbine\n')
+                sys.stderr.write('         operation is present in {:}\n\n'.format(self.script_file))
+                self.start_once = False
                 
             if optype == 'Optimize' or optype == 'Optimise':
                 foundOpt = True
                 break
+<<<<<<< HEAD
+                
+=======
             if optype == 'Replace Turbine Type':
                 self.replace_turbine = True
+>>>>>>> origin/master
         if not foundOpt:
             sys.stderr.write('\n*** ERROR: no Optimize operation found in {:}\n\n'.format(self.script_file))
             return False
@@ -434,21 +444,21 @@ if __name__ == "__main__":
     
     # Find OpenWind executable
             
-    from Plant_AEPSE.Openwind.findOW import findOW, owPaths
+    from Plant_AEPSE.Openwind.findOW import findOW
     owexe = findOW(debug=debug, academic=True)
-    
-    if owexe is None or not os.path.isfile(owexe):
-        #sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owexe))
-        sys.stderr.write('OpenWind executable file not found in:\n'.format(owexe))
-        for p in owPaths():
-            sys.stderr.write('    {:}\n'.format(p))
+    if not os.path.isfile(owexe):
+        sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owexe))
         exit()
 
     # Set OpenWind script name
     
     owXMLname = '../../test/rtecScript.xml' # replace turb, energy capture
     owXMLname = '../../test/owacScript.xml' # optimize operation
+<<<<<<< HEAD
+    owXMLname = '../../test/rtopScript.xml' # replace turb, optimize
+=======
     #owXMLname = '../../test/rtopScript.xml' # replace turb, optimize
+>>>>>>> origin/master
     
     if modify_turbine:
         owXMLname = '../../test/rtopScript.xml' # replace turb, optimize
@@ -466,11 +476,31 @@ if __name__ == "__main__":
                     [456500.00,4085000.00]]
     deltaX =  3000.0
     deltaY = -2000.0
+<<<<<<< HEAD
+    deltaX =  200.0
+    deltaY = -200.0
+    
+    # Read turbine positions from workbook
+    
+    e = rwScriptXML.parseScript(owXMLname)
+    ops = e.xpath('//Operation')
+    workbook = None
+    turb_path = None
+    turb_name = None
+    for op in ops:
+        if op.find('Type').get('value') == 'Change Workbook':
+            workbook = op.find('Path').get('value')
+        if op.find('Type').get('value') == 'Replace Turbine Type':
+            turb_path = op.find('TurbinePath').get('value')
+            turb_name = op.find('TurbineName').get('value')
+    
+=======
     #deltaX =  200.0
     #deltaY = -200.0
     
     # Read turbine positions from workbook
     
+>>>>>>> origin/master
     if debug:
         sys.stderr.write('Getting turbine positions from {:}\n'.format(workbook))        
     wb = acutils.WTWkbkFile(wkbk=workbook, owexe=owexe)
@@ -480,13 +510,25 @@ if __name__ == "__main__":
     
     # Initialize OWACcomp component
         
+<<<<<<< HEAD
+    ow = OWACcomp(owExe=owexe, debug=debug, scriptFile=owXMLname, start_once=start_once)
+         #, stopOW=False)
+=======
     ow = OWACcomp(owExe=owexe, debug=debug, scriptFile=owXMLname, start_once=start_once, opt_log=opt_log)
            #, stopOW=False)
-         #, stopOW=False)
+>>>>>>> origin/master
     if not ow.scriptOK:
         sys.stderr.write("\n*** ERROR found in script file\n\n")
         exit()
     
+<<<<<<< HEAD
+    if turb_path is not None:
+        ow.replace_turbine = True
+        ow.turb_path = turb_path
+    else:
+        ow.replace_turbine = False
+            
+=======
     # starting point for turbine mods
     
     #wt_list_elem = dummy_wt_list()    
@@ -501,6 +543,7 @@ if __name__ == "__main__":
         sys.stderr.write('Initialized {:} turbines in wt_layout\n'.format(len(wt_positions)))
     #print 'OWW ', ow.wt_layout.wt_list[0].__class__
     
+>>>>>>> origin/master
     # move turbines farther offshore with each iteration
     
     if debug:

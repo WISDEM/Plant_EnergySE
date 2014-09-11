@@ -3,10 +3,6 @@
 # OpenMDAO
 openmdao_log.txt
 
-# ST
-*.sublime-project
-*.sublime-workspace
-
 # Sphinx
 _build
 generated
@@ -49,6 +45,7 @@ nosetests.xml
 .project
 .pydevproject
 
+
 # Compiled source #
 ###################
 *.com
@@ -87,6 +84,7 @@ nosetests.xml
 Icon?
 ehthumbs.db
 Thumbs.db
+<<<<<<< HEAD
 
 # GNS - 2014 04 14
 
@@ -113,3 +111,5 @@ tmp.*
 src/Plant_AEPSE/Openwind/development/
 test/
 src/Plant_AEPSE/test/
+=======
+>>>>>>> 761bfaa581e281f48349805657bf65e9606857c5
