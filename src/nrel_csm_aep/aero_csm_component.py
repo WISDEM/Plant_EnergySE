@@ -8,7 +8,7 @@ Copyright (c) NREL. All rights reserved.
 import numpy as np
 
 from openmdao.main.api import Component, Assembly, set_as_top, VariableTree
-from openmdao.main.datatypes.api import Int, Bool, Float, Array, VarTree, Instance
+from openmdao.main.datatypes.api import Int, Bool, Float, Array, VarTree, Instance, Enum
 
 class aero_csm_component(Component): 
     

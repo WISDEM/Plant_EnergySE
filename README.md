@@ -1,6 +1,10 @@
 Plant_EnergySE is a set of models for analyzing wind plant energy production for both land-based and offshore wind plants.
 
-Author: [K. Dykes](mailto:katherine.dykes@nrel.gov)
+Author: [K. Dykes](mailto:katherine.dykes@nrel.gov) and [G. Scott](mailto:george.scott@nrel.gov)
+
+## Detailed Documentation
+
+For detailed documentation see <http://wisdem.github.io/Plant_EnergySE/>
 
 ## Prerequisites
 
@@ -33,7 +37,3 @@ You may also run the unit tests.
 	$ python src/test/test_Plant_EnergysSE_gradients.py
 
 Note that the gradient test is only provided for the basic_aep software.
-
-## Detailed Documentation
-
-Online documentation is available at <http://wisdem.github.io/Plant_EnergySE/>
