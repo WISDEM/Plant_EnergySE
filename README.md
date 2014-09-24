@@ -2,6 +2,10 @@ Plant_EnergySE is a set of models for analyzing wind plant energy production for
 
 Author: [K. Dykes](mailto:katherine.dykes@nrel.gov) and [G. Scott](mailto:george.scott@nrel.gov)
 
+## Version
+
+This software is a beta version 0.1.0.
+
 ## Detailed Documentation
 
 For detailed documentation see <http://wisdem.github.io/Plant_EnergySE/>
