@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='ASCII'?>
+<!DOCTYPE OpenWindScript>
+<OpenWindScript>
+  <!-- Written by wrtScriptXML.py on 2014-02-28 09:06:40.663000 -->
+  <ReportPath value="owECReport.txt"/>
+  <AppendOperations value="Sideways"/>
+  <SiteNameField value="true"/>
+  <TurbineTypeField value="false"/>
+  <TurbineLabelField value="false"/>
+  <TurbineIndexField value="true"/>
+  <TurbineXField value="true"/>
+  <TurbineYField value="true"/>
+  <GrossEnergyField value="true"/>
+  <NetEnergyField value="true"/>
+  <ArrayEfficiencyField value="true"/>
+  <FreeWindspeedField value="true"/>
+  <MeanWindspeedField value="true"/>
+  <TurbulenceTotalField value="true"/>
+  <TI15 value="true"/>
+  <AllOperations>
+    <Operation>
+      <Type value="Change Workbook"/>
+      <!-- <Path value="C:/rassess/USA/Offshore/VOWTAP/VA_WEA.blb"/> -->
+      <!-- <Path value="../../../../test/VA_test.blb"/> -->
+      <Path value="../test/VA_test.blb"/>
+    </Operation>
+    <Operation>
+      <Type value="Energy Capture"/>
+      <WakeModel value="DAWM Eddy-Viscosity"/>
+      <Umin value="0.0"/>
+      <Umax value="70.0"/>
+      <Ustep value="1.0"/>
+      <TotalDirections value="72.0"/>
+      <FirstDirection value="0.0"/>
+      <LastDirection value="71.0"/>
+      <DirectionOffset value="0.0"/>
+      <Pxx value="50.0"/>
+    </Operation>
+    <Operation>
+      <Type value="Exit"/>
+    </Operation>
+  </AllOperations>
+</OpenWindScript>
