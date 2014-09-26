@@ -33,12 +33,12 @@ from openmdao.main.api import Component, Assembly, VariableTree
 from openmdao.main.api import set_as_top
 from openmdao.lib.datatypes.api import Float, Array, Int, VarTree
 
-from fusedwind.plant_flow.fused_plant_asym import GenericAEPModel
-from fusedwind.plant_flow.fused_plant_vt import GenericWindTurbinePowerCurveVT, ExtendedWindTurbinePowerCurveVT
-from fusedwind.plant_flow.fused_plant_vt import GenericWindFarmTurbineLayout
+from fusedwind.interface import implement_base
+from fusedwind.plant_flow.asym import BaseAEPModel
+from vt import GenericWindTurbineVT, \
+               GenericWindTurbinePowerCurveVT, ExtendedWindTurbinePowerCurveVT, \
+               GenericWindFarmTurbineLayout,   ExtendedWindFarmTurbineLayout
 
-#from openWindExtCode import OWwrapped  # OpenWind inside an OpenMDAO ExternalCode wrapper
-#from openWindAcExtCode import OWACwrapped  # OpenWind inside an OpenMDAO ExternalCode wrapper
 from openWindAcComponent import OWACcomp  # OpenWind inside an OpenMDAO Component
 
 import openwind.rwTurbXML as rwTurbXML
@@ -48,7 +48,9 @@ import openwind.turbfuncs as turbfuncs
 
 #------------------------------------------------------------------
 
-class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipulation and passthrough of aep in execute doesnt work
+#class openwindAC_assembly(BaseAEPModel): # todo: has to be assembly or manipulation and passthrough of aep in execute doesnt work
+@implement_base(BaseAEPModel)
+class openwindAC_assembly(Assembly): # todo: has to be assembly or manipulation and passthrough of aep in execute doesnt work
     """ Runs OpenWind from OpenMDAO framework """
 
     # Inputs
@@ -62,13 +64,18 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
     # Outputs
       # inherits output vbls net_aep and gross_aep from GenericAEPModel
       
+    gross_aep        = Float(0.0, iotype='out', desc='Gross Output')
+    net_aep          = Float(0.0, iotype='out', desc='Net Output')
     #array_aep       = Float(0.0, iotype='out', desc='Gross Annual Energy Production net of array impacts', unit='kWh')
     total_losses    = Float(0.0, iotype='out', desc='Total Losses (gross to net)')
     capacity_factor = Float(0.0, iotype='out', desc='capacity factor')
 
     # -------------------
     
-    def __init__(self, openwind_executable, workbook_path, 
+    #def __init__(self, openwind_executable, workbook_path, 
+    # try with default values to fix problem with interface.py
+    def __init__(self, 
+                 openwind_executable=None, workbook_path=None, 
                  turbine_name=None, 
                  script_file=None, 
                  academic=True,
@@ -79,10 +86,16 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
         """ Creates a new GenericAEPModel Assembly object for OpenWind Academic """
 
         foundErrors = False
-        if not os.path.isfile(openwind_executable):
+        if openwind_executable is None:
+            sys.stderr.write('\n*** ERROR: executable not assigned\n\n')
+            foundErrors = True
+        elif not os.path.isfile(openwind_executable):
             sys.stderr.write('\n*** ERROR: executable {:} not found\n\n'.format(openwind_executable))
             foundErrors = True
-        if not os.path.isfile(workbook_path):
+        if workbook_path is None:
+            sys.stderr.write('\n*** ERROR: workbook_path not assigned\n\n')
+            foundErrors = True
+        elif not os.path.isfile(workbook_path):
             sys.stderr.write('\n*** ERROR: workbook {:} not found\n\n'.format(workbook_path))
             foundErrors = True
         if foundErrors:
@@ -92,6 +105,8 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
         
         self.workDir = os.getcwd()
         #self.workDir = os.path.dirname(os.path.realpath(__file__)) # location of this source file
+        
+        self.ow = None # the Openwind Component
                 
         self.openwind_executable = openwind_executable
         self.workbook_path = workbook_path
@@ -114,7 +129,8 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
 
         # TODO: hack for now assigning turbine
         
-        self.turb = GenericWindTurbinePowerCurveVT()
+        #self.turb = GenericWindTurbinePowerCurveVT()
+        self.turb = ExtendedWindTurbinePowerCurveVT()
         if self.machine_rating is not None:
             self.turb.power_rating = self.machine_rating
         #self.turb.hub_height = self.hub_height
@@ -208,7 +224,9 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
         nt = len(self.wt_layout.wt_positions)
         
         # initialize from file
-        owtg_file = 'C:/SystemsEngr/Plant_AEPSE/src/Plant_AEPSE/test/Alstom6MW.owtg'
+
+        owtg_file = '../test/Alstom6MW.owtg'
+        sys.stderr.write('\n*** WARNING: initializing turbine from {:} - why??\n\n'.format(owtg_file))
         trb = turbfuncs.owtg_to_wtpc(owtg_file)
         
         for i in range(nt):
@@ -232,7 +250,7 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
         #   - write new turbine files
         #   - etc.
         
-        owtg_str = turbfuncs.wtpc_to_owtg(self.turb_props)
+        # owtg_str = turbfuncs.wtpc_to_owtg(self.turb_props)
         
         # write new script for execution  
     
@@ -256,7 +274,9 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
             sys.stderr.write('\n*** WARNING: turbine power_rating not set\n\n')
         else:
             # power_rating is in W, but net_aep is in kWh
-            self.capacity_factor = ((self.net_aep) / (self.wt_layout.wt_list[0].power_rating*0.001 * 8760.0 * self.nTurbs))
+            #self.capacity_factor = ((self.net_aep) / (self.wt_layout.wt_list[0].power_rating*0.001 * 8760.0 * self.nTurbs))
+            # 8766 hrs = 365.25 days to agree with OpenWind
+            self.capacity_factor = ((self.net_aep) / (self.wt_layout.wt_list[0].power_rating*0.001 * 8766.0 * self.nTurbs))
         
         self.total_losses = (self.gross_aep - self.net_aep) / self.gross_aep
         
@@ -264,11 +284,19 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
     
     def updateRptPath(self, rptPathName, newScriptName):
         '''
+        Updates the output report path by writing a new script file ('newScriptName')
+          that includes the new report path ('rptPathName'), then setting the value
+          of ow.script_file to 'newScriptName' (with proper folder)
+          
         Writes a new script file and sets self.ow.script_file
         New script is identical to current script, except that it writes to 'rptPathName'
         rptPathName should be a full path name (if possible)
         '''
         
+        if self.ow is None:
+            sys.stderr.write('*** WARNING: calling updateRptPath() before ow (OpenWind component) is set\n')
+            return
+            
         e = rwScriptXML.parseScript(self.ow.script_file)
         rp = e.find("ReportPath")
         if rp is None:
@@ -283,6 +311,32 @@ class openwindAC_assembly(GenericAEPModel): # todo: has to be assembly or manipu
         self.ow.script_file = self.workDir + '/' + newScriptName
         if self.debug:    
             sys.stderr.write('Wrote new script file "{:}"\n'.format(self.ow.script_file))
+            
+    # -------------------
+    
+    def updateAssyRptPath(self, rptPathName, newScriptName):
+        '''
+        Updates the output report path by writing a new script file ('newScriptName')
+          that includes the new report path ('rptPathName'), then setting the value
+          of self.script_file to 'newScriptName' (with proper folder)
+        
+        Similar to updateRptPath() but modifies self.script file, since self.ow may not be set yeet 
+        '''
+        
+        e = rwScriptXML.parseScript(self.script_file)
+        rp = e.find("ReportPath")
+        if rp is None:
+            sys.stderr.write('Can\'t find report path in "{:}"\n'.format(self.ow.script_file))
+            return
+        
+        if self.debug:    
+            sys.stderr.write('Changing report path from "{:}" to "{:}"\n'.format(rp.get('value'),rptPathName))
+        rp.set('value',rptPathName)
+        
+        rwScriptXML.wrtScript(e, newScriptName)
+        self.script_file = self.workDir + '/' + newScriptName
+        if self.debug:    
+            sys.stderr.write('Wrote new script file "{:}"\n'.format(self.script_file))
             
     # -------------------
     
@@ -335,14 +389,15 @@ def example():
     from openwind.findOW import findOW
     owExe = findOW(debug=debug, academic=True)
     
-    workbook_path = '../../test/VA_test.blb'
+    testPath = '../test/'
+    workbook_path = testPath + 'VA_test.blb'
     
     turbine_name = 'Alstom Haliade 150m 6MW' # should match default turbine in workbook
     machine_rating = 6000.0
     
-    script_file = '../../test/owacScript.xml' # optimize operation
+    script_file = testPath + 'owacScript.xml' # optimize operation
     if modify_turbine:
-        script_file = '../../test/rtopScript.xml' # replace turbine, optimize
+        script_file = testPath + 'rtopScript.xml' # replace turbine, optimize
         if debug:
             sys.stderr.write('Turbine will be modified\n')
         
@@ -362,7 +417,11 @@ def example():
                              machine_rating=machine_rating,
                              start_once=start_once,
                              debug=debug) 
-    owAsy.updateRptPath('newReport.txt', 'newTestScript.xml')
+    
+    #owAsy.configure()
+    
+    owAsy.updateAssyRptPath('newReport.txt', 'newTestScript.xml')
+    #owAsy.updateRptPath('newReport.txt', 'newTestScript.xml')
     
     # Originally, there was a turbine power/ct/rpm definition here, but that's not
     # part of an owAsy, so that code is now in C:/SystemsEngr/test/pcrvtst.py

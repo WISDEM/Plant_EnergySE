@@ -52,7 +52,7 @@ def parseOWTG(fname,debug=False):
         tree = etree.parse(fname)
         return tree
     except:
-        sys.stderr.write('\n*** ERROR opening/reading/parsing file {:}\n\n'.format(fname))
+        sys.stderr.write('\n*** ERROR in parseOWTG() opening/reading/parsing file {:}\n\n'.format(fname))
         return None
     
 #---------------------------------------------------------

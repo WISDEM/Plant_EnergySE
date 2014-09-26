@@ -20,7 +20,7 @@
     <AllOperations>
       <Operation>
         <Type value="Change Workbook"/>
-        <Path value="../../test/VA_test.blb"/>
+        <Path value="../test/VA_test.blb"/>
       </Operation>
       <Operation>
         <Type value="Optimise"/>

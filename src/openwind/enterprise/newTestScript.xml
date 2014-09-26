@@ -21,7 +21,8 @@
     <Operation>
       <Type value="Change Workbook"/>
       <!-- <Path value="C:/rassess/USA/Offshore/VOWTAP/VA_WEA.blb"/> -->
-      <Path value="../../test/VA_test.blb"/>
+      <!-- <Path value="../../../../test/VA_test.blb"/> -->
+      <Path value="../test/VA_test.blb"/>
     </Operation>
     <Operation>
       <Type value="Energy Capture"/>

@@ -75,7 +75,7 @@ def wtpc_to_owtg(wtpc, trbname='GenericTurbine', desc='GenericDescription'):
     
     #sys.stderr.write('{:}\n'.format(wtpc.power_curve.__class__))
     if wtpc.power_curve.ndim < 2:
-        sys.stderr.write('\n*** WARNING: wtpc power curve not specified\n\n')
+        sys.stderr.write('\n*** WARNING wtpc_to_owtg(): wtpc power curve not specified\n\n')
         return ''
     
     turbtree = rwTurbXML.newTurbTree(trbname, desc,

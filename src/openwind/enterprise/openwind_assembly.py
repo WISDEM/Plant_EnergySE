@@ -31,21 +31,25 @@ import numpy as np
 from openmdao.main.api import Component, Assembly, VariableTree
 from openmdao.lib.datatypes.api import Float, Array, Int, VarTree
 
-from fusedwind.plant_flow.fused_plant_asym import GenericAEPModel
-from fusedwind.plant_flow.fused_plant_vt import GenericWindTurbinePowerCurveVT
-from fusedwind.plant_flow.fused_plant_vt import GenericWindFarmTurbineLayout
+from vt import GenericWindTurbineVT, GenericWindTurbinePowerCurveVT, \
+     ExtendedWindTurbinePowerCurveVT, GenericWindFarmTurbineLayout, \
+     ExtendedWindFarmTurbineLayout, GenericWindRoseVT
+                           
+from fusedwind.interface import implement_base
+from fusedwind.plant_flow.asym import BaseAEPModel
 
 from openWindExtCode import OWwrapped  # OpenWind inside an OpenMDAO ExternalCode wrapper
-#from openWindAcExtCode import OWACwrapped  # OpenWind inside an OpenMDAO ExternalCode wrapper
 
-#import rwTurbXML
-#import rwScriptXML
 import openwind.rwTurbXML as rwTurbXML
 import openwind.rwScriptXML as rwScriptXML
 
 #------------------------------------------------------------------
 
-class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipulation and passthrough of aep in execute doesnt work
+#class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipulation and passthrough of aep in execute doesnt work
+#class openwind_assembly(BaseAEPModel): # todo: has to be assembly or manipulation and passthrough of aep in execute doesnt work
+
+@implement_base(BaseAEPModel)
+class openwind_assembly(Assembly): # todo: has to be assembly or manipulation and passthrough of aep in execute doesnt work
     """ Runs OpenWind from OpenMDAO framework """
 
     # Inputs
@@ -64,14 +68,15 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
     # TODO: wake model option selections
 
     # Outputs
-      # inherits output vbls net_aep and gross_aep from GenericAEPModel
+      # inherits output vbls net_aep and gross_aep from GenericAEPModel - NOT when using fusedwind implement_base
       
+    gross_aep        = Float(0.0, iotype='out', desc='Gross Output')
+    net_aep          = Float(0.0, iotype='out', desc='Net Output')
     #ideal_aep = Float(0.0, iotype='out', desc='Ideal Annual Energy Production before topographic, availability and loss impacts', unit='kWh')
     array_aep       = Float(0.0, iotype='out', desc='Gross Annual Energy Production net of array impacts', unit='kWh')
     array_losses    = Float(0.0, iotype='out', desc='Array Losses')
     capacity_factor = Float(0.0, iotype='out', desc='capacity factor')
     turbine_number = Int(100, iotype='out', desc='plant number of turbines')
-    #nTurbs          = Int(0, iotype='out', desc='Number of turbines')
 
     # -------------------
     
@@ -155,18 +160,19 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
             # 20140326: OW now has Exit operation in scripter
         """
 
-        sys.stderr.write("In {0}.execute()...\n".format(self.__class__))
+        if self.debug:
+            sys.stderr.write("In {0}.execute()...\n".format(self.__class__))
 
         report_path = self.workDir + '/' + 'scrtest1.txt'
         workbook_path = self.workbook_path
         turbine_name = self.turbine_name
-        #turbine_path = self.workDir + '/' + 'Turbine_Model.owtg'
-        #self.writeNewTurbine('Turbine_Model.owtg')
 
         # Prepare for next iteration here...
         #   - write new scripts
         #   - write new turbine files
         #   - etc.
+        #turbine_path = self.workDir + '/' + 'Turbine_Model.owtg'
+        #self.writeNewTurbine('Turbine_Model.owtg')
 
         # write new script for execution  
     
@@ -181,8 +187,10 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
         #  - assumes that all turbines have the same power rating
         #    and that self.wt_layout is correct
         
-        #self.capacity_factor = ((self.net_aep) / (self.wt_layout.wt_list[0].power_rating * 8760.0 * len(self.wt_layout.wt_list)))
-        self.capacity_factor = ((self.net_aep) / (self.wt_layout.wt_list[0].power_rating * 8760.0 * self.turbine_number))
+        #self.capacity_factor = ((self.net_aep) / (self.wt_layout.wt_list[0].power_rating * 8760.0 * self.turbine_number))
+        # 8766 hrs = 365.25 days to agree with OpenWind
+        
+        self.capacity_factor = ((self.net_aep) / (self.wt_layout.wt_list[0].power_rating * 8766.0 * self.turbine_number))
         
     # -------------------
     
@@ -286,18 +294,25 @@ class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipula
         rptPathName should be a full path name (if possible)
         '''
         
-        e = rwScriptXML.parseScript(self.ow.script_file)
+        if not hasattr(self,'ow'):
+            sys.stderr.write("{:}: 'ow' not defined yet (missing script file?)\n".format(self.__class__))
+            raise RuntimeError("OpenWind wrapped executable not defined")
+            return
+            
+        e = rwScriptXML.parseScript(self.ow.script_file, debug=self.debug)
         rp = e.find("ReportPath")
         if rp is None:
             sys.stderr.write('Can\'t find report path in "{:}"\n'.format(self.ow.script_file))
             return
             
-        sys.stderr.write('Changing report path from "{:}" to "{:}"\n'.format(rp.get('value'),rptPathName))
+        if self.debug:
+            sys.stderr.write('Changing report path from "{:}" to "{:}"\n'.format(rp.get('value'),rptPathName))
         rp.set('value',rptPathName)
         
         rwScriptXML.wrtScript(e, newScriptName)
         self.ow.script_file = self.workDir + '/' + newScriptName
-        sys.stderr.write('Wrote new script file "{:}"\n'.format(self.ow.script_file))
+        if self.debug:
+            sys.stderr.write('Wrote new script file "{:}"\n'.format(self.ow.script_file))
             
 #------------------------------------------------------------------
 
@@ -314,23 +329,15 @@ def example():
             sys.stderr.write('USAGE: python openwind_assembly.py [-debug]\n')
             exit()
     
-    #owExeV1130 = 'C:/Models/Openwind/OpenWind64.exe'
-    #owExe = 'C:/rassess/Openwind/OpenWind64.exe'
     from openwind.findOW import findOW
     owExe = findOW(debug=debug, academic=False)
     if not os.path.isfile(owExe):
         exit()
 
+    test_path = '../test/'
     
-    test_path = '../../../../test/'
-    test_path = '../../test/'
-    
-    #workbook_path = 'C:/Models/OpenWind/Workbooks/OpenWind_Model.blb'
-    #turbine_name = 'NREL 5 MW'
-    #workbook_path = 'C:/SystemsEngr/Test/VA_test.blb'
     workbook_path = test_path + 'VA_test.blb'
     turbine_name = 'Alstom Haliade 150m 6MW' # should match default turbine in workbook
-    #script_file = 'ecScript.xml'
     script_file = test_path + 'ecScript.xml'
     
     # should check for existence of both owExe and workbook_path before
@@ -338,6 +345,9 @@ def example():
     
     owAsm = openwind_assembly(owExe, workbook_path, turbine_name=turbine_name, script_file=script_file,
                               debug=debug)
+                              
+    owAsm.configure()
+    
     owAsm.updateRptPath('newReport.txt', 'newTestScript.xml')
     
     owAsm.power_curve = np.array([[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, \
@@ -369,5 +379,7 @@ def example():
     print '  CF    {:.4f} %'.format(owAsm.capacity_factor*100.0)
 
 if __name__ == "__main__":
+
+    example()
 
     example()

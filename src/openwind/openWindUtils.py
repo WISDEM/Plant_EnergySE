@@ -10,6 +10,8 @@
   
    G. Scott, NREL 2013 06 25
    
+   2014 09 26 : rdReport() - skip turbines with zero output
+   
 '''
 
 import sys, os
@@ -87,6 +89,7 @@ def rdReport(rptpath, debug=False):
           Gross = no wakes, no losses applied
           Array = wakes applied, but no losses
           Net = Array * Product_of_losses
+          owTrbs = list of owWindTurbine objects
           
         Array efficiency can be computed as:  
           Aeff = mean(Array[i]/Gross[i])
@@ -196,7 +199,10 @@ def rdReport(rptpath, debug=False):
                 aEff = float(f[ivDict['Array Efficiency [%%]']])
             except:
                 sys.stderr.write("Couldn't find array in line:\n  {:}\n".format(line))
-                
+            
+            if grossKWh <= 0.0: # skip inactive turbines or those in deactivated layouts
+                continue
+                    
             arrayKWh = 0.01*aEff*grossKWh
             aGross.append(grossKWh)
             aNet.append(netKWh)

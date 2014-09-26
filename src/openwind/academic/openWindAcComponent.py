@@ -24,22 +24,33 @@ import sys, time
 import subprocess
 from lxml import etree
 
-import Plant_AEPSE.Openwind.openWindUtils as utils
 import owAcademicUtils as acutils
-import Plant_AEPSE.Openwind.rwScriptXML as rwScriptXML
-import Plant_AEPSE.Openwind.rwTurbXML as rwTurbXML
-import Plant_AEPSE.Openwind.turbfuncs as turbfuncs
+import openwind.openWindUtils as utils
+import openwind.rwScriptXML as rwScriptXML
+import openwind.rwTurbXML as rwTurbXML
+import openwind.turbfuncs as turbfuncs
+#import Plant_AEPSE.Openwind.openWindUtils as utils
+#import Plant_AEPSE.Openwind.rwScriptXML as rwScriptXML
+#import Plant_AEPSE.Openwind.rwTurbXML as rwTurbXML
+#import Plant_AEPSE.Openwind.turbfuncs as turbfuncs
 
 from openmdao.lib.datatypes.api import Float, Int, VarTree
 from openmdao.main.api import FileMetadata, Component, VariableTree
 
 #from openmdao.util.filewrap import InputFileGenerator, FileParser
 
-from fusedwind.plant_flow.fused_plant_vt import GenericWindTurbineVT, GenericWindTurbinePowerCurveVT, \
-                           ExtendedWindTurbinePowerCurveVT, GenericWindFarmTurbineLayout
+from vt import GenericWindTurbineVT, \
+               GenericWindTurbinePowerCurveVT, ExtendedWindTurbinePowerCurveVT, \
+               GenericWindFarmTurbineLayout,   ExtendedWindFarmTurbineLayout
+#from fusedwind.plant_flow.fused_plant_vt import GenericWindTurbineVT, GenericWindTurbinePowerCurveVT, \
+#                           ExtendedWindTurbinePowerCurveVT, GenericWindFarmTurbineLayout
+
+from fusedwind.interface import implement_base
+from fusedwind.plant_flow.comp import BaseAEPAggregator
 
 #-----------------------------------------------------------------
 
+@implement_base(BaseAEPAggregator)
 class OWACcomp(Component):
     """ A simple OpenMDAO component for OpenWind academic
 
@@ -57,7 +68,8 @@ class OWACcomp(Component):
     
     dummyVbl         = Float(0,   iotype='in',  desc='unused variable to make it easy to do DOE runs')
     
-    wt_layout        = VarTree(GenericWindFarmTurbineLayout(), iotype='in', desc='properties for each wind turbine and layout')    
+    #wt_layout        = VarTree(GenericWindFarmTurbineLayout(), iotype='in', desc='properties for each wind turbine and layout')    
+    wt_layout        = VarTree(ExtendedWindFarmTurbineLayout(), iotype='in', desc='properties for each wind turbine and layout')    
 
     # outputs
     
@@ -434,7 +446,7 @@ if __name__ == "__main__":
     
     # Find OpenWind executable
             
-    from Plant_AEPSE.Openwind.findOW import findOW, owPaths
+    from openwind.findOW import findOW, owPaths
     owexe = findOW(debug=debug, academic=True)
     
     if owexe is None or not os.path.isfile(owexe):
@@ -446,12 +458,13 @@ if __name__ == "__main__":
 
     # Set OpenWind script name
     
-    owXMLname = '../../test/rtecScript.xml' # replace turb, energy capture
-    owXMLname = '../../test/owacScript.xml' # optimize operation
-    #owXMLname = '../../test/rtopScript.xml' # replace turb, optimize
+    testpath = '../test/'
+    owXMLname = testpath + 'rtecScript.xml' # replace turb, energy capture
+    owXMLname = testpath + 'owacScript.xml' # optimize operation
+    #owXMLname = testpath + 'rtopScript.xml' # replace turb, optimize
     
     if modify_turbine:
-        owXMLname = '../../test/rtopScript.xml' # replace turb, optimize
+        owXMLname = testpath + 'rtopScript.xml' # replace turb, optimize
         
     if not os.path.isfile(owXMLname):
         sys.stderr.write('OpenWind script file "{:}" not found\n'.format(owXMLname))
@@ -491,7 +504,7 @@ if __name__ == "__main__":
     
     #wt_list_elem = dummy_wt_list()    
     
-    base_turbine_file = '../../test/Alstom6MW.owtg'
+    base_turbine_file = testpath + 'Alstom6MW.owtg'
     base_turbine = turbfuncs.owtg_to_wtpc(base_turbine_file)
     wt_list_elem = base_turbine
         
