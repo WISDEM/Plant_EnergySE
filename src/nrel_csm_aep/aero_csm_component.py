@@ -6,6 +6,7 @@ Copyright (c) NREL. All rights reserved.
 """
 
 import numpy as np
+from math import pi
 
 from openmdao.main.api import Component, Assembly, set_as_top, VariableTree
 from openmdao.main.datatypes.api import Int, Bool, Float, Array, VarTree, Instance, Enum
@@ -24,10 +25,13 @@ class aero_csm_component(Component):
     altitude = Float(0.0, units = 'm', iotype='in', desc= 'altitude of wind plant')
     air_density = Float(0.0, units = 'kg / (m * m * m)', iotype='in', desc= 'air density at wind plant site')  # default air density value is 0.0 - forces aero csm to calculate air density in model
     max_efficiency = Float(0.902, iotype='in', desc = 'maximum efficiency of rotor and drivetrain - at rated power') 
+    thrust_coefficient = Float(0.50, iotype='in', desc='thrust coefficient at rated power')
 
     # Outputs
-    rated_wind_speed = Float(11.506, units = 'm / s', iotype='out', desc='wind speed for rated power')
-    rated_rotor_speed = Float(12.126, units = 'rpm', iotype='out', desc = 'rotor speed at rated power')
+    rated_wind_speed = Float(units = 'm / s', iotype='out', desc='wind speed for rated power')
+    rated_rotor_speed = Float(units = 'rpm', iotype='out', desc = 'rotor speed at rated power')
+    rotor_thrust = Float(iotype='out', units='N', desc='maximum thrust from rotor')    
+    rotor_torque = Float(iotype='out', units='N * m', desc = 'torque from rotor at rated power')    
     power_curve = Array(iotype='out', units='kW', desc='total power before drivetrain losses')
     wind_curve = Array(iotype='out', units='m/s', desc='wind curve associated with power curve')
 
@@ -44,7 +48,6 @@ class aero_csm_component(Component):
         Executes Aerodynamics Sub-module of the NREL _cost and Scaling Model to create a power curve based on a limited set of inputs.
         It then modifies the ideal power curve to take into account drivetrain efficiency losses through an interface to a drivetrain efficiency model.
         """
-        print "In {0}.execute() ...".format(self.__class__)
          
         # initialize input parameters
         self.hubHt      = self.hub_height
@@ -81,10 +84,10 @@ class aero_csm_component(Component):
         Tm = self.ratedHubPower*1000/self.omegaM         # Tm - rated torque
 
         # compute rated rotor speed
-        self.ratedRPM = (30/np.pi) * self.omegaM
+        self.ratedRPM = (30./pi) * self.omegaM
         
         # compute variable-speed torque constant k
-        kTorque = (self.airDensity*np.pi*self.rotorDiam**5*self.maxCp)/(64*self.maxTipSpdRatio**3) # k
+        kTorque = (self.airDensity*pi*self.rotorDiam**5*self.maxCp)/(64*self.maxTipSpdRatio**3) # k
         
         b = -Tm/(self.omegaM-omega0)                       # b - quadratic formula values to determine omegaT
         c = (Tm*omega0)/(self.omegaM-omega0)               # c
@@ -98,17 +101,17 @@ class aero_csm_component(Component):
         
            windOmegaT = (omegaT*self.rotorDiam)/(2*self.maxTipSpdRatio) # Wind  at omegaT (M25)
            pwrOmegaT  = kTorque*omegaT**3/1000                                # Power at ometaT (M26)
-        
-           # compute rated wind speed
-           d = self.airDensity*np.pi*self.rotorDiam**2.*0.25*self.maxCp
-           self.ratedWindSpeed = \
-              0.33*( (2.*self.ratedHubPower*1000.      / (    d))**(1./3.) ) + \
-              0.67*( (((self.ratedHubPower-pwrOmegaT)*1000.) / (1.5*d*windOmegaT**2.))  + windOmegaT )
+
         else:
            omegaTflag = False
            windOmegaT = self.ratedRPM
            pwrOmegaT = self.ratedPower
 
+        # compute rated wind speed
+        d = self.airDensity*np.pi*self.rotorDiam**2.*0.25*self.maxCp
+        self.ratedWindSpeed = \
+           0.33*( (2.*self.ratedHubPower*1000.      / (    d))**(1./3.) ) + \
+           0.67*( (((self.ratedHubPower-pwrOmegaT)*1000.) / (1.5*d*windOmegaT**2.))  + windOmegaT )
 
         # set up for idealized power curve
         n = 161 # number of wind speed bins
@@ -140,6 +143,10 @@ class aero_csm_component(Component):
         self.rated_rotor_speed = self.ratedRPM
         self.power_curve = mtp
         self.wind_curve = Wind
+
+        # compute turbine load outputs
+        self.rotor_torque = self.ratedHubPower/(self.ratedRPM*(pi/30.))*1000.
+        self.rotor_thrust  = self.airDensity * self.thrust_coefficient * pi * self.rotor_diameter**2 * (self.ratedWindSpeed**2) / 8.
 
     def idealPowerCurve( self, Wind, ITP, kTorque, windOmegaT, pwrOmegaT, n , omegaTflag):
         """

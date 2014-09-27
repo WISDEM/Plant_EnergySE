@@ -66,8 +66,6 @@ class aep_csm_component(Component):
         It then discounts the resulting AEP for availability, plant and soiling losses.
         """
 
-        print "In {0}.execute() ...".format(self.__class__)
-
         self.power_array = [self.wind_curve, self.power_curve]
 
         hubHeightWindSpeed = ((self.hub_height/50)**self.shear_exponent)*self.wind_speed_50m
