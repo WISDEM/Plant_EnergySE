@@ -1,6 +1,6 @@
 .. _documentation-label:
 
-.. currentmodule:: basic_aep.basic_aep
+.. currentmodule:: plant_energyse.basic_aep.basic_aep
 
 Documentation
 -------------
@@ -10,7 +10,7 @@ Documentation for Basic_AEP
 
 The following inputs and outputs are defined for Basic_AEP:
 
-.. literalinclude:: ../src/basic_aep/basic_aep.py
+.. literalinclude:: ../src/plant_energyse/basic_aep/basic_aep.py
     :language: python
     :start-after: aep_assembly(Assembly)
     :end-before: def configure(self)
@@ -18,7 +18,7 @@ The following inputs and outputs are defined for Basic_AEP:
 
 Referenced Energy Production Modules
 ===========================================
-.. module:: basic_aep.basic_aep
+.. module:: plant_energyse.basic_aep.basic_aep
 .. class:: BasicAEP
 .. class:: aep_assembly
 .. class:: aep_weibull_assembly
@@ -38,14 +38,14 @@ Referenced Utilities
 
 
 
-.. currentmodule:: nrel_csm_aep.nrel.csm.aep
+.. currentmodule:: plant_energyse.nrel_csm_aep.nrel.csm.aep
 
 Documentation for NREL_CSM_AEP
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following inputs and outputs are defined for NREL_CSM_AEP:
 
-.. literalinclude:: ../src/nrel_csm_aep/nrel_csm_aep.py
+.. literalinclude:: ../src/plant_energyse/nrel_csm_aep/nrel_csm_aep.py
     :language: python
     :start-after: aep_csm_assembly(Assembly)
     :end-before: def configure(self)
@@ -53,51 +53,51 @@ The following inputs and outputs are defined for NREL_CSM_AEP:
 
 Referenced Energy Production Modules
 ===========================================
-.. module:: nrel_csm_aep.nrel_csm_aep
+.. module:: plant_energyse.nrel_csm_aep.nrel_csm_aep
 .. class:: aep_csm_assembly
 
 Optional Referenced Power Curve Calculation Models
 ===================================================
-.. module:: nrel_csm_aep.aep_csm_component
+.. module:: plant_energyse.nrel_csm_aep.aep_csm_component
 .. class:: aep_csm_component
 
-.. module:: nrel_csm_aep.aero_csm_component
+.. module:: plant_energyse.nrel_csm_aep.aero_csm_component
 .. class:: aero_csm_component
 
-.. module:: nrel_csm_aep.CSMDrivetrain
+.. module:: plant_energyse.nrel_csm_aep.CSMDrivetrain
 .. class:: DrivetrainLossesBase
 .. class:: CSMDrivetrain
 
 
 
-.. currentmodule:: openwind.enterprise.openwind_assembly
+.. currentmodule:: plant_energyse.openwind.enterprise.openwind_assembly
 
-Documentation for openwind_assembly
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Documentation for Enterprise Version Openwind wrappers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following inputs and outputs are defined for openwind_assembly:
 
-.. literalinclude:: ../src/openwind/enterprise/openwind_assembly.py
+.. literalinclude:: ../src/plant_energyse/openwind/enterprise/openwind_assembly.py
     :language: python
-    :start-after: openwind_assembly(GenericAEPModel)
+    :start-after: openwind_assembly(Assembly)
     :end-before: def __init__(self, openwind_executable, workbook_path, turbine_name=None, script_file=None, 
     :prepend: class openwind_assembly(Assembly):
 
 Referenced Energy Production Modules
 ===========================================
-.. module:: openwind.enterprise.openwind_assembly
+.. module:: plant_energyse.openwind.enterprise.openwind_assembly
 .. class:: openwind_assembly
 
 Supporting Models for OpenWind Enterprise
 ==========================================
-.. module:: openwind.enterprise.openWindExtCode
+.. module:: plant_energyse.openwind.enterprise.openWindExtCode
 .. class:: OWwrapped
 
 General Supporting Models for OpenWind
 ==========================================
 Turbine Description Translation
 
-.. module:: openwind.turbfuncs
+.. module:: plant_energyse.openwind.turbfuncs
 
 .. function:: owtg_to_wtpc(owtg_file)
 
@@ -107,7 +107,7 @@ Turbine Description Translation
 
 Read/Write Turbine XML File
 
-.. module:: openwind.rwTurbXML
+.. module:: plant_energyse.openwind.rwTurbXML
 
 Read
 
@@ -140,11 +140,11 @@ Read/Write OpenWind Script File
 
 Read
 
-.. module:: openwind.rwScriptXML
+.. module:: plant_energyse.openwind.rwScriptXML
 
 .. function:: parseScript(fname, debug=False)
 
-..function:: rdScript(fname, debug=False)
+.. function:: rdScript(fname, debug=False)
 
 Write
 
@@ -170,13 +170,14 @@ Write
 
 
 OpenWind Utilities
-.. module:: openwind.openWindUtils
+
+.. module:: plant_energyse.openwind.openWindUtils
 
 .. class:: owWindTurbine
 
 .. function:: rdReport(rptpath, debug=False)
 
-.. module:: openwind.getworkbookvals
+.. module:: plant_energyse.openwind.getworkbookvals
 
 .. function:: getTurbPos(workbook, owexe, delFiles=True)
 
@@ -185,36 +186,28 @@ OpenWind Utilities
 
 .. currentmodule:: openwind.academic.openwindAC_assembly
 
-Documentation for openwind_assembly
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Documentation for Academic Version Openwind Wrappers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following inputs and outputs are defined for openwindAC_assembly:
 
-.. literalinclude:: ../src/openwind/academic/openwindAC_assembly.py
+.. literalinclude:: ../src/plant_energyse/openwind/academic/openwindAC_assembly.py
     :language: python
-    :start-after: openwindAC_assembly(GenericAEPModel)
+    :start-after: openwindAC_assembly(Assembly)
     :end-before: def __init__(self, openwind_executable, workbook_path,
     :prepend: class openwindAC_assembly(Assembly):
 
 Referenced Energy Production Modules
 ===========================================
-.. module:: openwind.academic.openwindAC_assembly
+.. module:: plant_energyse.openwind.academic.openwindAC_assembly
 .. class:: openwindAC_assembly
 
 Supporting Models for OpenWind Academic
 ==========================================
-.. module:: openwind.academic.openWindAcComponent
+.. module:: plant_energyse.openwind.academic.openWindAcComponent
 .. class:: OWACcomp
 
-.. module:: openwind.academic.openWindPlantComponent
-.. class:: PlantFromPosFile
-.. class:: PlantFromOWWorkbook
-
-.. module:: openwind.academic.wtlayoutComponents
-.. class:: WTPupdate
-.. class:: WTLupdate
-
-.. module:: openwind.academic.owAcademicUtils
+.. module:: plant_energyse.openwind.academic.owAcademicUtils
 .. class:: MyNotifyMLHandler
 .. function:: waitForNotify(watchFile='notifyML.txt', path='.', callback=None, debug=False)
 .. function:: writePositionFile(wt_positions, debug=False, path=None)

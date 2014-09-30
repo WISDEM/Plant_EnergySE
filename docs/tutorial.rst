@@ -17,7 +17,7 @@ The first step is to import the relevant files and set up the component.
     :start-after: # 1 ---
     :end-before: # 1 ---
 
-The plant energy production model relies on some turbine as well as plant input parameters that must be specified.
+The plant energy production model relies on some turbine as well as plant input parameters that must be specified.  Firstly the wind turbine power curve must be set along with the site hub height Weibull scale and shape factors.  There is no flow model so array losses and other turbine and plant losses must be directly set.  Finally the number of turbines is included as the AEP per turbine is calculated by the number of turbines in the plant to get the total energy production.
 
 .. literalinclude:: examples/example.py
     :start-after: # 2 ---
@@ -29,7 +29,7 @@ We can now evaluate the plant energy production.
     :start-after: # 3 ---
     :end-before: # 3 ---
 
-We then print out the resulting cost values
+We then print out the resulting energy production values.
 
 .. literalinclude:: examples/example.py
     :start-after: # 4 ---
@@ -37,9 +37,10 @@ We then print out the resulting cost values
 
 The result is:
 
->>>AEP gross output: 1570713782.15
-
->>>AEP output: 1389359168.87
+>>> Annual energy production for an offshore wind plant with 100 NREL 5 MW reference
+ turbines.
+>>> AEP gross output (before losses): 1570713782.2 kWh
+>>> AEP net output (after losses): 1389359168.9 kWh
 
 
 Tutorial for NREL_CSM_AEP
@@ -53,7 +54,7 @@ The first step is to import the relevant files and set up the component.
     :start-after: # 5 ---
     :end-before: # 5 ---
 
-The plant energy production model relies on some turbine as well as plant input parameters that must be specified.
+The plant energy production model relies on some turbine as well as plant input parameters that must be specified.  These include main turbine parameters including the machine rating, rotor diameter, maximum allowable tip speed, drivetrain design, hub height, cut-in and cut-out speed as well as optimum tip speed ratio, rated power thrust coefficient and maximum power coefficient.  Plant inputs include the overall turbine number and plant resource characteristics including the shear exponent, 50 m annual average wind speed, the weibull distribution shape factor and plant loss information including soiling losses, array losses and availability.
 
 .. literalinclude:: examples/example.py
     :start-after: # 6 ---
@@ -65,7 +66,7 @@ We can now evaluate the plant energy production.
     :start-after: # 7 ---
     :end-before: # 7 ---
 
-We then print out the resulting cost values.
+We then print out the resulting energy production values.
 
 .. literalinclude:: examples/example.py
     :start-after: # 8 ---
@@ -73,21 +74,57 @@ We then print out the resulting cost values.
 
 The result is:
 
->>>5 MW Reference Turbine
+>>> Annual energy production for an offshore wind plant with 100 NREL 5 MW reference
+ turbines.
+>>> AEP gross output (before losses): 1986524060.9 kWh
+>>> AEP net output (after losses): 1760663682.8 kWh
+>>> Rated rotor speed: 12.13 rpm
+>>> Rated wind speed: 11.51 m/s
 
->>>rated rotor speed: 12.126
 
->>>rated wind speed: 11.506
+Tutorial for Openwind
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
->>>maximum efficiency: 0.902
+Here we provide a tutorial for the Openwind Enterprise version wrapper.  For the academic version, the user is referred to the example in the source code.
 
->>>gross annual energy production: 0.0
+First we need to import the wrapper module.  
 
->>>annual energy production: 0.0
+.. literalinclude:: examples/example.py
+    :start-after: # 9 ---
+    :end-before: # 9 ---
 
->>>Power Curve:
+Then we need to specify the workbook file we are working from as well as the default turbine in that workbook and the script file we are using for our analysis.  
 
->>>[[4.0 80.0]
+.. literalinclude:: examples/example.py
+    :start-after: # 10 ---
+    :end-before: # 10 ---
 
->>>[2.5 5000.0]]
+The plant energy production model relies on some turbine as well as plant input parameters that must be specified.  The workbook contains most of the relevant information is already included but we are able to update the turbine description including its power, thrust and rotor speed curve.
+
+.. literalinclude:: examples/example.py
+    :start-after: # 11 ---
+    :end-before: # 11 ---
+
+We can now evaluate the plant energy production.
+
+.. literalinclude:: examples/example.py
+    :start-after: # 12 ---
+    :end-before: # 12 ---
+
+We then print out the resulting energy production values.
+
+.. literalinclude:: examples/example.py
+    :start-after: # 13 ---
+    :end-before: # 13 ---
+
+The result is:
+
+>>> Openwind assembly output:
+>>>  AEP gross output (before losses): 49845.4 kWh
+>>>  Array losses: 1.47 %
+>>>  Array energy production: 49112.0 kWh
+>>>  Other losses: 12.32 %
+>>>  AEP net output: (after losses) 43059.4 kWh
+>>>  Capacity factor: 40.93 %
+
 
