@@ -505,6 +505,7 @@ def example(owExe):
 
 if __name__ == "__main__":
 
-    # Substitue your own path to Openwind Enterprise
+    # Substitute your own path to Openwind Enterprise
     owExe = 'C:/Models/Openwind/openWind64_ac.exe'
+    owExe = 'D:/rassess/Openwind/openWind64_ac.exe'
     example(owExe)

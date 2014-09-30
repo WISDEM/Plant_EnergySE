@@ -31,8 +31,6 @@ def getTurbPos(workbook, owexe, delFiles=True):
     rpath = 'gtpReport.txt'
     scriptname = 'gtpScript.xml'
     
-    raise ValueError
-    
     # Write script with: load workbook, energy capture, exit
     
     scripttree, ops = rwScriptXML.newScriptTree(rpath)
