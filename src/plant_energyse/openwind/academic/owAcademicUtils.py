@@ -19,7 +19,7 @@ sys.path.append('D:/SystemsEngr/openmdao-0.9.3/Lib/site-packages/watchdog-0.6.0-
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-import openwind.getworkbookvals as gwb
+import plant_energyse.openwind.getworkbookvals as gwb
 
 # FUSED-Wind imports
 

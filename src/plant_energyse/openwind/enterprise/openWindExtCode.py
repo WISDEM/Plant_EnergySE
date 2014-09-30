@@ -2,19 +2,14 @@
 # 2013 06 25
 '''
   Execute OpenWind as a component using OpenMDAO's ExternalCode
-  Based on example from http://openmdao.org/docs/plugin-guide/filewrapper_plugin.html
-  
-  2014 03 26: GNS revisions
-  2014 05 01: GNS renamed nTurbs to turbine_number
-  
+  Based on example from http://openmdao.org/docs/plugin-guide/filewrapper_plugin.html 
 '''
 
 import os.path
-
 import sys
-#sys.path.append('C:/Python27/openmdao-0.7.0/twister/models/AEP/')
-import openwind.openWindUtils as utils
-from openwind.rwScriptXML import rdScript
+
+import plant_energyse.openwind.openWindUtils as utils
+from plant_energyse.openwind.rwScriptXML import rdScript
 
 from openmdao.lib.datatypes.api import Float, Int
 from openmdao.lib.components.api import ExternalCode
@@ -30,8 +25,7 @@ class OWwrapped(ExternalCode):
         Args:
            owExe (str): full path to OpenWind executable
            scriptFile (str): path to XML script that OpenWind will run
-
-     """
+    """
 
     rotor_diameter = Float(126.0, iotype='in', units='m', desc='connecting rotor diameter to force run on change') # todo: hack for now
     availability = Float(0.95, iotype='in', desc='availability')
@@ -54,7 +48,6 @@ class OWwrapped(ExternalCode):
         super(OWwrapped, self).__init__()
 
         # External Code public variables
-        
         self.input_file = 'myinput.txt'
         self.output_file = 'myoutput.txt'
         self.stderr = 'myerror.log'
@@ -71,13 +64,8 @@ class OWwrapped(ExternalCode):
             FileMetadata(path=self.output_file),
             FileMetadata(path=self.stderr),
         ]
-        
-        # Set the version of OpenWind that we want to use
-        
-        #self.command = [owExeUnofficial, self.script_file]
-        self.command = [owExe, self.script_file]
 
-    #------------------ 
+        self.command = [owExe, self.script_file]
     
     def execute(self):
         """ Executes our file-wrapped component. """
@@ -91,25 +79,18 @@ class OWwrapped(ExternalCode):
         #       in the existing script_file?
 
         # Execute the component
-        
         self.command[1] = self.script_file
         super(OWwrapped, self).execute()
         
         if self.debug:
             sys.stderr.write('Ran openWindExtCode: dummyVbl {:} returnCode {:}\n'.format(self.dummyVbl,self.return_code))
 
-        # Parse output file 
-        
+        # Parse output file
         dscr = rdScript(self.command[1], debug=self.debug) # get output file name from script
         rptpath = dscr['rptpath']
         
         self.gross_aep, self.array_aep, self.net_aep, owTurbs = utils.rdReport(rptpath, debug=self.debug) 
         self.turbine_number = len(owTurbs)
-        
-        #print 'Gross {:.4f} GWh'.format(self.gross_aep)
-        #print 'Array {:.4f} GWh'.format(self.array_aep)
-        #print 'Net   {:.4f} GWh'.format(self.net_aep  )
-        #print 'AEff  {:.2f} %'.format(self.aeff*100.0)
         
         # Set the output variables
         self.array_efficiency = self.array_aep / self.gross_aep        
@@ -117,10 +98,8 @@ class OWwrapped(ExternalCode):
         self.array_aep = self.array_aep * 1000000.0
         self.net_aep   = self.net_aep   * 1000000.0
 
-        # find net aep
-        #   2014 03 28 - commented out
-        #     We're reading net_aep from OpenWind output, and OW has already applied the losses
-        #self.net_aep = self.net_aep * self.availability * (1-self.other_losses)
+        # find net aep (not using openwind for these since they may be inputs from other models)
+        self.net_aep = self.net_aep * self.availability * (1-self.other_losses)
 
         # find array efficiency
         self.array_losses = 1 - (self.array_aep/self.gross_aep)
@@ -131,36 +110,36 @@ class OWwrapped(ExternalCode):
         dumpstr += 'Gross {:10.4f} GWh Net {:10.4f} GWh from {:4d} turbines'.format(
             self.gross_aep*0.000001,self.net_aep*0.000001, self.turbine_number)
         return dumpstr
-        
+
 #------------------------------------------------------------------
 
-if __name__ == "__main__":
- 
+def example(owExe):
+
+    # only use when debugging
     debug = False
     for arg in sys.argv[1:]:
         if arg == '-debug':
             debug = True
 
-    #owname = 'C:/rassess/Openwind/OpenWind64.exe' # GS path
-    from openwind.findOW import findOW
-    owname = findOW(debug=debug)
-    if not os.path.isfile(owname):
-        sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owname))
+    if not os.path.isfile(owExe):
+        sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owExe))
         exit()
 
-    #owXMLname = 'C:/Python27/openmdao-0.7.0/twister/models/AEP/testOWScript1.xml'
-    #owXMLname = 'C:/Python27/openmdao-0.7.0/twister/models/AEP/VA_ECap.xml'
-    #owXMLname = 'C:/SystemsEngr/Plant_AEPSE-master/src/Plant_AEPSE/Openwind/Enterprise/testOWScript.xml'
-    #owXMLname = 'C:/SystemsEngr/Plant_AEPSE_GNS/src/Plant_AEPSE/Openwind/Enterprise/testOWScript.xml'
-    owXMLname = '../../test/ecScript.xml'
+    owXMLname = '../test/ecScript.xml'
     
     if not os.path.isfile(owXMLname):
         sys.stderr.write('OpenWind script file "{:}" not found\n'.format(owXMLname))
         exit()
     
-    ow = OWwrapped(owExe = owname, debug=debug)
+    ow = OWwrapped(owExe, debug=debug)
     ow.script_file = owXMLname
     
-    ow.execute() # run the openWind process
+    ow.run() # run the openWind process
     
     print ow.dump()
+
+if __name__ == "__main__":
+
+    # Substitue your own path to Openwind Enterprise
+    owExe = 'C:/Models/Openwind/openWind64.exe'
+    example(owExe)

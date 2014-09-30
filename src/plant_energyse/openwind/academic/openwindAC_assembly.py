@@ -35,20 +35,19 @@ from openmdao.lib.datatypes.api import Float, Array, Int, VarTree
 
 from fusedwind.interface import implement_base
 from fusedwind.plant_flow.asym import BaseAEPModel
-from vt import GenericWindTurbineVT, \
+from fusedwind.plant_flow.vt import GenericWindTurbineVT, \
                GenericWindTurbinePowerCurveVT, ExtendedWindTurbinePowerCurveVT, \
                GenericWindFarmTurbineLayout,   ExtendedWindFarmTurbineLayout
 
 from openWindAcComponent import OWACcomp  # OpenWind inside an OpenMDAO Component
 
-import openwind.rwTurbXML as rwTurbXML
-import openwind.rwScriptXML as rwScriptXML
-import openwind.getworkbookvals as getworkbookvals
-import openwind.turbfuncs as turbfuncs
+import plant_energyse.openwind.rwTurbXML as rwTurbXML
+import plant_energyse.openwind.rwScriptXML as rwScriptXML
+import plant_energyse.openwind.getworkbookvals as getworkbookvals
+import plant_energyse.openwind.turbfuncs as turbfuncs
 
 #------------------------------------------------------------------
 
-#class openwindAC_assembly(BaseAEPModel): # todo: has to be assembly or manipulation and passthrough of aep in execute doesnt work
 @implement_base(BaseAEPModel)
 class openwindAC_assembly(Assembly): # todo: has to be assembly or manipulation and passthrough of aep in execute doesnt work
     """ Runs OpenWind from OpenMDAO framework """
@@ -368,7 +367,7 @@ class openwindAC_assembly(Assembly): # todo: has to be assembly or manipulation 
     
 #------------------------------------------------------------------
 
-def example():
+def example(owExe):
 
     debug = False 
     start_once = False
@@ -384,11 +383,11 @@ def example():
         if arg == '-help':
             sys.stderr.write('USAGE: python openWindAcComponent.py [-once] [-debug] [-modturb]\n')
             exit()
-    
-    owExe = 'C:/rassess/Openwind/OpenWind64_ac.exe'
-    from openwind.findOW import findOW
-    owExe = findOW(debug=debug, academic=True)
-    
+
+    if not os.path.isfile(owExe):
+        sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owExe))
+        exit()
+
     testPath = '../test/'
     workbook_path = testPath + 'VA_test.blb'
     
@@ -400,7 +399,11 @@ def example():
         script_file = testPath + 'rtopScript.xml' # replace turbine, optimize
         if debug:
             sys.stderr.write('Turbine will be modified\n')
-        
+
+    if not os.path.isfile(script_file):
+        sys.stderr.write('OpenWind script file "{:}" not found\n'.format(script_file))
+        exit()
+  
     wt_positions = getworkbookvals.getTurbPos(workbook_path, owExe, delFiles=False)
     if debug:
         sys.stderr.write('Initial turbine positions from workbook\n')
@@ -443,38 +446,6 @@ def example():
 
 if __name__ == "__main__":
 
-    example()
-
-#------------------- OLD CODE ---------------------
-
-    #hub_height     = Float(100.0, iotype='in', desc='turbine hub height', unit='m')
-    #rotor_diameter = Float(126.0, iotype='in', desc='turbine rotor diameter', unit='m')
-    #power_curve    = Array([], iotype='in', desc='wind turbine power curve')
-    #rpm            = Array([], iotype='in', desc='wind turbine rpm curve')
-    #ct             = Array([], iotype='in', desc='wind turbine ct curve')
-    #machine_rating = Float(6000.0, iotype='in', desc='wind turbine rated power', unit='kW')
-    #availability   = Float(0.941, iotype='in', desc='wind plant availability')
-    #other_losses   = Float(0.0, iotype='in', desc='wind plant losses due to blade soiling, etc')
-    #dummyVbl       = Float(0, iotype='in', desc='unused variable to make it easy to do DOE runs')
-    
-    #wt_layout      = VarTree(GenericWindFarmTurbineLayout(), iotype='in', desc='properties for each wind turbine and layout')    
-    #wt_layout      = VarTree(GenericWindFarmTurbineLayout(), iotype='out', desc='properties for each wind turbine and layout')    
-    
-    #ideal_aep      = Float(0.0, iotype='out', desc='Ideal Annual Energy Production before topographic, availability and loss impacts', unit='kWh')
-    #array_losses   = Float(0.0, iotype='out', desc='Array Losses')
-    #nTurbs         = Int(0, iotype='out', desc='Number of turbines')
-    
-        #self.connect('ow.array_losses', 'array_losses')
-        #self.connect('ow.array_aep', 'array_aep') # not available in Academic version
-        
-    #workbook_path = 'C:/Models/OpenWind/Workbooks/OpenWind_Model.blb'
-    #turbine_name = 'NREL 5 MW'
-    #script_file = 'C:/SystemsEngr/test/ecScript.xml'
-
-    #otherLosses = 1.0 - (owAsy.net_aep/owAsy.array_aep)
-    
-    #print '  Array losses {:.2f} %'.format(owAsy.array_losses*100.0)
-    #print '  Array {:.4f} kWh'.format(owAsy.array_aep*0.001)
-    #print '  Other losses {:.2f} %'.format(otherLosses*100.0)
-    
-        #self.capacity_factor = ((self.net_aep) / (self.wt_layout.wt_list[0].power_rating * 8760.0 * len(self.wt_layout.wt_list)))
+    # Substitue your own path to Openwind Enterprise
+    owExe = 'C:/Models/Openwind/openWind64_ac.exe'
+    example(owExe)

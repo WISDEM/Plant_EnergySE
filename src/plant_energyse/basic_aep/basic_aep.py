@@ -295,11 +295,17 @@ def example():
                           5000.0, 5000.0, 0.0])
     aeptest.A = 8.35
     aeptest.k = 2.15
+    aeptest.array_losses = 0.059
+    aeptest.other_losses = 0.0
+    aeptest.availability = 0.94
+    aeptest.turbine_number = 100
+
 
     aeptest.run()
 
-    print "AEP gross output: {0}".format(aeptest.gross_aep)
-    print "AEP output: {0}".format(aeptest.net_aep)
+    print "Annual energy production for an offshore wind plant with 100 NREL 5 MW reference turbines."
+    print "AEP gross output (before losses): {0:.1f} kWh".format(aeptest.gross_aep)
+    print "AEP net output (after losses): {0:.1f} kWh".format(aeptest.net_aep)
 
 if __name__=="__main__":
 

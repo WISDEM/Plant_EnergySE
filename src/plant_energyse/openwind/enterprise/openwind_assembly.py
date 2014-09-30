@@ -31,7 +31,7 @@ import numpy as np
 from openmdao.main.api import Component, Assembly, VariableTree
 from openmdao.lib.datatypes.api import Float, Array, Int, VarTree
 
-from vt import GenericWindTurbineVT, GenericWindTurbinePowerCurveVT, \
+from fusedwind.plant_flow.vt import GenericWindTurbineVT, GenericWindTurbinePowerCurveVT, \
      ExtendedWindTurbinePowerCurveVT, GenericWindFarmTurbineLayout, \
      ExtendedWindFarmTurbineLayout, GenericWindRoseVT
                            
@@ -40,13 +40,10 @@ from fusedwind.plant_flow.asym import BaseAEPModel
 
 from openWindExtCode import OWwrapped  # OpenWind inside an OpenMDAO ExternalCode wrapper
 
-import openwind.rwTurbXML as rwTurbXML
-import openwind.rwScriptXML as rwScriptXML
+import plant_energyse.openwind.rwTurbXML as rwTurbXML
+import plant_energyse.openwind.rwScriptXML as rwScriptXML
 
 #------------------------------------------------------------------
-
-#class openwind_assembly(GenericAEPModel): # todo: has to be assembly or manipulation and passthrough of aep in execute doesnt work
-#class openwind_assembly(BaseAEPModel): # todo: has to be assembly or manipulation and passthrough of aep in execute doesnt work
 
 @implement_base(BaseAEPModel)
 class openwind_assembly(Assembly): # todo: has to be assembly or manipulation and passthrough of aep in execute doesnt work
@@ -123,13 +120,13 @@ class openwind_assembly(Assembly): # todo: has to be assembly or manipulation an
 
         super(openwind_assembly, self).configure()        
         
-        if self.academic:
+        '''if self.academic:
             #ow = OWACwrapped(self.openwind_executable, scriptFile=self.script_file, debug=True)
             sys.stderr.write('\nERROR - openwind_assembly.py not currently configured for Academic version\n')
             sys.stderr.write('Use ../Academic/openwindAC_assembly.py instead\n')
             quit()
-        else:
-            ow = OWwrapped(self.openwind_executable, scriptFile=self.script_file, debug=self.debug)
+        else:'''
+        ow = OWwrapped(self.openwind_executable, scriptFile=self.script_file, debug=self.debug)
         self.add('ow', ow)
         
         self.driver.workflow.add(['ow'])
@@ -316,37 +313,33 @@ class openwind_assembly(Assembly): # todo: has to be assembly or manipulation an
             
 #------------------------------------------------------------------
 
-def example():
+def example(owExe='My OW Executable Path'):
 
-    # simple test of module
-    
+    # only use when debugging
     debug = False 
-    
     for arg in sys.argv[1:]:
         if arg == '-debug':
             debug = True
         if arg == '-help':
             sys.stderr.write('USAGE: python openwind_assembly.py [-debug]\n')
             exit()
-    
-    from openwind.findOW import findOW
-    owExe = findOW(debug=debug, academic=False)
-    if not os.path.isfile(owExe):
-        exit()
 
+    # set file inputs from test folder
     test_path = '../test/'
-    
     workbook_path = test_path + 'VA_test.blb'
     turbine_name = 'Alstom Haliade 150m 6MW' # should match default turbine in workbook
     script_file = test_path + 'ecScript.xml'
-    
-    # should check for existence of both owExe and workbook_path before
-    #   trying to run openwind
+
+    if not os.path.isfile(script_file):
+        sys.stderr.write('OpenWind script file "{:}" not found\n'.format(script_file))
+        exit()
+
+    if not os.path.isfile(owExe):
+        sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owExe))
+        exit()
     
     owAsm = openwind_assembly(owExe, workbook_path, turbine_name=turbine_name, script_file=script_file,
                               debug=debug)
-                              
-    owAsm.configure()
     
     owAsm.updateRptPath('newReport.txt', 'newTestScript.xml')
     
@@ -366,20 +359,20 @@ def example():
                           [7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, \
                            7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0, 7.0]])
 
-    owAsm.execute() # run the openWind process
+    owAsm.run() # run the openWind process
 
-    print 'openwind_assembly Final Values'
-    print '  NumTurbs {:}'.format(owAsm.turbine_number)
-    print '  Gross {:.4f} kWh'.format(owAsm.gross_aep*0.001)
-    print '  Array losses {:.2f} %'.format(owAsm.array_losses*100.0)
-    print '  Array {:.4f} kWh'.format(owAsm.array_aep*0.001)
     otherLosses = 1.0 - (owAsm.net_aep/owAsm.array_aep)
-    print '  Other losses {:.2f} %'.format(otherLosses*100.0)
-    print '  Net   {:.4f} kWh'.format(owAsm.net_aep*0.001)
-    print '  CF    {:.4f} %'.format(owAsm.capacity_factor*100.0)
+
+    print 'Openwind assembly output:'
+    print '  AEP gross output (before losses): {:.1f} kWh'.format(owAsm.gross_aep*0.001)
+    print '  Array losses: {:.2f} %'.format(owAsm.array_losses*100.0)
+    print '  Array energy production: {:.1f} kWh'.format(owAsm.array_aep*0.001)
+    print '  Other losses: {:.2f} %'.format(otherLosses*100.0)
+    print '  AEP net output: (after losses) {:.1f} kWh'.format(owAsm.net_aep*0.001)
+    print '  Capacity factor: {:.2f} %'.format(owAsm.capacity_factor*100.0)
 
 if __name__ == "__main__":
 
-    example()
-
-    example()
+    # Substitue your own path to Openwind Enterprise
+    owExe = 'C:/Models/Openwind/openWind64.exe'
+    example(owExe)

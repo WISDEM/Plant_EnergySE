@@ -32,7 +32,7 @@ from lxml import etree
 #from fusedwind.plant_flow.fused_plant_vt import GenericWindTurbineVT, GenericWindTurbinePowerCurveVT, \
 #                           ExtendedWindTurbinePowerCurveVT, GenericWindFarmTurbineLayout
 # 2014 09 22: using new fusedwind vt.py
-from vt import GenericWindTurbineVT, GenericWindTurbinePowerCurveVT, \
+from fusedwind.plant_flow.vt import GenericWindTurbineVT, GenericWindTurbinePowerCurveVT, \
      ExtendedWindTurbinePowerCurveVT, GenericWindFarmTurbineLayout, \
      GenericWindRoseVT
 

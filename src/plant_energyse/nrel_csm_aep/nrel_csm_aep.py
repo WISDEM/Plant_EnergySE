@@ -118,29 +118,22 @@ def example():
     aepA.cut_in_wind_speed = 3.0 #Float(3.0, units = 'm/s', iotype='in', desc= 'cut in wind speed for the wind turbine')
     aepA.cut_out_wind_speed = 25.0 #Float(25.0, units = 'm/s', iotype='in', desc= 'cut out wind speed for the wind turbine')
     aepA.hub_height = 90.0 #Float(90.0, units = 'm', iotype='in', desc= 'hub height of wind turbine above ground / sea level')
-    aepA.altitude = 0.0 #Float(0.0, units = 'm', iotype='in', desc= 'altitude of wind plant')
     #aepA.air_density = Float(0.0, units = 'kg / (m * m * m)', iotype='in', desc= 'air density at wind plant site')  # default air density value is 0.0 - forces aero csm to calculate air density in model
-    aepA.drivetrain_design = 'geared' #Enum('geared', ('geared', 'single_stage', 'multi_drive', 'pm_direct_drive'), iotype='in')
     aepA.shear_exponent = 0.1 #Float(0.1, iotype='in', desc= 'shear exponent for wind plant') #TODO - could use wind model here
     aepA.wind_speed_50m = 8.02 #Float(8.35, units = 'm/s', iotype='in', desc='mean annual wind speed at 50 m height')
     aepA.weibull_k= 2.15 #Float(2.1, iotype='in', desc = 'weibull shape factor for annual wind speed distribution')
     aepA.soiling_losses = 0.0 #Float(0.0, iotype='in', desc = 'energy losses due to blade soiling for the wind plant - average across turbines')
     aepA.array_losses = 0.10 #Float(0.06, iotype='in', desc = 'energy losses due to turbine interactions - across entire plant')
     aepA.availability = 0.941 #Float(0.94287630736, iotype='in', desc = 'average annual availbility of wind turbines at plant')
-    aepA.turbine_number = 100 #Int(100, iotype='in', desc = 'total number of wind turbines at the plant')
     aepA.thrust_coefficient = 0.50 #Float(0.50, iotype='in', desc='thrust coefficient at rated power')
 
     aepA.run()
-    
-    print "5 MW reference turbine"
-    print "rated rotor speed: {0}".format(aepA.rated_rotor_speed)
-    print "rated wind speed: {0}".format(aepA.rated_wind_speed)
-    print "maximum efficiency: {0}".format(aepA.max_efficiency)
-    print "gross annual energy production: {0}".format(aepA.gross_aep)
-    print "annual energy production: {0}".format(aepA.net_aep)
-    print "Power Curve:"
-    print aepA.power_curve
-    print aepA.aep.net_aep
+
+    print "Annual energy production for an offshore wind plant with 100 NREL 5 MW reference turbines."    
+    print "AEP gross output (before losses): {0:.1f} kWh".format(aepA.gross_aep)
+    print "AEP net output (after losses): {0:.1f} kWh".format(aepA.net_aep)
+    print "Rated rotor speed: {0:.2f} rpm".format(aepA.rated_rotor_speed)
+    print "Rated wind speed: {0:.2f} m/s".format(aepA.rated_wind_speed)
 
 if __name__=="__main__":
 

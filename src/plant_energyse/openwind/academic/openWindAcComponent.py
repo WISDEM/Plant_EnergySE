@@ -25,25 +25,17 @@ import subprocess
 from lxml import etree
 
 import owAcademicUtils as acutils
-import openwind.openWindUtils as utils
-import openwind.rwScriptXML as rwScriptXML
-import openwind.rwTurbXML as rwTurbXML
-import openwind.turbfuncs as turbfuncs
-#import Plant_AEPSE.Openwind.openWindUtils as utils
-#import Plant_AEPSE.Openwind.rwScriptXML as rwScriptXML
-#import Plant_AEPSE.Openwind.rwTurbXML as rwTurbXML
-#import Plant_AEPSE.Openwind.turbfuncs as turbfuncs
+import plant_energyse.openwind.openWindUtils as utils
+import plant_energyse.openwind.rwScriptXML as rwScriptXML
+import plant_energyse.openwind.rwTurbXML as rwTurbXML
+import plant_energyse.openwind.turbfuncs as turbfuncs
 
 from openmdao.lib.datatypes.api import Float, Int, VarTree
 from openmdao.main.api import FileMetadata, Component, VariableTree
 
-#from openmdao.util.filewrap import InputFileGenerator, FileParser
-
-from vt import GenericWindTurbineVT, \
+from fusedwind.plant_flow.vt import GenericWindTurbineVT, \
                GenericWindTurbinePowerCurveVT, ExtendedWindTurbinePowerCurveVT, \
                GenericWindFarmTurbineLayout,   ExtendedWindFarmTurbineLayout
-#from fusedwind.plant_flow.fused_plant_vt import GenericWindTurbineVT, GenericWindTurbinePowerCurveVT, \
-#                           ExtendedWindTurbinePowerCurveVT, GenericWindFarmTurbineLayout
 
 from fusedwind.interface import implement_base
 from fusedwind.plant_flow.comp import BaseAEPAggregator
@@ -61,26 +53,19 @@ class OWACcomp(Component):
      """
 
     # inputs
-    
     rotor_diameter   = Float(126.0, iotype='in', units='m', desc='connecting rotor diameter to force run on change') # todo: hack for now
     availability     = Float(0.95,  iotype='in', desc='availability')
-    other_losses     = Float(0.0,   iotype='in', desc='soiling losses')
-    
-    dummyVbl         = Float(0,   iotype='in',  desc='unused variable to make it easy to do DOE runs')
-    
-    #wt_layout        = VarTree(GenericWindFarmTurbineLayout(), iotype='in', desc='properties for each wind turbine and layout')    
+    other_losses     = Float(0.0,   iotype='in', desc='soiling losses')      
     wt_layout        = VarTree(ExtendedWindFarmTurbineLayout(), iotype='in', desc='properties for each wind turbine and layout')    
+    dummyVbl         = Float(0,   iotype='in',  desc='unused variable to make it easy to do DOE runs')
 
     # outputs
-    
     gross_aep        = Float(0.0, iotype='out', desc='Gross Output')
     net_aep          = Float(0.0, iotype='out', desc='Net Output')
     nTurbs           = Int(0,     iotype='out', desc='Number of turbines')
     #array_aep        = Float(0.0, iotype='out', desc='Array output - NOT USED IN ACADEMIC VERSION')
     #array_efficiency = Float(0.0, iotype='out', desc='Array Efficiency')
     #array_losses     = Float(0.0, iotype='out', desc='Array losses')
-    
-    #------------------ 
     
     def __init__(self, owExe, scriptFile=None, debug=False, stopOW=True, start_once=False, opt_log=False):
         """ Constructor for the OWACwrapped component """
@@ -114,7 +99,6 @@ class OWACcomp(Component):
         if scriptFile is not None:
 
             # Check script file for validity and extract some path information
-        
             self.scriptOK = self.parse_scriptFile()
             if not self.scriptOK:
                 raise ValueError
@@ -127,7 +111,6 @@ class OWACcomp(Component):
                     sys.stderr.write('  {:12s} {:}\n'.format(k,self.scriptDict[k]))
         
         # Log all optimization settings?
-        
         if self.opt_log:
             self.olname = 'owacOptLog.txt'
             self.olfh = open(self.olname, 'w')
@@ -135,17 +118,14 @@ class OWACcomp(Component):
                 sys.stderr.write('Logging optimization params to {:}\n'.format(self.olname))
                 
         # Set the version of OpenWind that we want to use
-        
         self.command = [owExe, self.script_file]
         
         # Keep the initial value of rotor diam so we can
         # see if it (or other turb param) has changed
-        
         self.rtr_diam_init = self.rotor_diameter
         #  ... other params ....
         
         # Try starting OpenWind here (if self.start_once is True)
-        
         if self.start_once:
             self.proc = subprocess.Popen(self.command)
             self.pid = self.proc.pid
@@ -177,7 +157,6 @@ class OWACcomp(Component):
             return False
         
         # Make sure there's an optimize operation - otherwise OWAC won't find anything
-        
         foundOpt = False
         self.replace_turbine = False
         ops = e.getroot().findall('.//Operation')
@@ -203,7 +182,6 @@ class OWACcomp(Component):
             self.start_once = False
                
         # Find the workbook folder and save as dname
-        
         self.dname = None
         for op in ops:
             if op.find('Type').get('value') == 'Change Workbook':
@@ -216,9 +194,7 @@ class OWACcomp(Component):
                 if self.debug:
                     sys.stderr.write('Working directory: {:}\n'.format(self.dname))
                 break
-                
-        #self.dname = os.path.dirname(self.script_file)
-        #self.resname = os.path.join(self.dname,'results.txt')
+
         self.resname = '/'.join([self.dname,'results.txt'])
         
         return True
@@ -269,8 +245,6 @@ class OWACcomp(Component):
                 sys.stderr.write('*** NO new turbine file written\n')
             
         # Execute the component and save process ID
-        
-        #self.command[1] = self.script_file
         if not self.start_once:
             self.proc = subprocess.Popen(self.command)
             self.pid = self.proc.pid
@@ -291,7 +265,6 @@ class OWACcomp(Component):
         acutils.writePositionFile(self.wt_layout.wt_positions, path=self.dname, debug=self.debug)
         
         # see if results.txt is there already
-        
         if os.path.exists(self.resname):
             resmtime = os.path.getmtime(self.resname)
             if self.debug:
@@ -303,7 +276,6 @@ class OWACcomp(Component):
         acutils.writeNotify(path=self.dname, debug=self.debug) # tell OW that we're ready for the next (only) iteration
         
         # 'results.txt' is in the same directory as the *blb file
-        
         if os.path.exists(self.resname):
             resNewmtime = os.path.getmtime(self.resname)
             if resNewmtime > resmtime: # file has changed
@@ -330,7 +302,6 @@ class OWACcomp(Component):
         
         # Set the output variables
         #   - array_aep is not available from Academic 'results.txt' file
-        
         self.nTurbs = len(netNRGturb)
         self.net_aep = netEnergy
         self.gross_aep = sum(grossNRGturb)
@@ -338,7 +309,6 @@ class OWACcomp(Component):
             sys.stderr.write('{:}\n'.format(self.dump()))
         
         # Log optimization values
-        
         if self.opt_log:
             self.olfh.write('{:3d} G {:.4f} N {:.4f} XY '.format(self.exec_count, self.gross_aep, self.net_aep))
             for ii in range(len(wt_positions)):
@@ -425,7 +395,7 @@ def wtlDump(wtl):
         
 #------------------------------------------------------------------
 
-if __name__ == "__main__":
+def example(owExe):
 
     debug = False
     start_once = False
@@ -445,21 +415,13 @@ if __name__ == "__main__":
             exit()
     
     # Find OpenWind executable
-            
-    from openwind.findOW import findOW, owPaths
-    owexe = findOW(debug=debug, academic=True)
-    
-    if owexe is None or not os.path.isfile(owexe):
-        #sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owexe))
-        sys.stderr.write('OpenWind executable file not found in:\n'.format(owexe))
-        for p in owPaths():
-            sys.stderr.write('    {:}\n'.format(p))
+    if not os.path.isfile(owExe):
+        sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owExe))
         exit()
 
     # Set OpenWind script name
-    
     testpath = '../test/'
-    owXMLname = testpath + 'rtecScript.xml' # replace turb, energy capture
+    #owXMLname = testpath + 'rtecScript.xml' # replace turb, energy capture #KLD - this script does not work for me with this component
     owXMLname = testpath + 'owacScript.xml' # optimize operation
     #owXMLname = testpath + 'rtopScript.xml' # replace turb, optimize
     
@@ -483,27 +445,21 @@ if __name__ == "__main__":
     #deltaY = -200.0
     
     # Read turbine positions from workbook
-    
     if debug:
         sys.stderr.write('Getting turbine positions from {:}\n'.format(workbook))        
-    wb = acutils.WTWkbkFile(wkbk=workbook, owexe=owexe)
+    wb = acutils.WTWkbkFile(wkbk=workbook, owexe=owExe)
     wt_positions = wb.xy
     if debug:
         sys.stderr.write('Got {:} turbine positions\n'.format(len(wt_positions)))        
     
     # Initialize OWACcomp component
-        
-    ow = OWACcomp(owExe=owexe, debug=debug, scriptFile=owXMLname, start_once=start_once, opt_log=opt_log)
-           #, stopOW=False)
-         #, stopOW=False)
+    ow = OWACcomp(owExe=owExe, debug=debug, scriptFile=owXMLname, start_once=start_once, opt_log=opt_log) #, stopOW=False)
     if not ow.scriptOK:
         sys.stderr.write("\n*** ERROR found in script file\n\n")
         exit()
     
     # starting point for turbine mods
-    
     #wt_list_elem = dummy_wt_list()    
-    
     base_turbine_file = testpath + 'Alstom6MW.owtg'
     base_turbine = turbfuncs.owtg_to_wtpc(base_turbine_file)
     wt_list_elem = base_turbine
@@ -512,10 +468,8 @@ if __name__ == "__main__":
     ow.wt_layout.wt_list = wt_list
     if debug:
         sys.stderr.write('Initialized {:} turbines in wt_layout\n'.format(len(wt_positions)))
-    #print 'OWW ', ow.wt_layout.wt_list[0].__class__
     
     # move turbines farther offshore with each iteration
-    
     if debug:
         ofh = open('wtp.txt', 'w')
         
@@ -528,7 +482,6 @@ if __name__ == "__main__":
         ow.wt_layout.wt_positions = wt_positions
         
         # modify the turbine
-        
         ow.rotor_diameter += 1.0
         if ow.replace_turbine:
             wte = ow.wt_layout.wt_list[0]
@@ -549,36 +502,9 @@ if __name__ == "__main__":
 
     if start_once:
         ow.terminateOW()
-        
-'''   OLD STUFF
-    #e = rwScriptXML.parseScript(owXMLname)
-    #ops = e.xpath('//Operation')
-    #workbook = None
-    #for op in ops:
-    #    if op.find('Type').get('value') == 'Change Workbook':
-    #        workbook = op.find('Path').get('value')
-    
-    #wt_list_elem = ExtendedWindTurbinePowerCurveVT()
-    #if 'replturbpath' in dscript:
-    #    rturbpath = dscript['replturbpath']
-    #    wt_list_elem = turbfuncs.owtg_to_wtpc(rturbpath)
-    #    if self.debug:
-    #        sys.stderr.write('Read wt_list from {:}\n'.format(rturbpath))
-    
-        ## Have any turbine parameters changed?
-        #
-        #turb_changed = False
-        #newRotorDiam = None
-        #if (self.rotor_diameter != self.rtr_diam_init):
-        #    if self.debug:
-        #        sys.stderr.write('  Turbine rotor diameter from {:.1f} to {:.1f}m\n'.format(
-        #          self.rtr_diam_init,self.rotor_diameter))
-        #    turb_changed = True
-        #    newRotorDiam = self.rotor_diameter
-        #
-        #if turb_changed:
-        #    #rwTurbXML.modTurbXML(oldfile, newfile,
-        #    #                     rotor_diameter=newRotorDiam)
-        #    pass
-        
-'''
+
+if __name__ == "__main__":
+
+    # Substitue your own path to Openwind Enterprise
+    owExe = 'C:/Models/Openwind/openWind64_ac.exe'
+    example(owExe)
