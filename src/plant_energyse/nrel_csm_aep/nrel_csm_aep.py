@@ -50,6 +50,7 @@ class aep_csm_assembly(Assembly):
     max_efficiency = Float(0.902, iotype='out', desc = 'maximum efficiency of rotor and drivetrain - at rated power')  
     gross_aep = Float(0.0, iotype='out', desc='Gross Annual Energy Production before availability and loss impacts', unit='kWh')
     net_aep = Float(0.0, units= 'kW * h', iotype='out', desc='Annual energy production in kWh')  # use PhysicalUnits to set units='kWh'
+    capacity_factor = Float(iotype='out', desc='plant capacity factor')
                 
     def configure(self):
         ''' configures assembly by adding components, creating the workflow, and connecting the component i/o within the workflow '''
@@ -61,7 +62,7 @@ class aep_csm_assembly(Assembly):
         self.driver.workflow.add(['drive', 'aero', 'aep'])
 
         # connect inputs to component inputs
-        self.connect('machine_rating', ['aero.machine_rating', 'drive.ratedPower'])
+        self.connect('machine_rating', ['aero.machine_rating', 'drive.ratedPower','aep.machine_rating'])
         self.connect('hub_height', ['aero.hub_height', 'aep.hub_height'])
 
         # connect i/o between components
@@ -99,7 +100,7 @@ class aep_csm_assembly(Assembly):
         self.connect('aero.max_efficiency', 'max_efficiency') #TODO: update maximum efficiency sourcing
         self.connect('aep.gross_aep', 'gross_aep')
         self.connect('aep.net_aep', 'net_aep')
-        #self.connect('aep.capacity_factor', 'capacity_factor')
+        self.connect('aep.capacity_factor', 'capacity_factor')
         #self.create_passthrough('aep.aep_per_turbine')
 
 def example():

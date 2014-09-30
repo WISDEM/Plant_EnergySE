@@ -99,6 +99,7 @@ class aep_weibull_assembly(Assembly):
     k = Float(iotype='in', desc='shape or form factor')
     wind_curve = Array(iotype='in', units='m/s', desc='wind curve')
     power_curve = Array(iotype='in', units='W', desc='power curve (power)')
+    machine_rating = Float(units='kW', iotype='in', desc='machine power rating')
 
     # parameters
     array_losses = Float(0.059, iotype='in', desc = 'energy losses due to turbine interactions - across entire plant')
@@ -109,6 +110,7 @@ class aep_weibull_assembly(Assembly):
     # outputs
     gross_aep = Float(iotype='out', desc='Gross Annual Energy Production before availability and loss impacts', units='kW*h')
     net_aep = Float(iotype='out', desc='Net Annual Energy Production after availability and loss impacts', units='kW*h')
+    capacity_factor = Float(iotype='out', desc='plant capacity factor')
 
     def configure(self):
 
@@ -125,6 +127,7 @@ class aep_weibull_assembly(Assembly):
         self.connect('other_losses', 'aep.other_losses')
         self.connect('availability', 'aep.availability')
         self.connect('turbine_number', 'aep.turbine_number')
+        self.connect('machine_rating','aep.machine_rating')
         self.connect('A','cdf.A')
         self.connect('k','cdf.k')
         self.connect('wind_curve','cdf.x')
@@ -135,6 +138,7 @@ class aep_weibull_assembly(Assembly):
         # outputs
         self.connect('aep.gross_aep', 'gross_aep')
         self.connect('aep.net_aep', 'net_aep')
+        self.connect('aep.capacity_factor','capacity_factor')
 
 
 class CDFBase(Component):
@@ -220,6 +224,7 @@ class aep_component(Component):
     # variables
     CDF_V = Array(iotype='in')
     power_curve = Array(iotype='in', units='W', desc='power curve (power)')
+    machine_rating = Float(units='kW', iotype='in', desc='machine power rating')
 
     # parameters
     array_losses = Float(0.059, iotype='in', desc='energy losses due to turbine interactions - across entire plant')
@@ -230,6 +235,7 @@ class aep_component(Component):
     # outputs
     gross_aep = Float(iotype='out', desc='Gross Annual Energy Production before availability and loss impacts', unit='kWh')
     net_aep = Float(iotype='out', desc='Net Annual Energy Production after availability and loss impacts', unit='kWh')
+    capacity_factor = Float(iotype='out', desc='plant capacity factor')
 
     def __init__(self):
 
@@ -242,6 +248,7 @@ class aep_component(Component):
 
         self.gross_aep = self.turbine_number * np.trapz(self.power_curve, self.CDF_V)*365.0*24.0  # in kWh
         self.net_aep = self.availability * (1-self.array_losses) * (1-self.other_losses) * self.gross_aep
+        self.capacity_factor = self.net_aep / (8760. * self.machine_rating * self.turbine_number)
 
     def list_deriv_vars(self):
 

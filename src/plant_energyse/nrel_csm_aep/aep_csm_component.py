@@ -48,6 +48,7 @@ class aep_csm_component(Component):
     shear_exponent = Float(0.1, iotype='in', desc= 'shear exponent for wind plant') #TODO - could use wind model here
     wind_speed_50m = Float(8.35, units = 'm/s', iotype='in', desc='mean annual wind speed at 50 m height')
     weibull_k= Float(2.1, iotype='in', desc = 'weibull shape factor for annual wind speed distribution')
+    machine_rating = Float(units='kW', iotype='in', desc='machine power rating')
 
     # Parameters
     soiling_losses = Float(0.0, iotype='in', desc = 'energy losses due to blade soiling for the wind plant - average across turbines')
@@ -56,9 +57,10 @@ class aep_csm_component(Component):
     turbine_number = Int(100, iotype='in', desc = 'total number of wind turbines at the plant')
 
     # Output
-    gross_aep = Float(0.0, iotype='out', desc='Gross Annual Energy Production before availability and loss impacts', unit='kWh')
-    net_aep = Float(0.0, units= 'kW * h', iotype='out', desc='Annual energy production in kWh')  # use PhysicalUnits to set units='kWh'
+    gross_aep = Float(iotype='out', desc='Gross Annual Energy Production before availability and loss impacts', unit='kWh')
+    net_aep = Float(units= 'kW * h', iotype='out', desc='Annual energy production in kWh')  # use PhysicalUnits to set units='kWh'
     power_array = Array(iotype='out', units='kW', desc='total power after drivetrain losses')
+    capacity_factor = Float(iotype='out', desc='plant capacity factor')
 
     def execute(self):
         """
@@ -81,6 +83,7 @@ class aep_csm_component(Component):
         ws_inc = self.power_array[0,1] - self.power_array[0,0]
         self.gross_aep = turbine_energy * 8760.0 * self.turbine_number * ws_inc
         self.net_aep = self.gross_aep * (1.0-self.soiling_losses)* (1.0-self.array_losses) * self.availability
+        self.capacity_factor = self.net_aep / (8760 * self.machine_rating)
 
 def example():
 
