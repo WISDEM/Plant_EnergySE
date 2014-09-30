@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='ASCII'?>
+<!DOCTYPE OpenWindScript>
+<!-- rtopScript.xml : replace turbine, optimize -->
+<OpenWindScript>
+  <!-- Written by wrtScriptXML.py on 2014-02-28 09:06:40.663000 -->
+  <ReportPath value="owECReport.txt"/>
+  <AppendOperations value="Sideways"/>
+  <SiteNameField value="true"/>
+  <TurbineTypeField value="true"/>
+  <TurbineLabelField value="false"/>
+  <TurbineIndexField value="true"/>
+  <TurbineXField value="true"/>
+  <TurbineYField value="true"/>
+  <GrossEnergyField value="true"/>
+  <NetEnergyField value="true"/>
+  <ArrayEfficiencyField value="true"/>
+  <FreeWindspeedField value="true"/>
+  <MeanWindspeedField value="true"/>
+  <TurbulenceTotalField value="true"/>
+  <TI15 value="true"/>
+  <AllOperations>
+    <Operation>
+      <Type value="Change Workbook"/>
+      <Path value="../test/VA_test.blb"/>
+    </Operation>
+    <Operation>
+      <Type value="Replace Turbine Type"/>
+      <TurbineName value="Alstom Haliade 150m 6MW"/>
+      <!-- replace turbine with itself, just for testing -->
+      <!-- <TurbinePath value="D:/SystemsEngr/Plant_AEPSE/test/Alstom6MW.owtg"/> -->
+      <TurbinePath value="../test/ReplTurb.owtg"/>
+    </Operation>
+    <Operation>
+      <Type value="Optimize"/>
+    </Operation>
+    <!--
+    <Operation>
+      <Type value="Exit"/>
+    </Operation>
+    -->
+  </AllOperations>
+</OpenWindScript>

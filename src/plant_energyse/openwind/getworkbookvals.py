@@ -31,11 +31,15 @@ def getTurbPos(workbook, owexe, delFiles=True):
     rpath = 'gtpReport.txt'
     scriptname = 'gtpScript.xml'
     
+    raise ValueError
+    
     # Write script with: load workbook, energy capture, exit
     
     scripttree, ops = rwScriptXML.newScriptTree(rpath)
     scripttree.find('TurbineXField').set('value','true')
     scripttree.find('TurbineYField').set('value','true')
+    
+    scripttree.find('TurbineTypeField').set('value','true') # added 2014 09 29
     
     rwScriptXML.makeChWkbkOp(ops,workbook)       # change workbook
     rwScriptXML.makeEnCapOp(ops, wm = "DAWM Eddy-Viscosity" ) # energy capture
