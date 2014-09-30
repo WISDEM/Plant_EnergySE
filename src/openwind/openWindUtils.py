@@ -11,6 +11,7 @@
    G. Scott, NREL 2013 06 25
    
    2014 09 26 : rdReport() - skip turbines with zero output
+   2014 09 29:  owWindTurbine() - added 'ttype' field
    
 '''
 
@@ -36,6 +37,7 @@ class owWindTurbine():
         self.aeff = -9999.9
         self.freeWS = -9999.9
         self.meanWS = -9999.9
+        self.ttype = 'none'
     
     def parseLine(self, line, hdrs):
         # parse line from an OpenWind energy capture report and set variables
@@ -61,18 +63,20 @@ class owWindTurbine():
                 self.freeWS = float(f[i])
             if hdrs[i] == 'Mean Speed [m/s]':
                 self.meanWS = float(f[i])
+            if hdrs[i] == 'Type':
+                self.ttype = f[i]
                 
 
     def __str__(self):
         # default print method
         # if any class members are None, this will bomb
         
-        return '{:3d} {:9.1f} {:9.1f} {:9.3f} {:9.3f} {:6.2f} {:5.2f} {:5.2f}'.format(self.tIndex, 
+        return '{:3d} {:9.1f} {:9.1f} {:9.3f} {:9.3f} {:6.2f} {:5.2f} {:5.2f} {:}'.format(self.tIndex, 
           self.x, self.y, 
           self.gross * 0.001, # kWh to mWh
           self.net * 0.001, 
           self.aeff, 
-          self.freeWS, self.meanWS)
+          self.freeWS, self.meanWS, self.ttype)
           
 # -------------------
 

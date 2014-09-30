@@ -76,7 +76,7 @@ class openwindAC_assembly(Assembly): # todo: has to be assembly or manipulation 
     # try with default values to fix problem with interface.py
     def __init__(self, 
                  openwind_executable=None, workbook_path=None, 
-                 turbine_name=None, 
+                 turbine_name=None, # not used?
                  script_file=None, 
                  academic=True,
                  wt_positions=None,
@@ -225,9 +225,13 @@ class openwindAC_assembly(Assembly): # todo: has to be assembly or manipulation 
         
         # initialize from file
 
-        owtg_file = '../test/Alstom6MW.owtg'
-        sys.stderr.write('\n*** WARNING: initializing turbine from {:} - why??\n\n'.format(owtg_file))
-        trb = turbfuncs.owtg_to_wtpc(owtg_file)
+        #owtg_file = '../test/Alstom6MW.owtg'
+        #sys.stderr.write('\n*** WARNING: initializing turbine from {:} - why??\n\n'.format(owtg_file))
+        #trb = turbfuncs.owtg_to_wtpc(owtg_file)
+        
+        sys.stderr.write('\n*** WARNING: initializing turbine from ExtendedWindTurbinePowerCurveVT\n\n')
+        trb = ExtendedWindTurbinePowerCurveVT()
+        trb.power_rating = 1000000.0 # watts!
         
         for i in range(nt):
             self.wt_layout.wt_list[i] = trb
@@ -340,31 +344,31 @@ class openwindAC_assembly(Assembly): # todo: has to be assembly or manipulation 
             
     # -------------------
     
-    def writeNewScript(self, scriptFileName):
-        '''
-          Write a new XML script to scriptFileName and use that as the active
-          script for OpenWind
-          Operations are: load workbook, replace turbine, energy capture, exit
-          NOT USED
-        '''
-        
-        script_tree, operations = rwScriptXML.newScriptTree(self.report_path)    
-        # add operations to 'operations' (the 'AllOperations' tree in script_tree)
-        
-        rwScriptXML.makeChWkbkOp(operations,self.workbook_path)       # change workbook
-        rwScriptXML.makeRepTurbOp(operations,turbine_name,turbine_path)  # replace turbine
-        rwScriptXML.makeEnCapOp(operations)                # run energy capture
-        rwScriptXML.makeExitOp(operations)                 # exit
-        
-        script_XML = etree.tostring(script_tree, 
-                                   xml_declaration=True, 
-                                   doctype='<!DOCTYPE OpenWindScript>',
-                                   pretty_print=True)
-        
-        self.ow.script_file = self.workDir + '/' + scriptFileName
-        ofh = open(thisdir + '/' + self.ow.script_file, 'w')
-        ofh.write(script_XML)
-        ofh.close()
+    #def writeNewScript(self, scriptFileName):
+    #    '''
+    #      Write a new XML script to scriptFileName and use that as the active
+    #      script for OpenWind
+    #      Operations are: load workbook, replace turbine, energy capture, exit
+    #      NOT USED
+    #    '''
+    #    
+    #    script_tree, operations = rwScriptXML.newScriptTree(self.report_path)    
+    #    # add operations to 'operations' (the 'AllOperations' tree in script_tree)
+    #    
+    #    rwScriptXML.makeChWkbkOp(operations,self.workbook_path)       # change workbook
+    #    rwScriptXML.makeRepTurbOp(operations,turbine_name,turbine_path)  # replace turbine
+    #    rwScriptXML.makeEnCapOp(operations)                # run energy capture
+    #    rwScriptXML.makeExitOp(operations)                 # exit
+    #    
+    #    script_XML = etree.tostring(script_tree, 
+    #                               xml_declaration=True, 
+    #                               doctype='<!DOCTYPE OpenWindScript>',
+    #                               pretty_print=True)
+    #    
+    #    self.ow.script_file = self.workDir + '/' + scriptFileName
+    #    ofh = open(thisdir + '/' + self.ow.script_file, 'w')
+    #    ofh.write(script_XML)
+    #    ofh.close()
     
 #------------------------------------------------------------------
 

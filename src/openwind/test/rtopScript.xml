@@ -1,18 +1,10 @@
 <?xml version='1.0' encoding='ASCII'?>
 <!DOCTYPE OpenWindScript>
-<<<<<<< HEAD
 <!-- rtopScript.xml : replace turbine, optimize -->
 <OpenWindScript>
   <!-- Written by wrtScriptXML.py on 2014-02-28 09:06:40.663000 -->
   <ReportPath value="owECReport.txt"/>
   <AppendOperations value="Sideways"/>
-=======
-<!-- rtecScript.xml : replace turbine, energy capture -->
-<OpenWindScript>
-  <!-- Written by wrtScriptXML.py on 2014-02-28 09:06:40.663000 -->
-  <ReportPath value="owECReport.txt"/>
-  <AppendOperations value="After"/>
->>>>>>> origin/master
   <SiteNameField value="true"/>
   <TurbineTypeField value="true"/>
   <TurbineLabelField value="false"/>
@@ -29,35 +21,17 @@
   <AllOperations>
     <Operation>
       <Type value="Change Workbook"/>
-<<<<<<< HEAD
-=======
-      <!-- Path value="C:/rassess/USA/Offshore/VOWTAP/VA_WEA.blb"/ -->
->>>>>>> origin/master
-      <Path value="../../test/VA_test.blb"/>
+      <Path value="../test/VA_test.blb"/>
     </Operation>
     <Operation>
       <Type value="Replace Turbine Type"/>
-<<<<<<< HEAD
       <TurbineName value="Alstom Haliade 150m 6MW"/>
       <!-- replace turbine with itself, just for testing -->
-      <TurbinePath value="D:/SystemsEngr/Plant_AEPSE/test/Alstom6MW.owtg"/>
-      <!-- <TurbinePath value="../../test/testTurbine.owtg"/> -->
+      <!-- <TurbinePath value="D:/SystemsEngr/Plant_AEPSE/test/Alstom6MW.owtg"/> -->
+      <TurbinePath value="../test/ReplTurb.owtg"/>
     </Operation>
     <Operation>
       <Type value="Optimize"/>
-=======
-      <!-- <TurbineName value="Alstom Haliade 150m 6MW"/> -->
-      <!-- as of 140429, this is the turbine name in the *blb file -->
-      <TurbineName value="Alstom Haliade 150m 6MW- Scale 1.10"/>
-      <!-- Relative turbine path is relative to workbook(?) location NO!-->
-      <!-- Relative turbine path is relative to script location 2014 05 23 -->
-      <TurbinePath value="C:/SystemsEngr/Plant_AEPSE/src/Plant_AEPSE/test/testTurbine.owtg"/>
-      <!--TurbinePath value="testTurbine.owtg"/-->
-      <!--TurbinePath value="../../test/testTurbine.owtg"/-->
-    </Operation>
-    <Operation>
-      <Type value="Optimise"/>
->>>>>>> origin/master
     </Operation>
     <!--
     <Operation>
