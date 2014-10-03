@@ -9,6 +9,7 @@
    2014 03 30: name changed from 'wrtScriptXML.py' to 'rwScriptXML.py'
    2014 07 16: added 'Iterations' to Optimize operation
    2014 09 23: added some error checking
+   2014 10 01: rdScript return dictionary now includes operations
      
    USAGE:
     import rwScriptXML
@@ -75,12 +76,11 @@ def rdScript(fname, debug=False):
           turbname
           replturbname
           replturbpath
+          operations
     '''
     
     dscript = {} # dictionary to return
     
-    #e = ET.parse(fname)
-    #e = etree.parse(fname)
     e = parseScript(fname)
     
     if debug:
@@ -89,10 +89,6 @@ def rdScript(fname, debug=False):
     
     e = parseScript(fname)
     root = e.getroot()
-    
-    #if debug:
-    #    for child in root:
-    #        sys.stderr.write('  {:}\n'.format(child.tag))
     
     # Get ReportPath so we know where to look for results
     
@@ -105,11 +101,13 @@ def rdScript(fname, debug=False):
     nop = 0
     if debug:
         sys.stderr.write('  Operations:\n')
+    dscript['operations'] = []
     for aotype in e.findall('AllOperations'):
         for atype in aotype.findall('Operation'):
             nop += 1
             arg = ''
             optype = atype.find('Type').get('value')
+            dscript['operations'].append(optype)
             if optype == "Change Workbook":
                 wkbk = atype.find('Path').get('value')
                 dscript['workbook'] = wkbk
@@ -339,7 +337,11 @@ def main():
     
     # Read it back
     
-    rptpath = rdScript(scriptFile, debug=True)['rptpath']
+    dscript = rdScript(scriptFile, debug=True)
+    for k in (dscript.keys()):
+        print k, dscript[k]
+        
+    #rptpath = ['rptpath']
     #print 'Report path: {:}'.format(rptpath)
     
 #---------------------------------------------------

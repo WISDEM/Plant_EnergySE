@@ -260,7 +260,7 @@ class OWACcomp(Component):
             acutils.waitForNotify(watchFile=self.resname, path=self.dname, debug=False, callback=self.getCBvalue)
 
         # Now OWac is waiting for a new position file
-        # Write new postions and notify file - this time it should use updated positions
+        # Write new positions and notify file - this time it should use updated positions
 
         acutils.writePositionFile(self.wt_layout.wt_positions, path=self.dname, debug=self.debug)
         
@@ -395,6 +395,33 @@ def wtlDump(wtl):
         
 #------------------------------------------------------------------
 
+''' OWACComp.wt_layout is a ExtendedWindFarmTurbineLayout(VariableTree) and has
+      wt_list = List(ExtendedWindTurbinePowerCurveVT(), desc='The wind turbine list of descriptions [n_wt]')
+      wt_positions = Array(units='m', desc='Array of wind turbines attached to particular positions [n_wt, 2]')
+      (among others)
+
+    We use wt_positions to move the turbines - we update the values and copy them to 
+      file 'positions.txt' at each iteration using writePositionFile()
+      (ow.wt_layout.wt_positions and wt_positions are 2 copies of the same data)
+      
+    If we are replacing the turbines, we use wt_list to hold the modified turbine.
+      We initialize wt_layout.wt_list with copies of the values in base_turbine_file.
+      At each iteration, we tweak the values in wt_layout.wt_list.
+        When OWACComp.execute runs, it writes a new turbine file
+          using the values in wt_layout.wt_list[0]
+        This turbine file is the same one specified in the script: 
+          <TurbinePath value="../templates/ReplTurb.owtg"/>
+        When OpenWind runs the Replace Turbine operation, it looks for all turbines whose name matches
+          the value in <TurbineName value="NREL 5MW"/> and replaces them with the turbine described in
+          file <TurbinePath>
+
+    Does the base_turbine_file need to match the default turbine in the workbook?
+    How can we get that name?
+      - run OW energy capture, scan file
+      - but scripted energy capture doesn't have full description of turbine
+          
+'''
+
 def example(owExe):
 
     debug = False
@@ -419,8 +446,12 @@ def example(owExe):
         sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owExe))
         exit()
 
+    # set the external optimiser flag to True so that we can use our optimizing routines
+    
+    acutils.owIniSet(owExe, extVal=True, debug=True)
+    
     # Set OpenWind script name
-    testpath = '../test/'
+    testpath = '../templates/'
     #owXMLname = testpath + 'rtecScript.xml' # replace turb, energy capture #KLD - this script does not work for me with this component
     owXMLname = testpath + 'owacScript.xml' # optimize operation
     #owXMLname = testpath + 'rtopScript.xml' # replace turb, optimize
@@ -443,6 +474,8 @@ def example(owExe):
     deltaY = -2000.0
     #deltaX =  200.0
     #deltaY = -200.0
+    deltaX =  3.000
+    deltaY = -2.000
     
     # Read turbine positions from workbook
     if debug:
@@ -460,16 +493,17 @@ def example(owExe):
     
     # starting point for turbine mods
     #wt_list_elem = dummy_wt_list()    
-    base_turbine_file = testpath + 'Alstom6MW.owtg'
-    base_turbine = turbfuncs.owtg_to_wtpc(base_turbine_file)
-    wt_list_elem = base_turbine
+    base_turbine_file = testpath + 'NREL5MW.owtg'
+    wt_list_elem = turbfuncs.owtg_to_wtpc(base_turbine_file)
         
-    wt_list = [wt_list_elem for i in range(len(wt_positions)) ]
-    ow.wt_layout.wt_list = wt_list
+    ow.wt_layout.wt_list = [ wt_list_elem for i in range(len(wt_positions)) ]
     if debug:
         sys.stderr.write('Initialized {:} turbines in wt_layout\n'.format(len(wt_positions)))
     
-    # move turbines farther offshore with each iteration
+    # With each iteration
+    #   move turbines farther offshore 
+    #   possibly modify the turbine rotor diam and power curve and replace turbine
+    
     if debug:
         ofh = open('wtp.txt', 'w')
         
@@ -484,11 +518,11 @@ def example(owExe):
         # modify the turbine
         ow.rotor_diameter += 1.0
         if ow.replace_turbine:
-            wte = ow.wt_layout.wt_list[0]
-            wte.power_rating *= 1.05
-            for i in range(len(wte.power_curve)):
-                wte.power_curve[i][1] *= 1.05
-            ow.wt_layout.wt_list = [wte for i in range(len(ow.wt_layout.wt_list)) ]
+            wt_list_elem = ow.wt_layout.wt_list[0]
+            wt_list_elem.power_rating *= 1.05
+            for i in range(len(wt_list_elem.power_curve)):
+                wt_list_elem.power_curve[i][1] *= 1.05
+            ow.wt_layout.wt_list = [wt_list_elem for i in range(len(ow.wt_layout.wt_list)) ]
             if debug:
                 ofh.write('Updated {:} turbines with:\n'.format(len(ow.wt_layout.wt_list)))
                 ofh.write(turbfuncs.wtpc_dump(ow.wt_layout.wt_list[0]))
@@ -506,6 +540,7 @@ def example(owExe):
 if __name__ == "__main__":
 
     # Substitute your own path to Openwind Enterprise
-    owExe = 'C:/Models/Openwind/openWind64_ac.exe'
-    owExe = 'D:/rassess/Openwind/openWind64_ac.exe'
+    #owExe = 'C:/Models/Openwind/openWind64_ac.exe'
+    owExe = 'D:/rassess/Openwind/openWind64_ac.exe' # Old Academic v.1275
+    owExe = 'D:/rassess/Openwind/openWind64.exe'
     example(owExe)

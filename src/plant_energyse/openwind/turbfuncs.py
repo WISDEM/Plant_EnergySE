@@ -114,7 +114,28 @@ def wtpc_dump(wtpc, shortFmt=False):
             s = s + '    {:4.1f} mps {:7.1f} kW\n'.format(wtpc.power_curve[i,0], wtpc.power_curve[i,1])
         
     return  s
-     
+
+#------------------------------------------------
+
+def findOWTG(path, tname, debug=False):
+    # find a *.owtg file in path that matches 'tname'
+    # return turbine name, power rating in W
+    
+    fnames = os.listdir(path)
+    for fname in fnames:
+        if not fname.lower().endswith('.owtg'):
+            continue
+        tree = rwTurbXML.parseOWTG(path + '/' + fname)
+        if tree is None:
+            sys.stderr.write('\n*** ERROR: could not parse turbine file "{:}"\n\n"'.format(owtg_file))
+            continue
+        name, capKW, hubHt, rtrDiam = rwTurbXML.getTurbParams(tree)
+        if name == tname:
+            return fname, capKW*1000.0
+    
+    sys.stderr.write("\nNo OWTG files in {:} match name '{:}'\n".format(path, tname))
+    return None, None
+             
 #------------------------------------------------------------------
 
 if __name__ == "__main__":
@@ -122,7 +143,7 @@ if __name__ == "__main__":
     # Read OWTG file and convert to ExtendedWindTurbinePowerCurveVT
     
     #owtg_name = 'C:/SystemsEngr/test/Alstom6MW.owtg'
-    owtg_name = 'test/Alstom6MW.owtg'
+    owtg_name = 'templates/NREL5MW.owtg'
     wtpc = owtg_to_wtpc(owtg_name)
     
     # Convert back to OWTG

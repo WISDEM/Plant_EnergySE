@@ -125,7 +125,7 @@ def example(owExe):
         sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owExe))
         exit()
 
-    owXMLname = '../test/ecScript.xml'
+    owXMLname = '../templates/ecScript.xml'
     
     if not os.path.isfile(owXMLname):
         sys.stderr.write('OpenWind script file "{:}" not found\n'.format(owXMLname))
@@ -142,4 +142,5 @@ if __name__ == "__main__":
 
     # Substitue your own path to Openwind Enterprise
     owExe = 'C:/Models/Openwind/openWind64.exe'
+    owExe = 'D:/rassess/Openwind/openWind64.exe'
     example(owExe)

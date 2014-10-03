@@ -2,20 +2,32 @@
 # 2014 02 21
 # G Scott (NREL)
 
-# Utility functions for working with OpenWind Academic version
-#   - writePositionFile(): write new turbine location file
-#   - waitForNotify(watchFile='results.txt'): wait for a new 'results.txt' file
-#   - writeNotify(): write notify file (OUT)
-#   - parseACresults(): read/parse OpenWind optimization output file
-
-#   - class MyNotifyMLHandler(FileSystemEventHandler) - watch for changes in file
-#   - class WTPosFile(WEFileIO) - read turbine positions from text file
-#   - class WTWkbkFile(object)  - read turbine positions from OpenWind workbook
+'''
+  Utility functions for working with OpenWind Academic version
+    - writePositionFile(): write new turbine location file
+    - waitForNotify(watchFile='results.txt'): wait for a new 'results.txt' file
+    - writeNotify(): write notify file (OUT)
+    - parseACresults(): read/parse OpenWind optimization output file
+    - owIniSet(): get/set value of ExternalOptimiser in *.ini file
+    
+    - class MyNotifyMLHandler(FileSystemEventHandler) - watch for changes in file
+    - class WTPosFile(WEFileIO) - read turbine positions from text file
+    - class WTWkbkFile(object)  - read turbine positions from OpenWind workbook
+    
+    2014 10 01 : added owIniSet()
+'''
 
 import sys, os, time
 import numpy as np
-sys.path.append('D:/SystemsEngr/openmdao-0.9.3/Lib/site-packages/pathtools-0.1.2-py2.7.egg')
-sys.path.append('D:/SystemsEngr/openmdao-0.9.3/Lib/site-packages/watchdog-0.6.0-py2.7.egg')
+
+# Use watchdog from the OpenMDAO environment
+#   (usually, $VIRTUAL_ENV is '/d/SystemsEngr/openmdao-0.10.1' or similar)
+vepath = os.environ.get('VIRTUAL_ENV')
+sys.path.append(vepath + '/Lib/site-packages/pathtools-0.1.2-py2.7.egg')
+sys.path.append(vepath + '/Lib/site-packages/watchdog-0.6.0-py2.7.egg')
+
+#sys.path.append('D:/SystemsEngr/openmdao-0.9.3/Lib/site-packages/pathtools-0.1.2-py2.7.egg')
+#sys.path.append('D:/SystemsEngr/openmdao-0.9.3/Lib/site-packages/watchdog-0.6.0-py2.7.egg')
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -266,6 +278,7 @@ class WTPosFile(WEFileIO):
 class WTWkbkFile(object):
     ''' Read turbine positions from OpenWind workbook 
           - positions are saved in self.xy (a NumPy ndarray)
+          - turbine types are saved in self.ttypes
           - uses getworkbookvals::getTurbPos() which calls OpenWind
     '''
     def __init__(self, wkbk=None, owexe=None, debug=False):
@@ -276,7 +289,9 @@ class WTWkbkFile(object):
         self._read()
         
     def _read(self):
-        self.xy = np.array(gwb.getTurbPos(self.wkbk, self.owexe, delFiles=True))
+        #self.xy = np.array(gwb.getTurbPos(self.wkbk, self.owexe, delFiles=True))
+        xy, self.ttypes = gwb.getTurbPos(self.wkbk, self.owexe, delFiles=True)
+        self.xy = np.array(xy)
         
         if self.debug:
             sys.stderr.write('WTWkbkFile: read array {:} from {:}\n'.format(self.xy.shape, self.wkbk))
@@ -284,17 +299,102 @@ class WTWkbkFile(object):
                 for j in range(self.xy.shape[1]):
                     sys.stderr.write('{:.1f} '.format(self.xy[i][j]))
                 sys.stderr.write('\n')
+
+#---------------------------------------------
+
+def owIniSet(owExe, extVal=None, oname=None, debug=False):
+    ''' get or set the value of ExternalOptimiser in the OpenWind ini file
+          'ExternalOptimiser No' - normal OW functionality
+          'ExternalOptimiser Yes' - 'academic' functionality
+          
+      eoval = owIniSet(owExe) # False ('No') or True ('Yes')
+      owIniSet(owExe, extVal=True) # sets 'ExternalOptimiser Yes'
+      owIniSet(owExe, extVal=False) # sets 'ExternalOptimiser No'
+      
+      oname : optional name of test output file - if not present, original *ini
+        will be overwritten
+        
+    '''
+    
+    # Find *ini file and read contents
+    
+    iname = 'OpenWind64.ini'
+    path = os.path.dirname(owExe)
+    ipname = path + '/' + iname
+    if not os.path.exists(ipname):
+        sys.stderr.write('\n*** ERROR - owIniSet() cannot find {:} in {:}\n\n'.format(iname, path))
+        return None
+    fh = open(ipname, 'r')
+    lines = fh.readlines()
+    fh.close()
+    
+    # Get current value of ExternalOptimiser
+    
+    eoVal = None
+    for line in lines:
+        if line.startswith('ExternalOptimiser'):
+            eoVal = line.split()[1]
+            break
+    if eoVal is None:
+        sys.stderr.write('\n*** WARNING - owIniSet() cannot find ExternalOptimiser line in {:}\n\n'.format(iname))
+        return None
+    
+    # just getting current value?
+        
+    if extVal is None:
+        if eoVal.startswith('Y'):
+            return True
+        else:
+            return False
+    
+    # setting a new value:
+    
+    # no change - return current value        
+    if eoVal == 'No' and extVal == False:
+        if debug:
+            sys.stderr.write('owIniSet(): no change to ExternalOptimiser == {:}\n'.format(eoVal))
+        return False
+    if eoVal == 'Yes' and extVal == True:
+        if debug:
+            sys.stderr.write('owIniSet(): no change to ExternalOptimiser == {:}\n'.format(eoVal))
+        return True
+    
+    if oname is None:
+        oname = ipname
+    fh = open(oname, 'w')
+    for line in lines:
+        if not line.startswith('ExternalOptimiser'):
+            fh.write(line)
+            continue
+        if extVal:
+            fh.write('ExternalOptimiser Yes\n')
+        else:
+            fh.write('ExternalOptimiser No\n')
+    fh.close()
+    
+    if debug:
+        sys.stderr.write('\nowIniSet() wrote new {:} with ExternalOptimiser == {:}\n'.format(oname, extVal))
+    if extVal:
+        return True
+    return False
             
 #---------------------------------------------
 
 def main():
     # test
     
+    sys.stderr.write('\nTesting owIniSet()\n\n')
+    owExe = 'D:/rassess/Openwind/openWind64.exe'
+    eoVal = owIniSet(owExe)
+    eoVal = owIniSet(owExe, extVal=True, oname='testEOtrue.ini')
+    eoVal = owIniSet(owExe, extVal=False, oname='testEOfalse.ini')
+    
     # delete notifyML.txt
     # start watchdog Observer
     # tell user to write notifyML.txt manually
     # see if watchdog finds it
     
+    sys.stderr.write('\nTesting writePositionFile()\n\n')
     # (example uses approx coords of VOWTAP project - UTM 18N)
     nturb = 20
     x = np.random.random_integers( 457300,  high=470600, size=nturb)

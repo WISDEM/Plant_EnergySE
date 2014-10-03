@@ -14,6 +14,8 @@
 # (should have option to delete after running)
 # (should have more error checking)
 
+# 2014 10 03 : returning ttypes from getTurbPos()
+
 import sys, os
 import openWindUtils
 import rwScriptXML
@@ -53,9 +55,11 @@ def getTurbPos(workbook, owexe, delFiles=True):
     gross_aep, array_aep, net_aep, owTrbs = openWindUtils.rdReport(rpath)
     nturb = len(owTrbs)
     xy = [[0,0] for i in range(nturb)]
+    ttypes = ['none' for i in range(nturb)]
     for i in range(nturb):
         xy[i][0] = owTrbs[i].x
         xy[i][1] = owTrbs[i].y
+        ttypes[i] = owTrbs[i].ttype
 
     if delFiles:
         try:
@@ -64,7 +68,8 @@ def getTurbPos(workbook, owexe, delFiles=True):
         except:
             sys.stderr.write('\nERROR *** could not delete {:} or {:}\n\n'.format(scriptname, rpath))
         
-    return xy
+    return xy, ttypes
+    
 #-----------------------------------------
 
 def getEC(workbook, owexe, delFiles=True):

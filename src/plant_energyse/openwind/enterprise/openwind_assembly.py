@@ -78,6 +78,7 @@ class openwind_assembly(Assembly): # todo: has to be assembly or manipulation an
     # -------------------
     
     def __init__(self, openwind_executable, workbook_path, turbine_name=None, script_file=None, 
+                 machine_rating=None,
                  academic=False, debug=False):
         """ Creates a new LCOE Assembly object """
 
@@ -103,6 +104,9 @@ class openwind_assembly(Assembly): # todo: has to be assembly or manipulation an
         self.academic = academic
         self.debug = debug
         
+        if machine_rating is not None:
+            self.machine_rating = machine_rating
+            
         super(openwind_assembly, self).__init__()
 
         # TODO: hack for now assigning turbine
@@ -325,9 +329,10 @@ def example(owExe='My OW Executable Path'):
             exit()
 
     # set file inputs from test folder
-    test_path = '../test/'
-    workbook_path = test_path + 'VA_test.blb'
-    turbine_name = 'Alstom Haliade 150m 6MW' # should match default turbine in workbook
+    test_path = '../templates/'
+    workbook_path = test_path + 'owTestWkbkExtend.blb'
+    turbine_name = 'NREL 5 MW' # should match default turbine in workbook
+    machine_rating = 5000.0    # should match default turbine in workbook
     script_file = test_path + 'ecScript.xml'
 
     if not os.path.isfile(script_file):
@@ -339,6 +344,7 @@ def example(owExe='My OW Executable Path'):
         exit()
     
     owAsm = openwind_assembly(owExe, workbook_path, turbine_name=turbine_name, script_file=script_file,
+                              machine_rating = machine_rating,
                               debug=debug)
     
     owAsm.updateRptPath('newReport.txt', 'newTestScript.xml')
@@ -370,9 +376,11 @@ def example(owExe='My OW Executable Path'):
     print '  Other losses: {:.2f} %'.format(otherLosses*100.0)
     print '  AEP net output: (after losses) {:.1f} kWh'.format(owAsm.net_aep*0.001)
     print '  Capacity factor: {:.2f} %'.format(owAsm.capacity_factor*100.0)
-
+    print '    Turb pwr {:.1f}'.format(owAsm.wt_layout.wt_list[0].power_rating)
+    print '    Nturb {:}'.format(owAsm.turbine_number)
 if __name__ == "__main__":
 
     # Substitue your own path to Openwind Enterprise
     owExe = 'C:/Models/Openwind/openWind64.exe'
+    owExe = 'D:/rassess/Openwind/openWind64.exe'
     example(owExe)

@@ -224,13 +224,14 @@ class openwindAC_assembly(Assembly): # todo: has to be assembly or manipulation 
         
         # initialize from file
 
-        #owtg_file = '../test/Alstom6MW.owtg'
+        #owtg_file = '../test/NREL5MW.owtg'
         #sys.stderr.write('\n*** WARNING: initializing turbine from {:} - why??\n\n'.format(owtg_file))
         #trb = turbfuncs.owtg_to_wtpc(owtg_file)
         
         sys.stderr.write('\n*** WARNING: initializing turbine from ExtendedWindTurbinePowerCurveVT\n\n')
         trb = ExtendedWindTurbinePowerCurveVT()
-        trb.power_rating = 1000000.0 # watts!
+        #trb.power_rating = 1000000.0 # watts!
+        trb.power_rating = self.machine_rating
         
         for i in range(nt):
             self.wt_layout.wt_list[i] = trb
@@ -238,12 +239,13 @@ class openwindAC_assembly(Assembly): # todo: has to be assembly or manipulation 
         # show parameters
         
         if self.debug:
+            sys.stderr.write('Initial Turbine Positions\n')
             for i in range(len(self.wt_layout.wt_positions)):
                 sys.stderr.write('{:3d} {:.1f} {:.1f}\n'.format(i, 
                    self.wt_layout.wt_positions[i][0],self.wt_layout.wt_positions[i][1]))
             
             s = turbfuncs.wtpc_dump(self.wt_layout.wt_list[0])
-            sys.stderr.write(s)
+            sys.stderr.write('\n' + s)
             
         #report_path = self.workDir + '/' + 'scrtest1.txt'
         #workbook_path = self.workbook_path
@@ -392,15 +394,14 @@ def example(owExe):
         sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owExe))
         exit()
 
-    testPath = '../test/'
-    workbook_path = testPath + 'VA_test.blb'
-    
-    turbine_name = 'Alstom Haliade 150m 6MW' # should match default turbine in workbook
-    machine_rating = 6000.0
+    testPath = '../templates/'
+    #workbook_path = testPath + 'VA_test.blb'
+    workbook_path = testPath + 'owTestWkbkExtend.blb'
     
     script_file = testPath + 'owacScript.xml' # optimize operation
     if modify_turbine:
         script_file = testPath + 'rtopScript.xml' # replace turbine, optimize
+        #script_file = testPath + 'rtecScript.xml' # replace turbine, energy capture
         if debug:
             sys.stderr.write('Turbine will be modified\n')
 
@@ -408,19 +409,35 @@ def example(owExe):
         sys.stderr.write('OpenWind script file "{:}" not found\n'.format(script_file))
         exit()
   
-    wt_positions = getworkbookvals.getTurbPos(workbook_path, owExe, delFiles=False)
+    # ----- Run OpenWind once to get initial turbine positions
+    
     if debug:
-        sys.stderr.write('Initial turbine positions from workbook\n')
+        sys.stderr.write('\n--------- Running OpenWind to get turbine positions --------------\n')
+    wt_positions, ttypes = getworkbookvals.getTurbPos(workbook_path, owExe, delFiles=False)
+    if debug:
+        sys.stderr.write('Initial turbine positions from workbook {:}\n'.format(workbook_path))
         for i in range(len(wt_positions)):
-            sys.stderr.write('  Turb{:2d} {:.1f} {:.1f}\n'.format(i,wt_positions[i][0],wt_positions[i][1]))
+            sys.stderr.write("  Turb{:2d} {:.1f} {:.1f} '{:}'\n".format(i,
+              wt_positions[i][0],wt_positions[i][1], ttypes[i]))
+        sys.stderr.write('--------- Finished Running OpenWind to get turbine positions --------------\n\n')
 
+    # ----- Create OW_assembly object
+    
+    #turbine_name = 'Alstom Haliade 150m 6MW' # should match default turbine in workbook
+    #machine_rating = 6000000.0 # machine_rating and power_rating are in W
+    
+    turbine_name = ttypes[0] # should match default turbine in workbook
+    # How to get machine_rating for this turbine?
+    #   - could search all *owtg files for matching name, then get rating
+    fname, machine_rating = turbfuncs.findOWTG(testPath, turbine_name)
+    
     # should check for existence of both owExe and workbook_path before
     #   trying to run openwind
     
     owAsy = openwindAC_assembly(owExe, workbook_path, 
-                             turbine_name=turbine_name, 
                              script_file=script_file,
                              wt_positions=wt_positions,
+                             turbine_name=turbine_name, 
                              machine_rating=machine_rating,
                              start_once=start_once,
                              debug=debug) 
@@ -442,14 +459,20 @@ def example(owExe):
     else:
         owAsy.execute() # run the openWind process
 
+    # ----- Summary
+    
     print 'openwindAC_assembly results:'
     print '  Gross {:.4f} mWh'.format(owAsy.gross_aep*0.001)
     print '  Net   {:.4f} mWh'.format(owAsy.net_aep*0.001)
     print '  Total losses {:.2f} %'.format(owAsy.total_losses*100.0)
     print '  CF    {:.2f} %'.format(owAsy.capacity_factor*100.0)
+    print '  Using {:} turbines with power rating of {:.3f} MW'.format(
+          len(owAsy.wt_layout.wt_positions), owAsy.machine_rating/1000000.0)
 
 if __name__ == "__main__":
 
     # Substitue your own path to Openwind Enterprise
-    owExe = 'C:/Models/Openwind/openWind64_ac.exe'
+    #owExe = 'C:/Models/Openwind/openWind64_ac.exe'
+    #owExe = 'D:/rassess/Openwind/openWind64_ac.exe' # Old Academic v.1275
+    owExe = 'D:/rassess/Openwind/openWind64.exe'
     example(owExe)
