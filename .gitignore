@@ -114,9 +114,6 @@ notifyOW.txt
 *.shx
 
 tmp.*
-src/Plant_AEPSE/Openwind/development/
-test/
-src/Plant_AEPSE/test/
 
 # next lines added 2014 09 30 when directory structure changed
 src/openwind/academic/
