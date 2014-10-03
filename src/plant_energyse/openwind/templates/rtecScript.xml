@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='ASCII'?>
+<!DOCTYPE OpenWindScript>
+<!-- rtecScript.xml : replace turbine, energy capture -->
+<OpenWindScript>
+  <!-- Written by wrtScriptXML.py on 2014-02-28 09:06:40.663000 -->
+  <ReportPath value="owECReport.txt"/>
+  <AppendOperations value="Sideways"/>
+  <SiteNameField value="true"/>
+  <TurbineTypeField value="true"/>
+  <TurbineLabelField value="false"/>
+  <TurbineIndexField value="true"/>
+  <TurbineXField value="true"/>
+  <TurbineYField value="true"/>
+  <GrossEnergyField value="true"/>
+  <NetEnergyField value="true"/>
+  <ArrayEfficiencyField value="true"/>
+  <FreeWindspeedField value="true"/>
+  <MeanWindspeedField value="true"/>
+  <TurbulenceTotalField value="true"/>
+  <TI15 value="true"/>
+  <AllOperations>
+    <Operation>
+      <Type value="Change Workbook"/>
+      <Path value="../templates/owTestWkbkExtend.blb"/>
+    </Operation>
+    <Operation>
+      <Type value="Replace Turbine Type"/>
+      <TurbineName value="NREL 5 MW"/>
+      <!-- replace turbine with itself, just for testing -->
+      <TurbinePath value="../templates/ReplTurb.owtg"/>
+    </Operation>
+    <Operation>
+      <Type value="Energy Capture"/>
+    </Operation>
+    <!--
+    <Operation>
+      <Type value="Exit"/>
+    </Operation>
+    -->
+  </AllOperations>
+</OpenWindScript>

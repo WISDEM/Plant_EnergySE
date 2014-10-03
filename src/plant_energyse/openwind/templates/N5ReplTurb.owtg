@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE N5REPL>
+<!-- Made-up test turbine for use in replace-turbine operations -->
+<N5REPL>
+	<Name>N5 Replacement</Name>
+	<HubHeight value="90"/>
+	<RotorDiameter value="130"/>
+	<VoltageV value="690"/>
+	<CapacityKW value="4000"/>
+	<IsPitchControlled value="1"/>
+	<LowCutIn value="3"/>
+	<HighCutOut value="25"/>
+	<IEC_adjustment value="1"/>
+	<NumBlades value="3"/>
+	<LowTemperatureShutDown value="-30"/>
+	<HighTemperatureShutDown value="45"/>
+	<LowTemperatureUnits value="0"/>
+	<HighTemperatureUnits value="0"/>
+	<LowTemperatureRestart value="-20"/>
+	<HighTemperatureRestart value="30"/>
+	<IsVariableSpeed value="1"/>
+	<TiltAngleDegrees value="5"/>
+	<PeakOutputKW value="4000"/>
+	<SpeedClass value="1"/>
+	<TiClass value="1"/>
+	<SpeedMax value="10"/>
+	<TiMax value="14"/>
+	<Comments>This is not a warrantied power curve. It is for demonstration purposes only. If you need a warrantied power curve, please contact your turbine manufacturer.</Comments>
+	<Power_Tables>
+		<Count value="1"/>
+		<Power_Table0>
+			<Type>TurbineTable</Type>
+			<TI_min value="0"/>
+			<TI_max value="60"/>
+			<Velocities>
+				<Count value="23"/>
+				<Velocity0 value="3"/>
+				<Velocity1 value="4"/>
+				<Velocity2 value="5"/>
+				<Velocity3 value="6"/>
+				<Velocity4 value="7"/>
+				<Velocity5 value="8"/>
+				<Velocity6 value="9"/>
+				<Velocity7 value="10"/>
+				<Velocity8 value="11"/>
+				<Velocity9 value="12"/>
+				<Velocity10 value="13"/>
+				<Velocity11 value="14"/>
+				<Velocity12 value="15"/>
+				<Velocity13 value="16"/>
+				<Velocity14 value="17"/>
+				<Velocity15 value="18"/>
+				<Velocity16 value="19"/>
+				<Velocity17 value="20"/>
+				<Velocity18 value="21"/>
+				<Velocity19 value="22"/>
+				<Velocity20 value="23"/>
+				<Velocity21 value="24"/>
+				<Velocity22 value="25"/>
+			</Velocities>
+			<AirDensities>
+				<Count value="1"/>
+				<Rho0 value="1.225"/>
+			</AirDensities>
+			<Values>
+				<Columns value="1"/>
+				<Rho1.225000>
+					<Rows value="23"/>
+					<v0-0 value="40.5"/>
+					<v0-1 value="177.7"/>
+					<v0-2 value="403.9"/>
+					<v0-3 value="737.6"/>
+					<v0-4 value="1187.2"/>
+					<v0-5 value="1771.1"/>
+					<v0-6 value="2518.6"/>
+					<v0-7 value="3048.4"/>
+					<v0-8 value="3562.5"/>
+					<v0-9 value="4000"/>
+					<v0-10 value="4000"/>
+					<v0-11 value="4000"/>
+					<v0-12 value="4000"/>
+					<v0-13 value="4000"/>
+					<v0-14 value="4000"/>
+					<v0-15 value="4000"/>
+					<v0-16 value="4000"/>
+					<v0-17 value="4000"/>
+					<v0-18 value="4000"/>
+					<v0-19 value="4000"/>
+					<v0-20 value="4000"/>
+					<v0-21 value="4000"/>
+					<v0-22 value="4000"/>
+				</Rho1.225000>
+			</Values>
+		</Power_Table0>
+	</Power_Tables>
+	<Thrust_Table>
+		<Type>TurbineTable</Type>
+		<TI_min value="0"/>
+		<TI_max value="60"/>
+		<Velocities>
+			<Count value="35"/>
+			<Velocity0 value="3"/>
+			<Velocity1 value="3.5"/>
+			<Velocity2 value="4"/>
+			<Velocity3 value="4.5"/>
+			<Velocity4 value="5"/>
+			<Velocity5 value="5.5"/>
+			<Velocity6 value="6"/>
+			<Velocity7 value="6.5"/>
+			<Velocity8 value="7"/>
+			<Velocity9 value="7.5"/>
+			<Velocity10 value="8"/>
+			<Velocity11 value="8.5"/>
+			<Velocity12 value="9"/>
+			<Velocity13 value="9.5"/>
+			<Velocity14 value="10"/>
+			<Velocity15 value="10.5"/>
+			<Velocity16 value="11"/>
+			<Velocity17 value="11.5"/>
+			<Velocity18 value="12"/>
+			<Velocity19 value="12.5"/>
+			<Velocity20 value="13"/>
+			<Velocity21 value="13.5"/>
+			<Velocity22 value="14"/>
+			<Velocity23 value="14.5"/>
+			<Velocity24 value="15"/>
+			<Velocity25 value="15.5"/>
+			<Velocity26 value="16"/>
+			<Velocity27 value="16.5"/>
+			<Velocity28 value="17"/>
+			<Velocity29 value="17.5"/>
+			<Velocity30 value="18"/>
+			<Velocity31 value="18.5"/>
+			<Velocity32 value="19"/>
+			<Velocity33 value="19.5"/>
+			<Velocity34 value="20"/>
+		</Velocities>
+		<AirDensities>
+			<Count value="1"/>
+			<Rho0 value="1.225"/>
+		</AirDensities>
+		<Values>
+			<Columns value="1"/>
+			<Rho1.225000>
+				<Rows value="35"/>
+				<v0-0 value="0.911"/>
+				<v0-1 value="0.896"/>
+				<v0-2 value="0.897"/>
+				<v0-3 value="0.875"/>
+				<v0-4 value="0.871"/>
+				<v0-5 value="0.856"/>
+				<v0-6 value="0.855"/>
+				<v0-7 value="0.854"/>
+				<v0-8 value="0.843"/>
+				<v0-9 value="0.798"/>
+				<v0-10 value="0.758"/>
+				<v0-11 value="0.721"/>
+				<v0-12 value="0.685"/>
+				<v0-13 value="0.649"/>
+				<v0-14 value="0.513"/>
+				<v0-15 value="0.425"/>
+				<v0-16 value="0.361"/>
+				<v0-17 value="0.311"/>
+				<v0-18 value="0.271"/>
+				<v0-19 value="0.238"/>
+				<v0-20 value="0.211"/>
+				<v0-21 value="0.188"/>
+				<v0-22 value="0.168"/>
+				<v0-23 value="0.152"/>
+				<v0-24 value="0.137"/>
+				<v0-25 value="0.125"/>
+				<v0-26 value="0.114"/>
+				<v0-27 value="0.105"/>
+				<v0-28 value="0.096"/>
+				<v0-29 value="0.089"/>
+				<v0-30 value="0.082"/>
+				<v0-31 value="0.076"/>
+				<v0-32 value="0.071"/>
+				<v0-33 value="0.066"/>
+				<v0-34 value="0.062"/>
+			</Rho1.225000>
+		</Values>
+	</Thrust_Table>
+	<RPM_Table>
+		<Type>TurbineTable</Type>
+		<TI_min value="0"/>
+		<TI_max value="60"/>
+		<Velocities>
+			<Count value="26"/>
+			<Velocity0 value="0"/>
+			<Velocity1 value="1"/>
+			<Velocity2 value="2"/>
+			<Velocity3 value="3"/>
+			<Velocity4 value="4"/>
+			<Velocity5 value="5"/>
+			<Velocity6 value="6"/>
+			<Velocity7 value="7"/>
+			<Velocity8 value="8"/>
+			<Velocity9 value="9"/>
+			<Velocity10 value="10"/>
+			<Velocity11 value="11"/>
+			<Velocity12 value="12"/>
+			<Velocity13 value="13"/>
+			<Velocity14 value="14"/>
+			<Velocity15 value="15"/>
+			<Velocity16 value="16"/>
+			<Velocity17 value="17"/>
+			<Velocity18 value="18"/>
+			<Velocity19 value="19"/>
+			<Velocity20 value="20"/>
+			<Velocity21 value="21"/>
+			<Velocity22 value="22"/>
+			<Velocity23 value="23"/>
+			<Velocity24 value="24"/>
+			<Velocity25 value="25"/>
+		</Velocities>
+		<AirDensities>
+			<Count value="1"/>
+			<Rho0 value="1.225"/>
+		</AirDensities>
+		<Values>
+			<Columns value="1"/>
+			<Rho1.225000>
+				<Rows value="26"/>
+				<v0-0 value="0"/>
+				<v0-1 value="0"/>
+				<v0-2 value="0"/>
+				<v0-3 value="6.972"/>
+				<v0-4 value="7.183"/>
+				<v0-5 value="7.506"/>
+				<v0-6 value="7.942"/>
+				<v0-7 value="8.469"/>
+				<v0-8 value="9.156"/>
+				<v0-9 value="10.296"/>
+				<v0-10 value="11.431"/>
+				<v0-11 value="11.89"/>
+				<v0-12 value="12.1"/>
+				<v0-13 value="12.1"/>
+				<v0-14 value="12.1"/>
+				<v0-15 value="12.1"/>
+				<v0-16 value="12.1"/>
+				<v0-17 value="12.1"/>
+				<v0-18 value="12.1"/>
+				<v0-19 value="12.1"/>
+				<v0-20 value="12.1"/>
+				<v0-21 value="12.1"/>
+				<v0-22 value="12.1"/>
+				<v0-23 value="12.1"/>
+				<v0-24 value="12.1"/>
+				<v0-25 value="12.1"/>
+			</Rho1.225000>
+		</Values>
+	</RPM_Table>
+	<TotalCost value="2000000"/>
+	<FoundationCost value="100000"/>
+	<PeriodicCosts>
+		<Count value="2"/>
+		<PeriodicCost0>
+			<Type>PeriodicCost</Type>
+			<Component>Drive Train</Component>
+			<Cost value="300000"/>
+			<PeriodYears value="7"/>
+			<CostVariable value="0"/>
+			<PeriodVariable value="0"/>
+			<IsVariablePeriod value="0"/>
+			<IsVariableCost value="0"/>
+			<CostExponent value="1"/>
+			<PeriodExponent value="1"/>
+			<CostFactor value="1"/>
+			<PeriodFactor value="1"/>
+		</PeriodicCost0>
+		<PeriodicCost1>
+			<Type>PeriodicCost</Type>
+			<Component>Blades</Component>
+			<Cost value="200000"/>
+			<PeriodYears value="15"/>
+			<CostVariable value="0"/>
+			<PeriodVariable value="0"/>
+			<IsVariablePeriod value="0"/>
+			<IsVariableCost value="0"/>
+			<CostExponent value="1"/>
+			<PeriodExponent value="1"/>
+			<CostFactor value="1"/>
+			<PeriodFactor value="1"/>
+		</PeriodicCost1>
+	</PeriodicCosts>
+	<TotalNoise value="100"/>
+	<TonalNoise value="100"/>
+	<Noise63hz value="0"/>
+	<Noise125hz value="0"/>
+	<Noise250hz value="0"/>
+	<Noise500hz value="0"/>
+	<Noise1000hz value="0"/>
+	<Noise2000hz value="0"/>
+	<Noise4000hz value="0"/>
+	<Noise8000hz value="0"/>
+</N5REPL>
