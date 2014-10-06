@@ -163,15 +163,15 @@ class OWACcomp(Component):
         for op in ops:
             optype = op.find('Type').get('value')
             
-            sys.stderr.write('\n*** WARNING: start_once will be set to False because Replace Turbine\n')
-            sys.stderr.write('         operation is present in {:}\n\n'.format(self.script_file))
-            self.start_once = False
-                
             if optype == 'Optimize' or optype == 'Optimise':
                 foundOpt = True
                 break
             if optype == 'Replace Turbine Type':
                 self.replace_turbine = True
+                sys.stderr.write('\n*** WARNING: start_once will be set to False because Replace Turbine\n')
+                sys.stderr.write('         operation is present in {:}\n\n'.format(self.script_file))
+                self.start_once = False
+                
         if not foundOpt:
             sys.stderr.write('\n*** ERROR: no Optimize operation found in {:}\n\n'.format(self.script_file))
             return False

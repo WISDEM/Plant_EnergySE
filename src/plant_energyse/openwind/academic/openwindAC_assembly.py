@@ -29,6 +29,8 @@ import subprocess
 from lxml import etree
 import numpy as np
 
+import owAcademicUtils as acutils
+
 from openmdao.main.api import Component, Assembly, VariableTree
 from openmdao.main.api import set_as_top
 from openmdao.lib.datatypes.api import Float, Array, Int, VarTree
@@ -228,7 +230,8 @@ class openwindAC_assembly(Assembly): # todo: has to be assembly or manipulation 
         #sys.stderr.write('\n*** WARNING: initializing turbine from {:} - why??\n\n'.format(owtg_file))
         #trb = turbfuncs.owtg_to_wtpc(owtg_file)
         
-        sys.stderr.write('\n*** WARNING: initializing turbine from ExtendedWindTurbinePowerCurveVT\n\n')
+        if self.debug:
+            sys.stderr.write('\n*** WARNING: initializing turbine from ExtendedWindTurbinePowerCurveVT\n\n')
         trb = ExtendedWindTurbinePowerCurveVT()
         #trb.power_rating = 1000000.0 # watts!
         trb.power_rating = self.machine_rating
@@ -394,6 +397,10 @@ def example(owExe):
         sys.stderr.write('OpenWind executable file "{:}" not found\n'.format(owExe))
         exit()
 
+    # set the external optimiser flag to True so that we can use our optimizing routines
+    
+    acutils.owIniSet(owExe, extVal=True, debug=True)
+    
     testPath = '../templates/'
     #workbook_path = testPath + 'VA_test.blb'
     workbook_path = testPath + 'owTestWkbkExtend.blb'
