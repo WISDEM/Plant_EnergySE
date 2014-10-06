@@ -27,10 +27,12 @@ class aep_assembly(Assembly):
     other_losses = Float(0.0, iotype='in', desc='energy losses due to blade soiling, electrical, etc')
     availability = Float(0.94, iotype='in', desc='average annual availbility of wind turbines at plant')
     turbine_number = Int(100, iotype='in', desc='total number of wind turbines at the plant')
+    machine_rating = Float(5000.0, iotype='in', desc='machine rating of turbine')
 
     # outputs
     gross_aep = Float(iotype='out', desc='Gross Annual Energy Production before availability and loss impacts', units='kW*h')
     net_aep = Float(iotype='out', desc='Net Annual Energy Production after availability and loss impacts', units='kW*h')
+    capacity_factor = Float(iotype='out', desc='plant capacity factor')
 
     def configure(self):
 
@@ -50,6 +52,7 @@ class aep_assembly(Assembly):
         # outputs
         self.connect('aep.gross_aep', 'gross_aep')
         self.connect('aep.net_aep', 'net_aep')
+        self.connect('aep.capacity_factor','capacity_factor')
 
 @implement_base(BaseAEPAggregator)
 class BasicAEP(Component):
@@ -62,10 +65,12 @@ class BasicAEP(Component):
     other_losses = Float(0.0, iotype='in', desc='energy losses due to blade soiling, electrical, etc')
     availability = Float(0.94, iotype='in', desc='average annual availbility of wind turbines at plant')
     turbine_number = Int(100, iotype='in', desc='total number of wind turbines at the plant')
+    machine_rating = Float(5000.0, iotype='in', desc='machine rating of turbine')
 
     # outputs
     gross_aep = Float(iotype='out', desc='Gross Annual Energy Production before availability and loss impacts', units='kW*h')
     net_aep = Float(iotype='out', desc='Net Annual Energy Production after availability and loss impacts', units='kW*h')
+    capacity_factor = Float(iotype='out', desc='plant capacity factor')
     
     def __init__(self):
         
@@ -77,6 +82,7 @@ class BasicAEP(Component):
 
         self.gross_aep = self.turbine_number * self.AEP_one_turbine
         self.net_aep = self.availability * (1-self.array_losses) * (1-self.other_losses) * self.gross_aep
+        self.capacity_factor = self.AEP_one_turbine / (8760. * self.machine_rating)
 
     def list_deriv_vars(self):
 
