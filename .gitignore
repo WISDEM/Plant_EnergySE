@@ -100,7 +100,7 @@ Thumbs.db
 notifyML.txt
 notifyOW.txt
 *.txt
-*.blb
+#*.blb - commented out so that openwind/templates/*blb are included
 
 # Other files that don't belong in git #
 
