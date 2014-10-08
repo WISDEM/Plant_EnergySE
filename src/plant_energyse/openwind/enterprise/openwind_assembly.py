@@ -137,7 +137,7 @@ class openwind_assembly(Assembly): # todo: has to be assembly or manipulation an
         
         # Inputs to OWwrapped
         
-        self.connect('rotor_diameter', 'ow.rotor_diameter') # todo: hack to force external code execution
+        #self.connect('rotor_diameter', 'ow.rotor_diameter') # todo: hack to force external code execution
         self.connect('other_losses', 'ow.other_losses')
         self.connect('availability', 'ow.availability')
         

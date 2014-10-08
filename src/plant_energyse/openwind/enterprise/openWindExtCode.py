@@ -27,7 +27,7 @@ class OWwrapped(ExternalCode):
            scriptFile (str): path to XML script that OpenWind will run
     """
 
-    rotor_diameter = Float(126.0, iotype='in', units='m', desc='connecting rotor diameter to force run on change') # todo: hack for now
+    #rotor_diameter = Float(126.0, iotype='in', units='m', desc='connecting rotor diameter to force run on change') # todo: hack for now
     availability = Float(0.95, iotype='in', desc='availability')
     other_losses = Float(0.0, iotype='in', desc='soiling losses')
     

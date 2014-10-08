@@ -5,8 +5,7 @@ Plant_EnergySE
 
     Wind plant energy production models.
 
-    Author: `Katherine Dykes <mailto:katherine.dykes@nrel.gov>`_
-            `George Scott <mailto:george.scott@nrel.gov>`_
+    Author: `K. Dykes and G. Scott <mailto:nrel.wisdem+plantenergyse@gmail.com>`_
 
     .. rubric:: Table of Contents
 
