@@ -112,6 +112,7 @@ notifyOW.txt
 *.shp
 *.dbf
 *.shx
+*.ini
 
 tmp.*
 
