@@ -20,6 +20,8 @@
 import sys, os, time
 import numpy as np
 
+# new comment - can be deleted
+
 # Use watchdog from the OpenMDAO environment
 #   (usually, $VIRTUAL_ENV is '/d/SystemsEngr/openmdao-0.10.1' or similar)
 vepath = os.environ.get('VIRTUAL_ENV')
