@@ -1,42 +1,7 @@
 .. _documentation-label:
 
-.. currentmodule:: plant_energyse.basic_aep.basic_aep
-
 Documentation
 -------------
-
-Documentation for Basic_AEP
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The following inputs and outputs are defined for Basic_AEP:
-
-.. literalinclude:: ../src/plant_energyse/basic_aep/basic_aep.py
-    :language: python
-    :start-after: aep_assembly(Assembly)
-    :end-before: def configure(self)
-    :prepend: class aep_assembly(Assembly):
-
-Referenced Energy Production Modules
-===========================================
-.. module:: plant_energyse.basic_aep.basic_aep
-.. class:: BasicAEP
-.. class:: aep_assembly
-.. class:: aep_weibull_assembly
-
-Referenced Supporting Modules
-==============================
-.. class:: CDFBase
-.. class:: WeibullCDF
-.. class:: RayleighCDF 
-.. class:: aep_component
-
-Referenced Utilities
-=================================================
-.. module:: commonse.utilities
-.. class:: hstack
-.. class:: vstack
-
-
 
 .. currentmodule:: plant_energyse.nrel_csm_aep.nrel.csm.aep
 

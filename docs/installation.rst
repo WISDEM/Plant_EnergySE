@@ -29,7 +29,6 @@ To check if installation was successful try to import the module from within an 
 
 .. code-block:: python
 
-	> import plant_energyse.basic_aep.basic_aep
 	> import plant_energyse.nrel_csm_aep.nrel_csm_aep
 	> import plant_energyse.openwind.enterprise.openWindExtCode
 	> import plant_energyse.openwind.enterprise.openwind_assembly
