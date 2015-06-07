@@ -14,18 +14,18 @@ from openmdao.main.datatypes.api import Int, Bool, Float, Array, VarTree, Instan
 class aero_csm_component(Component): 
     
     # Variables
-    machine_rating = Float(5000.0, units = 'kW', iotype='in', desc= 'rated machine power in kW')
-    max_tip_speed = Float(80.0, units = 'm/s', iotype='in', desc= 'maximum allowable tip speed for the rotor')
-    rotor_diameter = Float(126.0, units = 'm', iotype='in', desc= 'rotor diameter of the machine') 
-    max_power_coefficient = Float(0.488, iotype='in', desc= 'maximum power coefficient of rotor for operation in region 2')
-    opt_tsr = Float(7.525, iotype='in', desc= 'optimum tip speed ratio for operation in region 2')
-    cut_in_wind_speed = Float(3.0, units = 'm/s', iotype='in', desc= 'cut in wind speed for the wind turbine')
-    cut_out_wind_speed = Float(25.0, units = 'm/s', iotype='in', desc= 'cut out wind speed for the wind turbine')
-    hub_height = Float(90.0, units = 'm', iotype='in', desc= 'hub height of wind turbine above ground / sea level')
-    altitude = Float(0.0, units = 'm', iotype='in', desc= 'altitude of wind plant')
-    air_density = Float(0.0, units = 'kg / (m * m * m)', iotype='in', desc= 'air density at wind plant site')  # default air density value is 0.0 - forces aero csm to calculate air density in model
-    max_efficiency = Float(0.902, iotype='in', desc = 'maximum efficiency of rotor and drivetrain - at rated power') 
-    thrust_coefficient = Float(0.50, iotype='in', desc='thrust coefficient at rated power')
+    machine_rating = Float(units = 'kW', iotype='in', desc= 'rated machine power in kW')
+    max_tip_speed = Float(units = 'm/s', iotype='in', desc= 'maximum allowable tip speed for the rotor')
+    rotor_diameter = Float(units = 'm', iotype='in', desc= 'rotor diameter of the machine') 
+    max_power_coefficient = Float(iotype='in', desc= 'maximum power coefficient of rotor for operation in region 2')
+    opt_tsr = Float(iotype='in', desc= 'optimum tip speed ratio for operation in region 2')
+    cut_in_wind_speed = Float(units = 'm/s', iotype='in', desc= 'cut in wind speed for the wind turbine')
+    cut_out_wind_speed = Float(units = 'm/s', iotype='in', desc= 'cut out wind speed for the wind turbine')
+    hub_height = Float(units = 'm', iotype='in', desc= 'hub height of wind turbine above ground / sea level')
+    altitude = Float(units = 'm', iotype='in', desc= 'altitude of wind plant')
+    air_density = Float(units = 'kg / (m * m * m)', iotype='in', desc= 'air density at wind plant site')  # default air density value is 0.0 - forces aero csm to calculate air density in model
+    max_efficiency = Float(iotype='in', desc = 'maximum efficiency of rotor and drivetrain - at rated power') 
+    thrust_coefficient = Float(iotype='in', desc='thrust coefficient at rated power')
 
     # Outputs
     rated_wind_speed = Float(units = 'm / s', iotype='out', desc='wind speed for rated power')
@@ -68,10 +68,10 @@ class aero_csm_component(Component):
             lapse_rate = 0.0065  # temp lapse rate in K/m
             ssl_temp   = 288.15  # std sea-level temp in K
         
-            self.airDensity = (ssl_pa * (1-((lapse_rate*(self.altitude + self.hubHt))/ssl_temp))**(gravity/(lapse_rate*gas_const))) / \
+            air_density = (ssl_pa * (1-((lapse_rate*(self.altitude + self.hubHt))/ssl_temp))**(gravity/(lapse_rate*gas_const))) / \
               (gas_const*(ssl_temp-lapse_rate*(self.altitude + self.hubHt)))
         else:
-            self.airDensity = airDensity
+        		air_density = self.air_density
 
         # determine power curve inputs
         self.reg2pt5slope  = 0.05
@@ -87,7 +87,7 @@ class aero_csm_component(Component):
         self.ratedRPM = (30./pi) * self.omegaM
         
         # compute variable-speed torque constant k
-        kTorque = (self.airDensity*pi*self.rotorDiam**5*self.maxCp)/(64*self.maxTipSpdRatio**3) # k
+        kTorque = (air_density*pi*self.rotorDiam**5*self.maxCp)/(64*self.maxTipSpdRatio**3) # k
         
         b = -Tm/(self.omegaM-omega0)                       # b - quadratic formula values to determine omegaT
         c = (Tm*omega0)/(self.omegaM-omega0)               # c
@@ -108,7 +108,7 @@ class aero_csm_component(Component):
            pwrOmegaT = self.ratedPower
 
         # compute rated wind speed
-        d = self.airDensity*np.pi*self.rotorDiam**2.*0.25*self.maxCp
+        d = air_density*np.pi*self.rotorDiam**2.*0.25*self.maxCp
         self.ratedWindSpeed = \
            0.33*( (2.*self.ratedHubPower*1000.      / (    d))**(1./3.) ) + \
            0.67*( (((self.ratedHubPower-pwrOmegaT)*1000.) / (1.5*d*windOmegaT**2.))  + windOmegaT )
@@ -146,7 +146,7 @@ class aero_csm_component(Component):
 
         # compute turbine load outputs
         self.rotor_torque = self.ratedHubPower/(self.ratedRPM*(pi/30.))*1000.
-        self.rotor_thrust  = self.airDensity * self.thrust_coefficient * pi * self.rotor_diameter**2 * (self.ratedWindSpeed**2) / 8.
+        self.rotor_thrust  = air_density * self.thrust_coefficient * pi * self.rotor_diameter**2 * (self.ratedWindSpeed**2) / 8.
 
     def idealPowerCurve( self, Wind, ITP, kTorque, windOmegaT, pwrOmegaT, n , omegaTflag):
         """
@@ -175,7 +175,20 @@ class aero_csm_component(Component):
 def example():
   
     aerotest = aero_csm_component()
-    
+
+    aerotest.machine_rating = 5000.0 #Float(units = 'kW', iotype='in', desc= 'rated machine power in kW')
+    aerotest.max_tip_speed = 80.0 #Float(units = 'm/s', iotype='in', desc= 'maximum allowable tip speed for the rotor')
+    aerotest.rotor_diameter = 126.0 #Float(units = 'm', iotype='in', desc= 'rotor diameter of the machine') 
+    aerotest.max_power_coefficient = 0.49 #Float(iotype='in', desc= 'maximum power coefficient of rotor for operation in region 2')
+    aerotest.opt_tsr = 7.525 #Float(iotype='in', desc= 'optimum tip speed ratio for operation in region 2')
+    aerotest.cut_in_wind_speed = 3.0 #Float(units = 'm/s', iotype='in', desc= 'cut in wind speed for the wind turbine')
+    aerotest.cut_out_wind_speed = 25.0 #Float(units = 'm/s', iotype='in', desc= 'cut out wind speed for the wind turbine')
+    aerotest.hub_height = 90.0 #Float(units = 'm', iotype='in', desc= 'hub height of wind turbine above ground / sea level')
+    aerotest.altitude = 0.0 #Float(units = 'm', iotype='in', desc= 'altitude of wind plant')
+    aerotest.air_density = 1.225 #Float(units = 'kg / (m * m * m)', iotype='in', desc= 'air density at wind plant site')  # default air density value is 0.0 - forces aero csm to calculate air density in model
+    aerotest.max_efficiency = 0.902 #Float(iotype='in', desc = 'maximum efficiency of rotor and drivetrain - at rated power') 
+    aerotest.thrust_coefficient = 0.5 #Float(iotype='in', desc='thrust coefficient at rated power')
+
     # Test for NREL 5 MW turbine
     aerotest.run()
     
