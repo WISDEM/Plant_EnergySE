@@ -17,7 +17,7 @@ kwargs = {'author': 'Katherine Dykes and George Scott',
  'name': 'Plant_EnergySE',
  'package_data': {'Plant_EnergySE': []},
  'package_dir': {'': 'src'},
- 'packages': ['test','plant_energyse.basic_aep', 'plant_energyse.nrel_csm_aep', 'plant_energyse.openwind', 'plant_energyse.openwind.enterprise', 'plant_energyse.openwind.academic'],
+ 'packages': ['test','plant_energyse.nrel_csm_aep', 'plant_energyse.openwind', 'plant_energyse.openwind.enterprise', 'plant_energyse.openwind.academic'],
  'zip_safe': False}
 
 
