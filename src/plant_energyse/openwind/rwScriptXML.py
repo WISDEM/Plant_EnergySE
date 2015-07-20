@@ -10,12 +10,14 @@
    2014 07 16: added 'Iterations' to Optimize operation
    2014 09 23: added some error checking
    2014 10 01: rdScript return dictionary now includes operations
-     
+   2014 11 03: added makeRepTurbPos() for replace turbine positions operation
+   
    USAGE:
     import rwScriptXML
     scripttree, ops = rwScriptXML.newScriptTree(rpath)
     rwScriptXML.makeChWkbkOp(ops,blbpath)       # change workbook
     rwScriptXML.makeRepTurbOp(ops,tname,tpath) # replace turbine
+    rwScriptXML.makeRepTurbPos(ops,sname,tppath) # replace turbine positions
     rwScriptXML.makeEnCapOp(ops, wm = "DAWM Eddy-Viscosity" ) # energy capture
     rwScriptXML.makeOptimiseOp(ops [,nIter=NN]) # optimize for energy
     rwScriptXML.makeOptimizeOp(ops [,nIter=NN]) # alternate spelling
@@ -76,6 +78,8 @@ def rdScript(fname, debug=False):
           turbname
           replturbname
           replturbpath
+          repltpsite
+          repltpospath
           operations
     '''
     
@@ -118,6 +122,16 @@ def rdScript(fname, debug=False):
                 dscript['replturbname'] = tname
                 dscript['replturbpath'] = tpath
                 arg = tname + ' --> ' + tpath
+            if optype == "Replace Turbine Positions":
+                sname = atype.find('SiteName').get('value')
+                tppath = atype.find('TurbinePosPath').get('value')
+                dscript['repltpsite'] = sname
+                dscript['repltpospath'] = tppath
+                arg = sname + ' --> ' + tppath
+            if optype == "Optimise":
+                nopt = atype.find('Iterations').get('value')
+                if nopt is not None:
+                    arg = nopt
             if optype == "Optimize":
                 sys.stderr.write("\n*** WARNING: OpenWind prefers 'Optimise' to 'Optimize\n")
                 sys.stderr.write('  Please rename your operation\n\n')
@@ -189,6 +203,16 @@ def makeRepTurbOp(parent,tname,tpath):
     opv = etree.SubElement(op, 'Type', value='Replace Turbine Type')
     opv = etree.SubElement(op, 'TurbineName',  value=tname)
     opv = etree.SubElement(op, 'TurbinePath',  value=tpath)
+
+#---------------------------------------------------
+
+def makeRepTurbPos(parent,sname,tppath):
+    ''' adds 'Replace Turbine Position' operation to parent '''
+
+    op = etree.SubElement(parent, 'Operation')
+    opv = etree.SubElement(op, 'Type', value='Replace Turbine Positions')
+    opv = etree.SubElement(op, 'SiteName',  value=sname)
+    opv = etree.SubElement(op, 'TurbinePosPath',  value=tppath)
 
 #---------------------------------------------------
 
@@ -323,17 +347,6 @@ def main():
     scriptFile = 'testOWScript.xml'
     wrtScript(scripttree, scriptFile, addCols=True)
     
-    ## export script as text string
-    #
-    #scriptXML = etree.tostring(scripttree, 
-    #                           xml_declaration=True, 
-    #                           doctype='<!DOCTYPE OpenWindScript>',
-    #                           pretty_print=True)
-    #
-    #scriptFile = 'testOWScript.xml'
-    #ofh = open(scriptFile, 'w')
-    #ofh.write(scriptXML)
-    #ofh.close()
     
     # Read it back
     

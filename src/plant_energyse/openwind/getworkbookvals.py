@@ -105,11 +105,18 @@ def getEC(workbook, owexe, delFiles=True):
           
 if __name__ == "__main__":
 
+    # insert your own correct values for workbook and owexe
+    
     workbook = 'C:/SystemsEngr/Test/VA_test.blb'
+    workbook = 'D:/SystemsEngr/Test/VA_test.blb'
     owexe = 'C:/rassess/OpenWind/Openwind64.exe'
-    xy = getTurbPos(workbook, owexe)
+    owexe = 'D:/rassess/OpenWind/Openwind64.exe'
+    
+    print 'Testing getTurbPos()'
+    xy, ttypes = getTurbPos(workbook, owexe)
     for i in range(len(xy)):
-        print '{:2d} {:.1f} {:.1f}'.format(i, xy[i][0], xy[i][1])
+        print '  {:2d} {:.1f} {:.1f} {:}'.format(i, xy[i][0], xy[i][1], ttypes[i])
         
+    print 'Testing getEC()'
     gross_aep, array_aep, net_aep = getEC(workbook, owexe)
-    print 'Gross {:.4f} Net {:.4f}'.format(gross_aep, net_aep)
+    print '  Gross {:.4f} Net {:.4f}'.format(gross_aep, net_aep)

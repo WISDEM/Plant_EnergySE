@@ -15,21 +15,23 @@
     - class WTWkbkFile(object)  - read turbine positions from OpenWind workbook
     
     2014 10 01 : added owIniSet()
+    
+    2015 05 22 : watchdog is no longer part of the OpenMDAO distribution so you'll
+      need to install it separately
+      
 '''
 
 import sys, os, time
 import numpy as np
 
-# new comment - can be deleted
-
 # Use watchdog from the OpenMDAO environment
 #   (usually, $VIRTUAL_ENV is '/d/SystemsEngr/openmdao-0.10.1' or similar)
 vepath = os.environ.get('VIRTUAL_ENV')
-sys.path.append(vepath + '/Lib/site-packages/pathtools-0.1.2-py2.7.egg')
-sys.path.append(vepath + '/Lib/site-packages/watchdog-0.6.0-py2.7.egg')
-
-#sys.path.append('D:/SystemsEngr/openmdao-0.9.3/Lib/site-packages/pathtools-0.1.2-py2.7.egg')
-#sys.path.append('D:/SystemsEngr/openmdao-0.9.3/Lib/site-packages/watchdog-0.6.0-py2.7.egg')
+if vepath is None:
+    sys.stderr.write('\n*** ERROR : environment vbl VIRTUAL_ENV not set\n')
+    sys.stderr.write(  '***         Do you need to start OpenMDAO?\n\n')
+    exit()
+    
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -94,7 +96,7 @@ class MyNotifyMLHandler(FileSystemEventHandler):
                 return None
         else:
             if self.debug:
-                #sys.stderr.write('Ignoring change to {:}\n'.format(event.src_path))
+                sys.stderr.write('Ignoring change to {:}\n'.format(event.src_path))
                 pass    
         
         return None     
@@ -354,11 +356,11 @@ def owIniSet(owExe, extVal=None, oname=None, debug=False):
     # no change - return current value        
     if eoVal == 'No' and extVal == False:
         if debug:
-            sys.stderr.write('owIniSet(): no change to ExternalOptimiser == {:}\n'.format(eoVal))
+            sys.stderr.write('owIniSet(): no change to "ExternalOptimiser == {:}"\n'.format(eoVal))
         return False
     if eoVal == 'Yes' and extVal == True:
         if debug:
-            sys.stderr.write('owIniSet(): no change to ExternalOptimiser == {:}\n'.format(eoVal))
+            sys.stderr.write('owIniSet(): no change to "ExternalOptimiser == {:}"\n'.format(eoVal))
         return True
     
     if oname is None:
@@ -418,5 +420,5 @@ def main():
 #---------------------------------------------------
 
 if __name__ == "__main__":
-
+    
     main()

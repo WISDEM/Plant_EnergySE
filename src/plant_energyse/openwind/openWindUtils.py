@@ -13,6 +13,10 @@
    2014 09 26 : rdReport() - skip turbines with zero output
    2014 09 29:  owWindTurbine() - added 'ttype' field
    
+   2015 04 08: changed parsing of header line (added getValue())
+     somewhere in the last few OpenWind updates, Nick changed the units
+     on Array Efficiency and TI from '%%' to '%'
+   
 '''
 
 import sys, os
@@ -191,25 +195,29 @@ def rdReport(rptpath, debug=False):
             if len(f) < len(ival):
                 break # end of turbine lines
                 
-            try:
-                grossKWh = float(f[ivDict['Gross [kWh]']])
-            except:
-                sys.stderr.write("Couldn't find gross in line:\n  {:}\n".format(line))
-            try:
-                netKWh = float(f[ivDict['Net [kWh]']])
-            except:
-                sys.stderr.write("Couldn't find net   in line:\n  {:}\n".format(line))
-            try:
-                aEff = float(f[ivDict['Array Efficiency [%%]']])
-            except:
-                sys.stderr.write("Couldn't find array in line:\n  {:}\n".format(line))
+            #try:
+            #    grossKWh = float(f[ivDict['Gross [kWh]']])
+            #except:
+            #    sys.stderr.write("Couldn't find 'Gross [kWh]' (field {:}) in line:\n  {:}\n".format(ivDict['Gross [kWh]'], line))
+            #try:
+            #    netKWh = float(f[ivDict['Net [kWh]']])
+            #except:
+            #    sys.stderr.write("Couldn't find 'Net [kWh]' (field {:}) in line:\n  {:}\n".format('Net [kWh]', line))
+            #try:
+            #    aEff = float(f[ivDict['Array Efficiency [%%]']])
+            #except:
+            #    sys.stderr.write("Couldn't find 'Array Efficiency [%%]' (field {:}) in line:\n  {:}\n".format('Array Efficiency [%%]', line))
             
-            if grossKWh <= 0.0: # skip inactive turbines or those in deactivated layouts
+            grossKWh = getValue(f, ivDict, 'Gross [kWh]', line)
+            netKWh = getValue(f, ivDict, 'Net [kWh]', line)
+            aEff = getValue(f, ivDict, 'Array Efficiency [%]', line)
+            
+            if grossKWh is None or grossKWh <= 0.0: # skip inactive turbines or those in deactivated layouts
                 continue
                     
-            arrayKWh = 0.01*aEff*grossKWh
             aGross.append(grossKWh)
             aNet.append(netKWh)
+            arrayKWh = 0.01*aEff*grossKWh
             aArray.append(arrayKWh)
             #print '{:.2f} {:.2f} {:.2f} {:.2f} '.format(grossKWh, netKWh, arrayKWh, aEff)
             
@@ -249,4 +257,22 @@ def rdReport(rptpath, debug=False):
            
 # -------------------
 
+def getValue(f, ivDict, vname, line):
+    '''
+    Get the floating-point value associated with 'vname'
+      f = line.split()
+    2015 04 08
+    '''
+    if not vname in ivDict:
+        sys.stderr.write('\n*** ERROR: variable "{:}" not found in ivDict\n'.format(vname))
+        return None
+        
+    ivd = ivDict[vname]
+    try:
+        value = float(f[ivd])
+        return value
+    except:
+        sys.stderr.write("Couldn't find '{:}' (field {:}) in line:\n  {:}\n".format(vname, ivd, line))
+    return None
+    
 # function rdOWTG replaced with getTurbParams in rwTurbXML.py : 2014 03 31

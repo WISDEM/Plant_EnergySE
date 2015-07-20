@@ -5,6 +5,7 @@
     2013 06 07: GNS - revisions
     2014 03 26: GNS - revisions to example: paths, etc.
     2014 05 01: GNS - nTurbs replaced with turbine_number
+    2015 05 26: GNS - added -acad option for testing
     
     Requires
     --------
@@ -77,8 +78,8 @@ class openwind_assembly(Assembly): # todo: has to be assembly or manipulation an
 
     # -------------------
     
-    def __init__(self, openwind_executable, workbook_path, turbine_name=None, script_file=None, 
-                 machine_rating=None,
+    def __init__(self, openwind_executable, workbook_path, 
+                 turbine_name=None, script_file=None, machine_rating=None,
                  academic=False, debug=False):
         """ Creates a new LCOE Assembly object """
 
@@ -319,21 +320,24 @@ class openwind_assembly(Assembly): # todo: has to be assembly or manipulation an
 
 def example(owExe='My OW Executable Path'):
 
-    # only use when debugging
-    debug = False 
-    for arg in sys.argv[1:]:
-        if arg == '-debug':
-            debug = True
-        if arg == '-help':
-            sys.stderr.write('USAGE: python openwind_assembly.py [-debug]\n')
-            exit()
-
     # set file inputs from test folder
     test_path = '../templates/'
     workbook_path = test_path + 'owTestWkbkExtend.blb'
     turbine_name = 'NREL 5 MW' # should match default turbine in workbook
     machine_rating = 5000.0    # should match default turbine in workbook
     script_file = test_path + 'ecScript.xml'
+    academic = False
+    
+    # only use when debugging
+    debug = False 
+    for arg in sys.argv[1:]:
+        if arg == '-debug':
+            debug = True
+        if arg.startswith('-acad'):
+            academic = True
+        if arg == '-help':
+            sys.stderr.write('USAGE: python openwind_assembly.py [-debug] [-acad]\n')
+            exit()
 
     if not os.path.isfile(script_file):
         sys.stderr.write('OpenWind script file "{:}" not found\n'.format(script_file))
@@ -344,7 +348,8 @@ def example(owExe='My OW Executable Path'):
         exit()
     
     owAsm = openwind_assembly(owExe, workbook_path, turbine_name=turbine_name, script_file=script_file,
-                              machine_rating = machine_rating,
+                              machine_rating=machine_rating,
+                              academic=academic,
                               debug=debug)
     
     owAsm.updateRptPath('newReport.txt', 'newTestScript.xml')

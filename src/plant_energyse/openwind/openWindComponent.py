@@ -24,7 +24,7 @@
   Typical use (e.g., from an Assembly):
     ow = OWcomp(owExe, scriptFile=scrptName, debug=False, stopOW=True, start_once=False, opt_log=False)
     
-  main() runs OWcomp.execute() 3 times, moving and modifying the turbines each time
+  example() runs OWcomp.execute() 3 times, moving and modifying the turbines each time
   
 '''
 
@@ -457,7 +457,7 @@ def wtlDump(wtl):
 
 def example(owExe):
 
-    debug = False
+    debug = True  # set True so user sees final 'break' message
     start_once = False
     modify_turbine = False
     opt_log = False
