@@ -12,7 +12,7 @@ For detailed documentation see <http://wisdem.github.io/Plant_EnergySE/>
 
 ## Prerequisites
 
-General: NumPy, SciPy, Swig, pyWin32, MatlPlotLib, Lxml, OpenMDAO
+General: NumPy, SciPy, Swig, pyWin32, MatlPlotLib, Lxml, OpenMDAO (v.1.0 or greater)
 
 ## Dependencies
 
@@ -40,12 +40,11 @@ To check if installation was successful try to import the module from within an 
 	$ python
 	> import plant_energyse.basic_aep.basic_aep
 	> import plant_energyse.nrel_csm_aep.nrel_csm_aep
-	> import plant_energyse.openwind.enterprise.openWindExtCode
-	> import plant_energyse.openwind.enterprise.openwind_assembly
-	> import plant_energyse.openwind.academic.openWindAcComponent
-	> import plant_energyse.openwind.academic.openwindAC_assembly
+	> import plant_energyse.openwind.openWindExtCode
+	> import plant_energyse.openwind.openWindAComponent
 
-Note that you must have the enterprise or academic versions and corresponding licesnses for OpenWind in order to use those software packages.  This software contains only the OpenMDAO wrapper for those models.
+Note that you must have the enterprise version and corresponding license for OpenWind in order to use those software packages.  
+This software contains only the OpenMDAO wrapper for those models.
 
 You may also run the unit tests which include functional and gradient tests.  Analytic gradients are provided for variables only so warnings will appear for missing gradients on model input parameters; these can be ignored.
 
