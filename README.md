@@ -1,41 +1,27 @@
+# Plant_EnergySE
+## WARNING- This repository is deprecated
+
 Plant_EnergySE is a set of models for analyzing wind plant energy production for both land-based and offshore wind plants.
 
-Author: [K. Dykes and G. Scott](mailto:nrel.wisdem+plantenergyse@gmail.com)
+Author: [NREL WISDEM Team](mailto:systems.engineering@nrel.gov) 
 
-## Version
+## Documentation
 
-This software is a beta version 0.1.0.
-
-## Detailed Documentation
-
-For detailed documentation see <http://wisdem.github.io/Plant_EnergySE/>
-
-## Prerequisites
-
-General: NumPy, SciPy, Swig, pyWin32, MatlPlotLib, Lxml, OpenMDAO (v.1.0 or greater)
+See local documentation in the `docs`-directory or access the online version at <http://wisdem.github.io/Plant_EnergySE/>
 
 ## Dependencies
 
-Wind Plant Framework: [FUSED-Wind](http://fusedwind.org) (Framework for Unified Systems Engineering and Design of Wind Plants)
-
-Sub-Models: CommonSE, OpenWind
-
-Supporting python packages: Pandas, Algopy, Zope.interface, Sphinx, Xlrd, PyOpt, py2exe, Pyzmq, Sphinxcontrib-bibtex, Sphinxcontrib-zopeext, Numpydoc, Ipython
+OpenWind
 
 ## Installation
 
-First, clone the [repository](https://github.com/WISDEM/Plant_EnergySE)
-or download the releases and uncompress/unpack (Plant_EnergySE.py-|release|.tar.gz or Plant_EnergySE.py-|release|.zip) from the website link at the bottom the [WISDEM site](http://nwtc.nrel.gov/Plant_EnergySE).
+For detailed installation instructions of WISDEM modules see <https://github.com/WISDEM/WISDEM> or to install Plant_EnergySE by itself do:
 
-Install PLant_EnergySE within an activated OpenMDAO environment:
-
-	$ plugin install
-
-It is not recommended to install the software outside of OpenMDAO.
+    $ python setup.py install
 
 ## Run Unit Tests
 
-To check if installation was successful try to import the module from within an activated OpenMDAO environment:
+To check if installation was successful try to import the package:
 
 	$ python
 	> import plant_energyse.basic_aep.basic_aep
